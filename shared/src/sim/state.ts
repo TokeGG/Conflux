@@ -8,6 +8,23 @@ export interface CastState {
   until: number;
   /** Movement speed multiplier while this cast lasts. */
   move: number;
+  /** When the effect leaves the caster (after the windup). */
+  fireAt?: number;
+  fired?: boolean;
+  /** Where the crosshair points; streams refresh it from the live aim every tick. */
+  aim?: Vec3;
+  /** A stream's next damage tick. */
+  nextTick?: number;
+}
+
+/** A short-lived defensive effect from a self skill. */
+export interface Buff {
+  skillId: string;
+  until: number;
+  /** Damage soaked up before health is touched. */
+  absorb: number;
+  damageTakenMul: number;
+  speedMul: number;
 }
 
 export interface PlayerState {
@@ -23,6 +40,9 @@ export interface PlayerState {
   element: number;
   swapReadyAt: number;
   castState: CastState | null;
+  /** Time each skill is ready again. */
+  cooldowns: Record<string, number>;
+  buff: Buff | null;
 }
 
 export interface EnemyState {
@@ -55,6 +75,15 @@ export interface Zone {
   radius: number;
   until: number;
   ownerId: number;
+  skillId: string;
+  /** Walls turn with yaw; width and height are the wall's face. */
+  yaw: number;
+  width: number;
+  height: number;
+  /** Damage each tick, the tick interval and when the next one lands (0 interval: no damage). */
+  damage: number;
+  tick: number;
+  nextTick: number;
 }
 
 export interface HurtCapsule {

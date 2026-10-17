@@ -28,14 +28,14 @@ export function stateHash(s: HashState): string {
   const parts: string[] = [
     `t${s.tick}`,
     `rng${s.rng.map((w) => w.join('.')).join('/')}`,
-    `p|${vec(p.pos)}|${vec(p.vel)}|${r4(p.facing)}|${r4(p.hp)}|${statuses(p.statuses)}|${r4(p.dodgeUntil)}|${r4(p.invulnUntil)}|${r4(p.dodgeReadyAt)}|${p.element}|${r4(p.swapReadyAt)}|${p.castState ? `${p.castState.skillId}:${r4(p.castState.until)}:${r4(p.castState.move)}` : '-'}`,
+    `p|${vec(p.pos)}|${vec(p.vel)}|${r4(p.facing)}|${r4(p.hp)}|${statuses(p.statuses)}|${r4(p.dodgeUntil)}|${r4(p.invulnUntil)}|${r4(p.dodgeReadyAt)}|${p.element}|${r4(p.swapReadyAt)}|${p.castState ? `${p.castState.skillId}:${r4(p.castState.until)}:${r4(p.castState.move)}:${r4(p.castState.fireAt ?? 0)}:${+!!p.castState.fired}:${r4(p.castState.nextTick ?? 0)}:${p.castState.aim ? vec(p.castState.aim) : '-'}` : '-'}|${rec(p.cooldowns)}|${p.buff ? `${p.buff.skillId}:${r4(p.buff.until)}:${r4(p.buff.absorb)}` : '-'}`,
   ];
   for (const e of s.enemies) {
     const g = e.guard ? `${+e.guard.on}:${r4(e.guard.until)}:${r4(e.guard.staggeredUntil)}` : '-';
     parts.push(`e|${e.id}|${e.def.id}|${vec(e.pos)}|${r4(e.facing)}|${r4(e.hp)}|${statuses(e.statuses)}|${e.aiState}|${g}|${rec(e.cooldowns)}`);
   }
   for (const q of s.projectiles) parts.push(`j|${q.id}|${q.skillId}|${vec(q.pos)}|${vec(q.vel)}|${r4(q.diesAt)}`);
-  for (const z of s.zones) parts.push(`z|${z.id}|${z.kind}|${vec(z.pos)}|${r4(z.radius)}|${r4(z.until)}`);
+  for (const z of s.zones) parts.push(`z|${z.id}|${z.kind}|${vec(z.pos)}|${r4(z.radius)}|${r4(z.until)}|${r4(z.yaw)}|${r4(z.nextTick)}`);
   const text = parts.join('\n');
   return fnv(text, 2166136261).toString(16).padStart(8, '0') + fnv(text, 40503).toString(16).padStart(8, '0');
 }

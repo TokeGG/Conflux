@@ -16,3 +16,5 @@ export * from './patch.ts';
 export * from './layers.ts';
 export * from './aim.ts';
 export * from './sim/player.ts';
+export * from './sim/skills.ts';
+export * from './sim/projectiles.ts';

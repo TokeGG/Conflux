@@ -5,6 +5,7 @@ import { ELEMENTS, type GameData, type Input, type SimEvent } from '../types.ts'
 import { EVENT_TYPES, type SimEventType } from '../events.ts';
 import { stateHash } from './hash.ts';
 import { stepPlayer } from './player.ts';
+import { stepProjectiles, stepZones } from './projectiles.ts';
 import type { EnemyState, PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
 
@@ -40,6 +41,8 @@ export class Sim {
       element: 0,
       swapReadyAt: 0,
       castState: null,
+      cooldowns: {},
+      buff: null,
     };
   }
 
@@ -63,14 +66,23 @@ export class Sim {
   hurtPlayer(amount: number): boolean {
     const p = this.player;
     if (this.time < p.invulnUntil || p.hp <= 0) return false;
-    p.hp = Math.max(0, p.hp - amount);
-    this.emit('hit', { target: 'player', amount });
+    const b = p.buff && this.time < p.buff.until ? p.buff : null;
+    let dmg = amount * (b ? b.damageTakenMul : 1);
+    if (b && b.absorb > 0) {
+      const soaked = Math.min(b.absorb, dmg);
+      b.absorb -= soaked;
+      dmg -= soaked;
+    }
+    p.hp = Math.max(0, p.hp - dmg);
+    this.emit('hit', { target: 'player', amount: dmg });
     return true;
   }
 
   /** Advances one tick and returns the events emitted since the previous step. */
   step(inputs: Input[]): SimEvent[] {
     if (inputs[0]) stepPlayer(this, this.player, inputs[0], TICK);
+    stepProjectiles(this, TICK);
+    stepZones(this);
     const out = this.events;
     this.events = [];
     this.tick++;
