@@ -5,6 +5,8 @@ import { applyProfile, applyTextureFilters, createRenderer } from './renderer/pr
 import { createScene, fitHeight } from './renderer/scene.ts';
 import { buildRoomScene } from './renderer/room.ts';
 import { AssetLoader, fetchManifest } from './assets/loader.ts';
+import { loadPlayer } from './anim/player.ts';
+import type { LocoState } from './anim/locomotion.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
 import { devEnabled } from './dev/access.ts';
@@ -17,7 +19,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void };
   }
 }
 
@@ -38,8 +40,7 @@ async function boot(): Promise<void> {
   const loader = new AssetLoader(await fetchManifest(), DEFAULT_PROFILE);
   const roomGroup = await buildRoomScene(room, loader);
   game.scene.add(roomGroup);
-  const gltf = await loader.loadModel('model.wizardpack');
-  const player = gltf.scene;
+  const { scene: player, rig } = await loadPlayer(loader, data);
   fitHeight(player, 1.8);
   player.position.x += room.spawns.player.x;
   player.position.z += room.spawns.player.z;
@@ -96,6 +97,13 @@ async function boot(): Promise<void> {
       return state.tick;
     },
     room: room.id,
+    /** Lets the browser smoke tests pose the player (the real controls arrive with the M1 integration). */
+    pose: (state, castClip, castW, aimPitch) => rig.play(state, castClip, castW, aimPitch),
+    /** Puts the temporary camera in front of the player so the smoke screenshots show the pose. */
+    frontView() {
+      game.camera.position.set(room.spawns.player.x + 0.8, 1.5, room.spawns.player.z + 3.6);
+      game.camera.lookAt(room.spawns.player.x, 1.0, room.spawns.player.z);
+    },
     pieces: room.pieces.length,
     /** Draws a frame and counts the distinct colours on a coarse grid of it. */
     distinctColours() {
@@ -115,6 +123,7 @@ async function boot(): Promise<void> {
   const clock = new THREE.Clock();
   const frame = () => {
     const dt = clock.getDelta();
+    rig.update(Math.min(dt, 0.1));
     bridge.advance(Math.min(dt, 0.25));
     const pose = perf?.benchmarkPose();
     const saved = pose ? { pos: game.camera.position.clone(), quat: game.camera.quaternion.clone() } : null;

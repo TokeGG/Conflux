@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.19",
+    "date": "2026-10-17",
+    "at": "2026-10-17T21:01:16Z",
+    "notes": [
+      "The player now animates: legs follow movement, casting plays on the upper body, aim tilts the spine."
+    ]
+  },
+  {
     "version": "0.1.18",
     "date": "2026-10-17",
     "at": "2026-10-17T20:57:05Z",

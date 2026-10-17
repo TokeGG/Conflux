@@ -1,0 +1,8 @@
+{
+  "throw": "cast_1h_magic_attack_02",
+  "sweep": "cast_2h_magic_attack_01",
+  "push": "cast_two_hand_spell_casting",
+  "slam": "cast_2h_magic_attack_01",
+  "channel": "cast_magic_spell_casting",
+  "self": "cast_1h_cast_spell_01"
+}

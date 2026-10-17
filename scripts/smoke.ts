@@ -116,6 +116,27 @@ try {
     check(errors.length === 0, `no console errors with the panel${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 5. the player body: standing, running and casting render and animate without errors
+  {
+    const { page, errors } = await open(browser, server.url);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    const pose = (state: string, cast: string | null, w: number, pitch: number) => page.evaluate(([a, b, c, d]) => (window as any).__conflux.pose(a, b, c, d), [state, cast, w, pitch] as const);
+    await page.evaluate(() => (window as any).__conflux.frontView());
+    await pose('idle', null, 0, 0);
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: join(shots, 'player-idle.png') });
+    await pose('run_forward', null, 0, 0);
+    await page.waitForTimeout(700);
+    await page.screenshot({ path: join(shots, 'player-run.png') });
+    await pose('run_forward', 'cast_1h_magic_attack_02', 1, 0.3);
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: join(shots, 'player-cast-run.png') });
+    await pose('idle', 'cast_2h_magic_attack_01', 1, -0.3);
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: join(shots, 'player-cast-idle.png') });
+    check(errors.length === 0, `the player stands, runs and casts without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
 } finally {
   await browser.close();
   server.close();
