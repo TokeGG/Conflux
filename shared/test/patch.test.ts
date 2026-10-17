@@ -159,3 +159,12 @@ test('a version counter changes whenever the layers do', () => {
   layers.setRun([P('player.health', 120)]);
   assert.notEqual(layers.version, v0);
 });
+
+test('patches() lists the effective patches, one per path, run over session', () => {
+  const layers = new DataLayers(defaultData());
+  layers.setSession([P('player.health', 150), P('player.moveSpeed', 8)]);
+  layers.setRun([P('player.health', 200)]);
+  assert.deepEqual(layers.patches(), [P('player.moveSpeed', 8), P('player.health', 200)]);
+  assert.deepEqual(layers.sessionPatches(), [P('player.health', 150), P('player.moveSpeed', 8)]);
+  assert.deepEqual(layers.runPatches(), [P('player.health', 200)]);
+});

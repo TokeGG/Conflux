@@ -34,6 +34,22 @@ export class DataLayers {
     return errors;
   }
 
+  sessionPatches(): DataPatch[] {
+    return [...this.session];
+  }
+
+  runPatches(): DataPatch[] {
+    return [...this.run];
+  }
+
+  /** The effective patches, one per path: session patches that are not overridden, then the run patches. */
+  patches(): DataPatch[] {
+    const last = (list: DataPatch[]) => [...new Map(list.map((p) => [p.path, p])).values()];
+    const run = last(this.run);
+    const overridden = new Set(run.map((p) => p.path));
+    return [...last(this.session).filter((p) => !overridden.has(p.path)), ...run];
+  }
+
   current(): GameData {
     if (!this.cache) this.cache = applyPatches(this.base, [...this.session, ...this.run]).data;
     return this.cache;

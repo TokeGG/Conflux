@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.10",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:41:44Z",
+    "notes": [
+      "Dev panel with a performance page and tuning toolbar."
+    ]
+  },
+  {
     "version": "0.1.9",
     "date": "2026-10-17",
     "at": "2026-10-17T20:35:46Z",

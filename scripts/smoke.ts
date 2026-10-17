@@ -88,6 +88,34 @@ try {
     check(/Web Workers/.test(await page.innerText('#fatal')), 'without Web Workers the page says so');
     await page.close();
   }
+  // 4. the dev panel: absent without ?dev; with ?dev F2 opens it, the performance page samples while open and stops when closed
+  {
+    const { page } = await open(browser, server.url);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    check((await page.locator('#devpanel').count()) === 0, 'there is no dev panel without ?dev');
+    await page.keyboard.press('F2');
+    check((await page.locator('#devpanel').count()) === 0, 'F2 does nothing without ?dev');
+    await page.close();
+  }
+  {
+    const { page, errors } = await open(browser, `${server.url}?dev`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.keyboard.press('F2');
+    await page.waitForSelector('#devpanel', { state: 'visible', timeout: 5000 });
+    check(true, 'F2 opens the dev panel');
+    await page.waitForFunction(() => /\d/.test(document.querySelector('#perf-fps')?.textContent ?? ''), null, { timeout: 8000 });
+    const fps = await page.innerText('#perf-fps');
+    check(true, `the performance page shows a frame rate (${fps.trim()})`);
+    check((await page.evaluate(() => (window as any).__confluxDev.sampling)) === true, 'sampling is on while the page is open');
+    const report: string = await page.evaluate(() => (window as any).__confluxDev.report());
+    check(/GPU: .+/.test(report) && /Draw calls: \d+/.test(report) && /Average: [\d.]+ fps/.test(report), 'the report has the GPU, draw calls and fps');
+    await page.screenshot({ path: join(shots, 'smoke-dev.png') });
+    await page.keyboard.press('F2');
+    await page.waitForSelector('#devpanel', { state: 'hidden', timeout: 5000 });
+    check((await page.evaluate(() => (window as any).__confluxDev.sampling)) === false, 'closing the panel stops the sampling');
+    check(errors.length === 0, `no console errors with the panel${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
 } finally {
   await browser.close();
   server.close();
