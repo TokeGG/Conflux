@@ -127,6 +127,12 @@ export class Sim {
           statuses: list(p.statuses),
           dodging: now < p.dodgeUntil,
           casting: p.castState ? p.castState.skillId : null,
+          slots: SLOTS.map((slot) => {
+            const skillId = p.loadout[ELEMENTS[p.element]][slot];
+            return { slot, skillId, remaining: Math.max(0, (p.cooldowns[skillId] ?? 0) - now), total: this.data.skills[skillId]?.cooldown ?? 0 };
+          }),
+          swapRemaining: Math.max(0, p.swapReadyAt - now),
+          bonusRemaining: Math.max(0, p.swapBonusUntil - now),
         },
       ],
       enemies: this.enemies.map((e) => ({
@@ -139,7 +145,7 @@ export class Sim {
         statuses: list(e.statuses),
         aiState: e.aiState,
         guardOn: !!e.guard?.on,
-        marks: MARK_IDS.filter((id) => (e.marks[id]?.until ?? 0) > now),
+        marks: MARK_IDS.filter((id) => (e.marks[id]?.until ?? 0) > now).map((id) => ({ id, remaining: e.marks[id]!.until - now })),
       })),
       projectiles: this.projectiles.map((q) => ({ id: q.id, pos: { ...q.pos }, skillId: q.skillId })),
       zones: this.zones.map((z) => ({ id: z.id, kind: z.kind, pos: { ...z.pos }, radius: z.radius, remaining: Math.max(0, z.until - now) })),

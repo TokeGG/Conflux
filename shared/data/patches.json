@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.21",
+    "date": "2026-10-17",
+    "at": "2026-10-17T21:06:55Z",
+    "notes": [
+      "On-screen display: crosshair, skills with cooldowns, health, and status icons above enemies."
+    ]
+  },
+  {
     "version": "0.1.20",
     "date": "2026-10-17",
     "at": "2026-10-17T21:03:39Z",

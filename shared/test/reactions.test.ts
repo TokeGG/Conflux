@@ -239,7 +239,8 @@ test('marks leave the snapshot when they run out', () => {
   const { sim, target } = setup();
   applyStatus(sim, target, 'soaked', sim.time);
   triggerReaction(sim, target, 'fire', 10, sim.time);
-  assert.deepEqual(sim.snapshot().enemies[0].marks, ['blind']);
+  assert.deepEqual(sim.snapshot().enemies[0].marks.map((m) => m.id), ['blind']);
+  assert.ok(sim.snapshot().enemies[0].marks[0].remaining > 2.9);
   run(sim, 200);
   assert.deepEqual(sim.snapshot().enemies[0].marks, []);
 });

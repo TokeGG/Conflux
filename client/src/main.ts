@@ -7,6 +7,8 @@ import { buildRoomScene } from './renderer/room.ts';
 import { AssetLoader, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
+import { Hud } from './hud/hud.ts';
+import type { Snapshot } from '@conflux/shared';
 import { FxSystem } from './fx/sprites.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
@@ -20,8 +22,14 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; hudDemo(on: boolean): void };
   }
+}
+
+/** A copy of the snapshot with one made-up enemy that carries a few statuses (the smoke test's view of the enemy tags). */
+function withDemoEnemy(s: Snapshot, x: number, z: number): Snapshot {
+  const enemy = { id: 1, defId: 'enemy.dummy', pos: { x, y: 0, z }, facing: 0, hp: 700, maxHp: 1000, statuses: [{ id: 'burning' as const, remaining: 3 }, { id: 'soaked' as const, remaining: 6 }], aiState: 'idle', guardOn: false, marks: [{ id: 'blind' as const, remaining: 2 }] };
+  return { ...s, enemies: [enemy] };
 }
 
 async function boot(): Promise<void> {
@@ -55,9 +63,14 @@ async function boot(): Promise<void> {
   const bridge = new WorkerBridge(1, data);
   await bridge.ready;
   const state = { ready: false, tick: 0 };
+  let latest: Snapshot | null = null;
+  let demo = false;
   bridge.onFrame((snapshot) => {
     state.tick = snapshot.tick;
+    latest = snapshot;
   });
+  const hud = new Hud(data);
+  hud.setCamera(game.camera);
 
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -106,6 +119,8 @@ async function boot(): Promise<void> {
       await fx.spawn(id, { x: room.spawns.player.x - 0.6, y: 0.2, z: room.spawns.player.z + 0.8 });
     },
     fxActive: () => fx.active,
+    /** Shows one made-up enemy with a few statuses so the smoke test can see the enemy tags (test hook). */
+    hudDemo: (on) => (demo = on),
     /** Puts the temporary camera in front of the player so the smoke screenshots show the pose. */
     frontView() {
       game.camera.position.set(room.spawns.player.x + 0.8, 1.5, room.spawns.player.z + 3.6);
@@ -132,6 +147,7 @@ async function boot(): Promise<void> {
     const dt = clock.getDelta();
     rig.update(Math.min(dt, 0.1));
     fx.update(Math.min(dt, 0.1), game.camera);
+    if (latest) hud.update(demo ? withDemoEnemy(latest, room.spawns.player.x, room.spawns.player.z + 6) : latest, demo ? 1 : null);
     bridge.advance(Math.min(dt, 0.25));
     const pose = perf?.benchmarkPose();
     const saved = pose ? { pos: game.camera.position.clone(), quat: game.camera.quaternion.clone() } : null;

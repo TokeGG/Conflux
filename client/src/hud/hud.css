@@ -1,0 +1,30 @@
+#hud { position: fixed; inset: 0; pointer-events: none; font: 600 13px/1.2 system-ui, sans-serif; color: #fff; text-shadow: 0 1px 2px #000a; user-select: none; }
+#hud .crosshair { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; }
+#hud .crosshair::before, #hud .crosshair::after { content: ''; position: absolute; background: #fffd; box-shadow: 0 0 2px #000a; }
+#hud .crosshair::before { left: 10px; top: 0; width: 2px; height: 22px; clip-path: polygon(0 0, 100% 0, 100% 36%, 0 36%, 0 64%, 100% 64%, 100% 100%, 0 100%); }
+#hud .crosshair::after { top: 10px; left: 0; height: 2px; width: 22px; clip-path: polygon(0 0, 36% 0, 36% 100%, 0 100%, 64% 0, 100% 0, 100% 100%, 64% 100%); }
+#hud .crosshair.hot::before, #hud .crosshair.hot::after { background: #ff5a4a; }
+#hud .bottom { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#hud .elements { display: flex; gap: 6px; }
+#hud .element { width: 38px; padding: 3px 0; text-align: center; border-radius: 6px; background: #0007; border: 2px solid #fff3; opacity: .6; }
+#hud .element.on { opacity: 1; border-color: var(--c); box-shadow: 0 0 8px var(--c); }
+#hud .element .k { font-size: 10px; opacity: .8; }
+#hud .slots { display: flex; gap: 8px; }
+#hud .slot { position: relative; width: 86px; height: 48px; border-radius: 8px; background: #000a; border: 2px solid var(--c); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#hud .slot .key { position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: .8; }
+#hud .slot .name { font-size: 11px; }
+#hud .slot .cd { position: absolute; inset: 0; background: #000b; transform-origin: bottom; transform: scaleY(var(--p, 0)); }
+#hud .slot .cdtext { position: absolute; right: 6px; bottom: 3px; font-size: 14px; }
+#hud .bonus { height: 14px; font-size: 11px; color: #ffe066; opacity: 0; transition: opacity .15s; }
+#hud .bonus.on { opacity: 1; }
+#hud .hp { position: absolute; left: 18px; bottom: 18px; width: 240px; height: 18px; border-radius: 9px; background: #0009; border: 2px solid #fff4; overflow: hidden; }
+#hud .hp .fill { height: 100%; background: linear-gradient(#e0483a, #a82a24); width: 100%; }
+#hud .hp .txt { position: absolute; inset: 0; text-align: center; line-height: 18px; }
+#hud .tag { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+#hud .tag.hot .bar { border-color: #ff5a4a; }
+#hud .tag .bar { width: 54px; height: 6px; border-radius: 3px; background: #000a; border: 1px solid #fff4; overflow: hidden; }
+#hud .tag .bar i { display: block; height: 100%; background: #e0483a; }
+#hud .tag .icons { display: flex; gap: 2px; }
+#hud .ico { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: conic-gradient(var(--c) calc(var(--p) * 360deg), #0008 0); position: relative; }
+#hud .ico::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #000b; }
+#hud .ico span { position: relative; }

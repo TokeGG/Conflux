@@ -136,6 +136,14 @@ export interface StatusSnap {
   remaining: number;
 }
 
+export interface SlotSnap {
+  slot: Slot;
+  skillId: string;
+  /** Seconds until the skill can be cast again (0 when ready). */
+  remaining: number;
+  total: number;
+}
+
 export interface PlayerSnap {
   pos: Vec3;
   facing: number;
@@ -145,6 +153,16 @@ export interface PlayerSnap {
   statuses: StatusSnap[];
   dodging: boolean;
   casting: string | null;
+  /** The held element's skills. */
+  slots: SlotSnap[];
+  swapRemaining: number;
+  /** Seconds left to claim the swap-in bonus (0 once it is used or has run out). */
+  bonusRemaining: number;
+}
+
+export interface MarkSnap {
+  id: MarkId;
+  remaining: number;
 }
 
 export interface EnemySnap {
@@ -157,7 +175,7 @@ export interface EnemySnap {
   statuses: StatusSnap[];
   aiState: string;
   guardOn: boolean;
-  marks: string[];
+  marks: MarkSnap[];
 }
 
 export interface ProjectileSnap {

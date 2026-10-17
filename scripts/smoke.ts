@@ -116,6 +116,23 @@ try {
     check(errors.length === 0, `no console errors with the panel${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 5a. the HUD: crosshair, element, three skills, health, and the tags above an enemy
+  {
+    const { page, errors } = await open(browser, server.url);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.waitForFunction(() => document.querySelectorAll('#hud .slot').length === 3 && /\d/.test(document.querySelector('#hud .hp .txt')?.textContent ?? ''), null, { timeout: 10000 });
+    check((await page.locator('#hud .crosshair').count()) === 1, 'the crosshair is drawn');
+    const names = await page.locator('#hud .slot .name').allInnerTexts();
+    check(names.join('|') === 'Fireball|Flame Cone|Flame Dash', `the three fire skills are shown (${names.join(', ')})`);
+    check((await page.locator('#hud .element.on').innerText()).includes('Fire'), 'the held element is highlighted');
+    await page.evaluate(() => (window as any).__conflux.hudDemo(true));
+    await page.waitForSelector('#hud .tag .ico', { timeout: 5000 });
+    check((await page.locator('#hud .tag .ico').count()) === 3, 'an enemy tag shows an icon for each status and mark');
+    check((await page.locator('#hud .crosshair.hot').count()) === 1, 'the crosshair highlights an aimed enemy');
+    await page.screenshot({ path: join(shots, 'hud.png') });
+    check(errors.length === 0, `the HUD draws without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
   // 5. the player body: standing, running and casting render and animate without errors
   {
     const { page, errors } = await open(browser, server.url);
