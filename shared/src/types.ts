@@ -126,6 +126,9 @@ export interface ShapeDef {
   absorb?: number;
   damageTakenMul?: number;
   speedMul?: number;
+  /** A dash leaves a trail of ground effect this wide, lasting this long. */
+  trailRadius?: number;
+  trailSeconds?: number;
 }
 
 export interface SkillDef {

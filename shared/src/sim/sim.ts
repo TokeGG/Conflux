@@ -6,6 +6,7 @@ import { EVENT_TYPES, type SimEventType } from '../events.ts';
 import { stateHash } from './hash.ts';
 import { stepPlayer } from './player.ts';
 import { handleSwapAndCast } from './swap.ts';
+import { popShield } from './skills.ts';
 import { tickStatuses } from './statuses.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
 import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
@@ -87,6 +88,7 @@ export class Sim {
       const soaked = Math.min(b.absorb, dmg);
       b.absorb -= soaked;
       dmg -= soaked;
+      if (b.absorb <= 0) popShield(this, b.skillId);
     }
     p.hp = Math.max(0, p.hp - dmg);
     this.emit('hit', { target: 'player', amount: dmg });

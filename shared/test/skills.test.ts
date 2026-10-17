@@ -67,6 +67,15 @@ test('a boulder with gravity arcs up, comes down and lands before 20 m', () => {
   assert.ok(last.z > 5 && last.z < 20, `it landed at ${last.z} m`);
 });
 
+test('a projectile with gravity is lobbed so that it passes through the aim point', () => {
+  const data = dataWith(skill('earth.boulder', { type: 'projectile', speed: 16, radius: 0.4, gravity: 9, lifetime: 4 }, { element: 'earth' }));
+  const sim = makeSim(1, { data });
+  const dummy = spawnEnemy(sim, 'enemy.dummy', V(0, 0, 12));
+  castSkill(sim, sim.player, 'earth.boulder', V(0, 0.9, 12));
+  run(sim, 120);
+  assert.equal(dummy.hp, 1000 - 10, 'dead centre on the crosshair');
+});
+
 test('a projectile is destroyed by a collider and does not reach an enemy behind it', () => {
   const sim = makeSim(1, { world: new World([wallBox(6)]) });
   const dummy = spawnEnemy(sim, 'enemy.dummy', V(0, 0, 10));

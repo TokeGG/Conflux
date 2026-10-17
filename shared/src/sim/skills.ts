@@ -41,6 +41,18 @@ export function skillHit(sim: Sim, e: EnemyState, skill: SkillDef, amount: numbe
   dealDamage(sim, e, amount, skill.element, { swapBonus: bonus?.mul, applies: lands ? skill.applies : null, skillId: skill.id, point });
 }
 
+/** A shield that has soaked all it can bursts: a splash around the caster that hurts and applies the skill's status. */
+export function popShield(sim: Sim, skillId: string): void {
+  const p = sim.player;
+  p.buff = null;
+  sim.emit('shield_pop', { skillId, x: p.pos.x, y: p.pos.y, z: p.pos.z });
+  const skill = sim.data.skills[skillId];
+  if (!skill) return;
+  for (const h of hitEnemies(sim, { type: 'zone', radius: skill.shape.radius ?? 3 }, p.pos, { x: 0, y: 0, z: 1 })) {
+    dealDamage(sim, h.enemy, skill.damage, skill.element, { applies: skill.applies, skillId, point: h.point });
+  }
+}
+
 /** Starts a cast. The effect lands when the windup ends (see stepCast). */
 export function castSkill(sim: Sim, caster: PlayerState, skillId: string, aimPoint: Vec3): CastResult {
   const skill = sim.data.skills[skillId];
@@ -105,13 +117,14 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
   const dir = v3.norm(v3.sub(aim, origin));
   switch (s.type) {
     case 'projectile': {
+      const aimDir = s.gravity ? lobDirection(origin, aim, s.speed ?? 20, s.gravity) ?? dir : dir;
       const count = Math.max(1, s.count ?? 1);
       const spread = ((s.angle ?? 0) * Math.PI) / 180;
       for (let i = 0; i < count; i++) {
         const off = count === 1 ? 0 : (i / (count - 1) - 0.5) * spread;
         const c = Math.cos(off);
         const sn = Math.sin(off);
-        const d = { x: dir.x * c + dir.z * sn, y: dir.y, z: -dir.x * sn + dir.z * c };
+        const d = { x: aimDir.x * c + aimDir.z * sn, y: aimDir.y, z: -aimDir.x * sn + aimDir.z * c };
         sim.projectiles.push({ id: sim.allocId(), pos: { ...origin }, vel: v3.scale(d, s.speed ?? 20), r: s.radius ?? 0.25, gravity: s.gravity ?? 0, skillId: skill.id, ownerId: 0, diesAt: now + (s.lifetime ?? 1), bonus });
       }
       break;
@@ -140,6 +153,15 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       const start = { x: p.pos.x, y: CHEST - 0.5, z: p.pos.z };
       const hit = sim.world.sweepSphere(start, want, sim.data.player.radius);
       const travel = hit === null ? (s.distance ?? 5) : Math.max(0, hit);
+      if (s.trailRadius) {
+        // ground effect along the path walked, one patch for every trail-width of distance
+        const step = Math.max(0.5, s.trailRadius);
+        for (let d = 0; d <= travel + 1e-9; d += step) {
+          const gx = p.pos.x + flat.x * d;
+          const gz = p.pos.z + flat.z * d;
+          sim.zones.push({ id: sim.allocId(), kind: skill.id, pos: { x: gx, y: sim.world.groundAt(gx, gz), z: gz }, radius: s.trailRadius, until: now + (s.trailSeconds ?? 3), ownerId: 0, skillId: skill.id, yaw: 0, width: 0, height: 0, damage: skill.damage, tick: 0.5, nextTick: now, bonus, effects: skill.applies === 'burning' ? { burn: true } : undefined });
+        }
+      }
       p.pos.x += flat.x * travel;
       p.pos.z += flat.z * travel;
       p.facing = Math.atan2(flat.x, flat.z);
@@ -147,6 +169,21 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       break;
     }
   }
+}
+
+/** The direction that sends a projectile with gravity through the aim point (the flatter of the two arcs), or null when out of range. */
+function lobDirection(from: Vec3, to: Vec3, speed: number, g: number): Vec3 | null {
+  const dx = to.x - from.x;
+  const dz = to.z - from.z;
+  const d = Math.hypot(dx, dz);
+  const h = to.y - from.y;
+  if (d < 1e-6) return null;
+  const v2 = speed * speed;
+  const disc = v2 * v2 - g * (g * d * d + 2 * h * v2);
+  if (disc < 0) return null;
+  const tan = (v2 - Math.sqrt(disc)) / (g * d);
+  const c = 1 / Math.sqrt(1 + tan * tan);
+  return { x: (dx / d) * c, y: tan * c, z: (dz / d) * c };
 }
 
 /** The enemies a cone, stream line or zone circle reaches from origin along dir, in enemy id order (so reactions resolve in a stable order). */

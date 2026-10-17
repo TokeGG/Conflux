@@ -114,7 +114,10 @@ test('activeSkillFor reads the loadout by the held element and slot', () => {
   const sim = makeSim();
   assert.equal(activeSkillFor(sim.player, 'basic'), 'fire.fireball');
   sim.player.element = 1;
-  assert.equal(activeSkillFor(sim.player, 'basic'), '');
+  assert.equal(activeSkillFor(sim.player, 'basic'), 'water.water_bolt');
+  assert.equal(activeSkillFor(sim.player, 'secondary'), 'water.tidal_stream');
+  sim.player.loadout.water.utility = '';
+  assert.equal(activeSkillFor(sim.player, 'utility'), '');
 });
 
 test('pressing the left button casts the held element\'s basic skill at the crosshair', () => {

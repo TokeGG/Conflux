@@ -31,6 +31,8 @@ const SHAPE: Record<string, FieldInfo> = {
   absorb: n('Absorb', 'hp', 0, 1000, 1),
   damageTakenMul: n('Damage taken', '×', 0, 5, 0.05),
   speedMul: n('Move speed', '×', 0, 3, 0.05),
+  trailRadius: n('Trail width', 'm', 0, 10, 0.1),
+  trailSeconds: n('Trail time', 's', 0, 30, 0.1),
 };
 
 const REACTION_PARAM: Record<string, FieldInfo> = {

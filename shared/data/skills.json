@@ -2,12 +2,324 @@
   "fire.fireball": {
     "element": "fire",
     "slot": "basic",
-    "shape": { "type": "projectile", "speed": 22, "radius": 0.25, "gravity": 0, "lifetime": 1.2 },
+    "shape": {
+      "type": "projectile",
+      "speed": 22,
+      "radius": 0.25,
+      "gravity": 0,
+      "lifetime": 1.2
+    },
     "damage": 14,
     "cooldown": 0.45,
     "applies": "burning",
-    "cast": { "archetype": "throw", "windup": 0.18, "clip": "cast_1h_magic_attack_02", "move": 0.7 },
-    "fx": { "travel": "fx.fireball_travel", "hit": "fx.fireball_impact" },
-    "tags": ["projectile", "fire"]
+    "cast": {
+      "archetype": "throw",
+      "windup": 0.18,
+      "clip": "cast_1h_magic_attack_02",
+      "move": 0.7
+    },
+    "fx": {
+      "travel": "fx.fireball_travel",
+      "hit": "fx.fireball_impact"
+    },
+    "tags": [
+      "projectile",
+      "fire"
+    ]
+  },
+  "fire.flame_cone": {
+    "element": "fire",
+    "slot": "secondary",
+    "shape": {
+      "type": "cone",
+      "angle": 45,
+      "range": 6
+    },
+    "damage": 12,
+    "cooldown": 3,
+    "applies": "burning",
+    "cast": {
+      "archetype": "sweep",
+      "windup": 0.2,
+      "clip": "cast_2h_magic_attack_01",
+      "move": 0.7
+    },
+    "fx": {
+      "hit": "fx.flame_jet"
+    },
+    "tags": [
+      "cone",
+      "fire"
+    ]
+  },
+  "fire.flame_dash": {
+    "element": "fire",
+    "slot": "utility",
+    "shape": {
+      "type": "dash",
+      "distance": 6,
+      "trailRadius": 1.2,
+      "trailSeconds": 3
+    },
+    "damage": 4,
+    "cooldown": 7,
+    "applies": "burning",
+    "cast": {
+      "archetype": "self",
+      "windup": 0.05,
+      "clip": "bow_standing_dodge_forward",
+      "move": 0.7
+    },
+    "fx": {
+      "trail": "fx.burning_ground"
+    },
+    "tags": [
+      "dash",
+      "fire"
+    ]
+  },
+  "water.water_bolt": {
+    "element": "water",
+    "slot": "basic",
+    "shape": {
+      "type": "projectile",
+      "speed": 20,
+      "radius": 0.3,
+      "gravity": 0,
+      "lifetime": 1.4
+    },
+    "damage": 8,
+    "cooldown": 0.5,
+    "applies": "soaked",
+    "cast": {
+      "archetype": "throw",
+      "windup": 0.15,
+      "clip": "cast_1h_magic_attack_02",
+      "move": 0.7
+    },
+    "fx": {
+      "travel": "fx.water_projectile",
+      "hit": "fx.water_splash"
+    },
+    "tags": [
+      "projectile",
+      "water"
+    ]
+  },
+  "water.tidal_stream": {
+    "element": "water",
+    "slot": "secondary",
+    "shape": {
+      "type": "stream",
+      "range": 7,
+      "width": 0.8,
+      "tick": 0.2,
+      "duration": 1.6
+    },
+    "damage": 3,
+    "cooldown": 5,
+    "applies": "soaked",
+    "cast": {
+      "archetype": "channel",
+      "windup": 0.2,
+      "clip": "cast_magic_spell_casting",
+      "move": 0.5
+    },
+    "fx": {
+      "loop": "fx.tidal_wave"
+    },
+    "tags": [
+      "stream",
+      "water"
+    ]
+  },
+  "water.bubble_shield": {
+    "element": "water",
+    "slot": "utility",
+    "shape": {
+      "type": "self",
+      "absorb": 30,
+      "duration": 6,
+      "radius": 3
+    },
+    "damage": 6,
+    "cooldown": 10,
+    "applies": "soaked",
+    "cast": {
+      "archetype": "self",
+      "windup": 0.1,
+      "clip": "cast_1h_cast_spell_01",
+      "move": 0.7
+    },
+    "fx": {
+      "loop": "fx.bubble_shield",
+      "pop": "fx.water_splash"
+    },
+    "tags": [
+      "shield",
+      "water"
+    ]
+  },
+  "earth.boulder": {
+    "element": "earth",
+    "slot": "basic",
+    "shape": {
+      "type": "projectile",
+      "speed": 14,
+      "radius": 0.4,
+      "gravity": 4,
+      "lifetime": 2.2
+    },
+    "damage": 16,
+    "cooldown": 1.2,
+    "applies": "rocked",
+    "cast": {
+      "archetype": "throw",
+      "windup": 0.3,
+      "clip": "cast_1h_magic_attack_02",
+      "move": 0.7
+    },
+    "fx": {
+      "travel": "fx.boulder_roll",
+      "hit": "fx.stone_impact"
+    },
+    "tags": [
+      "projectile",
+      "earth",
+      "heavy"
+    ]
+  },
+  "earth.spike_field": {
+    "element": "earth",
+    "slot": "secondary",
+    "shape": {
+      "type": "zone",
+      "radius": 3,
+      "duration": 0.8,
+      "tick": 0.2
+    },
+    "damage": 9,
+    "cooldown": 6,
+    "applies": "rocked",
+    "cast": {
+      "archetype": "slam",
+      "windup": 0.35,
+      "clip": "cast_two_hand_spell_casting",
+      "move": 0.6
+    },
+    "fx": {
+      "zone": "fx.crystal_eruption"
+    },
+    "tags": [
+      "zone",
+      "earth"
+    ]
+  },
+  "earth.stone_skin": {
+    "element": "earth",
+    "slot": "utility",
+    "shape": {
+      "type": "self",
+      "duration": 5,
+      "damageTakenMul": 0.6,
+      "speedMul": 0.8
+    },
+    "damage": 0,
+    "cooldown": 12,
+    "applies": null,
+    "cast": {
+      "archetype": "self",
+      "windup": 0.1,
+      "clip": "cast_1h_cast_spell_01",
+      "move": 0.7
+    },
+    "fx": {
+      "loop": "fx.rock_shield"
+    },
+    "tags": [
+      "buff",
+      "earth"
+    ]
+  },
+  "wind.gust_volley": {
+    "element": "wind",
+    "slot": "basic",
+    "shape": {
+      "type": "projectile",
+      "speed": 30,
+      "radius": 0.2,
+      "gravity": 0,
+      "lifetime": 0.9,
+      "count": 3,
+      "angle": 6
+    },
+    "damage": 4,
+    "cooldown": 0.7,
+    "applies": null,
+    "cast": {
+      "archetype": "throw",
+      "windup": 0.12,
+      "clip": "cast_1h_magic_attack_02",
+      "move": 0.7
+    },
+    "fx": {
+      "travel": "fx.sand_swirl",
+      "hit": "fx.spark_shower"
+    },
+    "tags": [
+      "projectile",
+      "wind"
+    ]
+  },
+  "wind.cyclone": {
+    "element": "wind",
+    "slot": "secondary",
+    "shape": {
+      "type": "zone",
+      "radius": 3,
+      "duration": 0.8,
+      "tick": 0.2
+    },
+    "damage": 3,
+    "cooldown": 7,
+    "applies": "gusted",
+    "cast": {
+      "archetype": "push",
+      "windup": 0.3,
+      "clip": "cast_two_hand_spell_casting",
+      "move": 0.6
+    },
+    "fx": {
+      "zone": "fx.leaf_cyclone"
+    },
+    "tags": [
+      "zone",
+      "wind"
+    ]
+  },
+  "wind.air_dash": {
+    "element": "wind",
+    "slot": "utility",
+    "shape": {
+      "type": "dash",
+      "distance": 5,
+      "duration": 0.3
+    },
+    "damage": 0,
+    "cooldown": 5,
+    "applies": null,
+    "cast": {
+      "archetype": "self",
+      "windup": 0.02,
+      "clip": "bow_standing_dodge_forward",
+      "move": 0.7
+    },
+    "fx": {
+      "trail": "fx.dust_step"
+    },
+    "tags": [
+      "dash",
+      "wind"
+    ]
   }
 }
