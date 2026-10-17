@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.2",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:14:40Z",
+    "notes": [
+      "Vector maths and world collision (rays, sweeps, ground)."
+    ]
+  },
+  {
     "version": "0.1.1",
     "date": "2026-10-17",
     "at": "2026-10-17T20:13:09Z",
@@ -10,7 +18,7 @@
   {
     "version": "0.1.0",
     "date": "2026-10-17",
-    "at": "2026-10-17T20:30:00Z",
+    "at": "2026-10-17T20:00:00Z",
     "notes": [
       "Project started: design spec, build plan and the first converted assets."
     ]
