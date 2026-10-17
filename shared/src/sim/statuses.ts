@@ -13,7 +13,7 @@ const isEnemy = (c: Combatant): c is EnemyState => 'def' in c;
 
 /** Starts the status at full duration, or does nothing when the target is immune to it. */
 export function applyStatus(sim: Sim, target: Combatant, id: StatusId, now: number): void {
-  if (isEnemy(target) && target.def.immune?.includes(id)) return;
+  if (isEnemy(target) && (target.def.immune?.includes(id) || (target.def.element !== 'none' && sim.data.elements.status[target.def.element] === id))) return; // immune to its own element's status
   target.statuses[id] = { until: now + sim.data.statuses[id].duration };
 }
 

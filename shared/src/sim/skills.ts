@@ -5,7 +5,7 @@ import type { Input, ShapeDef, SkillDef } from '../types.ts';
 import type { Sim } from './sim.ts';
 import { enemyHurtboxes, type Bonus, type EnemyState, type PlayerState } from './state.ts';
 import { consumeSwapBonus } from './swap.ts';
-import { applyStatus } from './statuses.ts';
+import { dealDamage } from './damage.ts';
 
 export interface CastResult {
   ok: boolean;
@@ -23,26 +23,22 @@ const CHEST = 1.4;
 
 const chest = (p: PlayerState): Vec3 => ({ x: p.pos.x, y: p.pos.y + CHEST, z: p.pos.z });
 
-/** Takes health off an enemy and emits the hit; removes it when it dies. */
-export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3, bonus?: Bonus): void {
+/** Takes health off an enemy and emits the hit; removes it when it dies. Element, status and reaction rules live in dealDamage. */
+export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3): void {
   if (e.hp <= 0) return;
-  const dealt = amount * (bonus?.mul ?? 1);
-  e.hp = Math.max(0, e.hp - dealt);
-  sim.emit('hit', { target: 'enemy', id: e.id, amount: dealt, skillId, x: point.x, y: point.y, z: point.z });
-  applyHitStatus(sim, e, skillId, bonus);
+  e.hp = Math.max(0, e.hp - amount);
+  sim.emit('hit', { target: 'enemy', id: e.id, amount, skillId, x: point.x, y: point.y, z: point.z });
   if (e.hp <= 0) {
     sim.emit('enemy_died', { id: e.id, defId: e.def.id });
     sim.enemies = sim.enemies.filter((x) => x !== e);
   }
 }
 
-/** The status a skill's hit leaves behind: certain with the swap-in bonus, otherwise by the skill's chance. */
-function applyHitStatus(sim: Sim, e: EnemyState, skillId: string, bonus?: Bonus): void {
-  const skill = sim.data.skills[skillId];
-  if (!skill?.applies) return;
+/** A skill's hit on an enemy: the status it leaves is certain with the swap-in bonus, otherwise by the skill's chance. */
+export function skillHit(sim: Sim, e: EnemyState, skill: SkillDef, amount: number, point: Vec3, bonus?: Bonus): void {
   const chance = skill.statusChance ?? 1;
-  const lands = bonus?.guarantee || chance >= 1 || (chance > 0 && sim.streams.combat.next() < chance);
-  if (lands) applyStatus(sim, e, skill.applies, sim.time);
+  const lands = !!skill.applies && (bonus?.guarantee || chance >= 1 || (chance > 0 && sim.streams.combat.next() < chance));
+  dealDamage(sim, e, amount, skill.element, { swapBonus: bonus?.mul, applies: lands ? skill.applies : null, skillId: skill.id, point });
 }
 
 /** Starts a cast. The effect lands when the windup ends (see stepCast). */
@@ -97,7 +93,7 @@ export function stepCast(sim: Sim, p: PlayerState, input: Input): void {
     while (cs.nextTick !== undefined && now >= cs.nextTick && cs.nextTick < cs.until - 1e-9) {
       cs.nextTick += tick;
       const dir = v3.norm(v3.sub(cs.aim ?? origin, origin));
-      for (const h of hitEnemies(sim, skill.shape, origin, dir)) damageEnemy(sim, h.enemy, skill.damage, skill.id, h.point, cs.bonus);
+      for (const h of hitEnemies(sim, skill.shape, origin, dir)) skillHit(sim, h.enemy, skill, skill.damage, h.point, cs.bonus);
     }
   }
   if (now >= cs.until && cs.fired) p.castState = null;
@@ -121,7 +117,7 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       break;
     }
     case 'cone':
-      for (const h of hitEnemies(sim, s, origin, dir)) damageEnemy(sim, h.enemy, skill.damage, skill.id, h.point, bonus);
+      for (const h of hitEnemies(sim, s, origin, dir)) skillHit(sim, h.enemy, skill, skill.damage, h.point, bonus);
       break;
     case 'stream':
       break; // ticks run in stepCast

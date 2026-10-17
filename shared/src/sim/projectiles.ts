@@ -1,6 +1,6 @@
 // Projectiles in flight and the timed zones (ground effects, walls) that stay in the room.
 import { rayVsBox, rayVsCapsule, v3, type Vec3 } from '../math.ts';
-import { damageEnemy, hitEnemies } from './skills.ts';
+import { damageEnemy, hitEnemies, skillHit } from './skills.ts';
 import { enemyHurtboxes, type EnemyState, type Zone } from './state.ts';
 import { applyStatus } from './statuses.ts';
 import type { Sim } from './sim.ts';
@@ -55,7 +55,7 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     const point = v3.add(from, v3.scale(dir, best));
     const target = enemyId === null ? null : sim.enemies.find((e) => e.id === enemyId);
     const skill = sim.data.skills[q.skillId];
-    if (target && skill) damageEnemy(sim, target, skill.damage, q.skillId, point, q.bonus);
+    if (target && skill) skillHit(sim, target, skill, skill.damage, point, q.bonus);
     else sim.emit('hit', { target: 'world', skillId: q.skillId, x: point.x, y: point.y, z: point.z });
   }
   sim.projectiles = alive;
@@ -67,7 +67,9 @@ export function stepZones(sim: Sim): void {
     if (z.tick > 0 && (z.damage > 0 || z.effects) && now >= z.nextTick && now < z.until) {
       z.nextTick += z.tick;
       for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) {
-        if (z.damage > 0) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point, z.bonus);
+        const skill = sim.data.skills[z.skillId];
+        if (z.damage > 0 && skill) skillHit(sim, h.enemy, skill, z.damage, h.point, z.bonus);
+        else if (z.damage > 0) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point);
         zoneEffects(sim, z, h.enemy);
       }
       healInZone(sim, z);

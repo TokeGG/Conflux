@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.17",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:54:35Z",
+    "notes": [
+      "Damage now follows weaknesses, resistances, rocked and guard before it triggers reactions."
+    ]
+  },
+  {
     "version": "0.1.16",
     "date": "2026-10-17",
     "at": "2026-10-17T20:52:56Z",
