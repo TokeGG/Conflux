@@ -1,0 +1,2081 @@
+{
+ "source": "Spellwoven - Animated Fantasy Effects v4.0",
+ "license": "Full Version terms: commercial use and modification allowed; unmodified redistribution not allowed",
+ "effects": [
+  {
+   "id": "ember_burst",
+   "name": "Ember Burst",
+   "category": "effect",
+   "mode": "fire_burst",
+   "file": "ember_burst.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "flame_jet",
+   "name": "Flame Jet",
+   "category": "effect",
+   "mode": "fire_jet",
+   "file": "flame_jet.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "fireball_travel",
+   "name": "Fireball Travel",
+   "category": "effect",
+   "mode": "fireball",
+   "file": "fireball_travel.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "fireball_impact",
+   "name": "Fireball Impact",
+   "category": "effect",
+   "mode": "fire_impact",
+   "file": "fireball_impact.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "phoenix_wings",
+   "name": "Phoenix Wings",
+   "category": "effect",
+   "mode": "phoenix",
+   "file": "phoenix_wings.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "campfire_loop",
+   "name": "Campfire Loop",
+   "category": "effect",
+   "mode": "campfire",
+   "file": "campfire_loop.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "frost_nova",
+   "name": "Frost Nova",
+   "category": "effect",
+   "mode": "frost_nova",
+   "file": "frost_nova.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "ice_lance",
+   "name": "Ice Lance",
+   "category": "effect",
+   "mode": "ice_lance",
+   "file": "ice_lance.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 7,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "crystal_eruption",
+   "name": "Crystal Eruption",
+   "category": "effect",
+   "mode": "crystal",
+   "file": "crystal_eruption.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "snow_flurry",
+   "name": "Snow Flurry",
+   "category": "effect",
+   "mode": "snow",
+   "file": "snow_flurry.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "ice_shatter",
+   "name": "Ice Shatter",
+   "category": "effect",
+   "mode": "shatter",
+   "file": "ice_shatter.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "glacial_wall",
+   "name": "Glacial Wall",
+   "category": "effect",
+   "mode": "ice_wall",
+   "file": "glacial_wall.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "lightning_strike",
+   "name": "Lightning Strike",
+   "category": "effect",
+   "mode": "lightning",
+   "file": "lightning_strike.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 45,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 7,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "chain_lightning",
+   "name": "Chain Lightning",
+   "category": "effect",
+   "mode": "chain",
+   "file": "chain_lightning.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "electric_orb",
+   "name": "Electric Orb",
+   "category": "effect",
+   "mode": "electric_orb",
+   "file": "electric_orb.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "storm_ring",
+   "name": "Storm Ring",
+   "category": "effect",
+   "mode": "storm_ring",
+   "file": "storm_ring.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "thunder_burst",
+   "name": "Thunder Burst",
+   "category": "effect",
+   "mode": "thunder",
+   "file": "thunder_burst.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "spark_shower",
+   "name": "Spark Shower",
+   "category": "effect",
+   "mode": "sparks",
+   "file": "spark_shower.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "healing_bloom",
+   "name": "Healing Bloom",
+   "category": "effect",
+   "mode": "heal",
+   "file": "healing_bloom.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "regeneration_loop",
+   "name": "Regeneration Loop",
+   "category": "effect",
+   "mode": "regeneration",
+   "file": "regeneration_loop.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "vine_snare",
+   "name": "Vine Snare",
+   "category": "effect",
+   "mode": "vines",
+   "file": "vine_snare.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "leaf_cyclone",
+   "name": "Leaf Cyclone",
+   "category": "effect",
+   "mode": "leaves",
+   "file": "leaf_cyclone.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "toxic_bubble",
+   "name": "Toxic Bubble",
+   "category": "effect",
+   "mode": "bubbles",
+   "file": "toxic_bubble.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "poison_cloud",
+   "name": "Poison Cloud",
+   "category": "effect",
+   "mode": "poison",
+   "file": "poison_cloud.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "water_splash",
+   "name": "Water Splash",
+   "category": "effect",
+   "mode": "splash",
+   "file": "water_splash.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "tidal_wave",
+   "name": "Tidal Wave",
+   "category": "effect",
+   "mode": "wave",
+   "file": "tidal_wave.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "water_projectile",
+   "name": "Water Projectile",
+   "category": "effect",
+   "mode": "water_bolt",
+   "file": "water_projectile.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 7,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "whirlpool",
+   "name": "Whirlpool",
+   "category": "effect",
+   "mode": "whirlpool",
+   "file": "whirlpool.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "rain_circle",
+   "name": "Rain Circle",
+   "category": "effect",
+   "mode": "rain",
+   "file": "rain_circle.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "steam_puff",
+   "name": "Steam Puff",
+   "category": "effect",
+   "mode": "steam",
+   "file": "steam_puff.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "stone_impact",
+   "name": "Stone Impact",
+   "category": "effect",
+   "mode": "stone",
+   "file": "stone_impact.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "earth_fissure",
+   "name": "Earth Fissure",
+   "category": "effect",
+   "mode": "fissure",
+   "file": "earth_fissure.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "sand_swirl",
+   "name": "Sand Swirl",
+   "category": "effect",
+   "mode": "sand",
+   "file": "sand_swirl.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "dust_step",
+   "name": "Dust Step",
+   "category": "effect",
+   "mode": "dust",
+   "file": "dust_step.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 7,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "rock_shield",
+   "name": "Rock Shield",
+   "category": "effect",
+   "mode": "rock_shield",
+   "file": "rock_shield.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "meteor_fall",
+   "name": "Meteor Fall",
+   "category": "effect",
+   "mode": "meteor",
+   "file": "meteor_fall.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "arcane_portal",
+   "name": "Arcane Portal",
+   "category": "effect",
+   "mode": "portal",
+   "file": "arcane_portal.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "teleport_departure",
+   "name": "Teleport Departure",
+   "category": "effect",
+   "mode": "teleport_out",
+   "file": "teleport_departure.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "teleport_arrival",
+   "name": "Teleport Arrival",
+   "category": "effect",
+   "mode": "teleport_in",
+   "file": "teleport_arrival.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "rune_seal",
+   "name": "Rune Seal",
+   "category": "effect",
+   "mode": "rune",
+   "file": "rune_seal.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "magic_shield",
+   "name": "Magic Shield",
+   "category": "effect",
+   "mode": "shield",
+   "file": "magic_shield.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "mana_charge",
+   "name": "Mana Charge",
+   "category": "effect",
+   "mode": "charge",
+   "file": "mana_charge.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "sword_crescent",
+   "name": "Sword Crescent",
+   "category": "effect",
+   "mode": "slash",
+   "file": "sword_crescent.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 45,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 7,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "cross_slash",
+   "name": "Cross Slash",
+   "category": "effect",
+   "mode": "cross",
+   "file": "cross_slash.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 20,
+   "ms": 45,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 9,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "piercing_thrust",
+   "name": "Piercing Thrust",
+   "category": "effect",
+   "mode": "thrust",
+   "file": "piercing_thrust.webp",
+   "sheet": [
+    1920,
+    384
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 16,
+   "ms": 45,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 7,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "holy_ray",
+   "name": "Holy Ray",
+   "category": "effect",
+   "mode": "holy",
+   "file": "holy_ray.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "shadow_grasp",
+   "name": "Shadow Grasp",
+   "category": "effect",
+   "mode": "shadow",
+   "file": "shadow_grasp.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "soul_release",
+   "name": "Soul Release",
+   "category": "effect",
+   "mode": "souls",
+   "file": "soul_release.webp",
+   "sheet": [
+    1920,
+    576
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 24,
+   "ms": 70,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 10,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "fire_tornado",
+   "name": "Fire Tornado",
+   "category": "effect",
+   "mode": "fire_tornado",
+   "file": "fire_tornado.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "lava_geyser",
+   "name": "Lava Geyser",
+   "category": "effect",
+   "mode": "lava_geyser",
+   "file": "lava_geyser.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "burning_ground",
+   "name": "Burning Ground",
+   "category": "effect",
+   "mode": "burning_ground",
+   "file": "burning_ground.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "ice_comet",
+   "name": "Ice Comet",
+   "category": "effect",
+   "mode": "ice_comet",
+   "file": "ice_comet.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "icicle_rain",
+   "name": "Icicle Rain",
+   "category": "effect",
+   "mode": "icicle_rain",
+   "file": "icicle_rain.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "frozen_prison",
+   "name": "Frozen Prison",
+   "category": "effect",
+   "mode": "frozen_prison",
+   "file": "frozen_prison.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "lightning_cage",
+   "name": "Lightning Cage",
+   "category": "effect",
+   "mode": "lightning_cage",
+   "file": "lightning_cage.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "thundercloud",
+   "name": "Thundercloud",
+   "category": "effect",
+   "mode": "thundercloud",
+   "file": "thundercloud.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "plasma_disc",
+   "name": "Plasma Disc",
+   "category": "effect",
+   "mode": "plasma_disc",
+   "file": "plasma_disc.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "thorn_wall",
+   "name": "Thorn Wall",
+   "category": "effect",
+   "mode": "thorn_wall",
+   "file": "thorn_wall.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "blossom_shower",
+   "name": "Blossom Shower",
+   "category": "effect",
+   "mode": "blossom_shower",
+   "file": "blossom_shower.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "root_eruption",
+   "name": "Root Eruption",
+   "category": "effect",
+   "mode": "root_eruption",
+   "file": "root_eruption.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "healing_tree",
+   "name": "Healing Tree",
+   "category": "effect",
+   "mode": "healing_tree",
+   "file": "healing_tree.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "geyser",
+   "name": "Geyser",
+   "category": "effect",
+   "mode": "geyser",
+   "file": "geyser.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "bubble_shield",
+   "name": "Bubble Shield",
+   "category": "effect",
+   "mode": "bubble_shield",
+   "file": "bubble_shield.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "falling_waterfall",
+   "name": "Falling Waterfall",
+   "category": "effect",
+   "mode": "falling_waterfall",
+   "file": "falling_waterfall.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "boulder_roll",
+   "name": "Boulder Roll",
+   "category": "effect",
+   "mode": "boulder_roll",
+   "file": "boulder_roll.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "sand_geyser",
+   "name": "Sand Geyser",
+   "category": "effect",
+   "mode": "sand_geyser",
+   "file": "sand_geyser.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "crystal_shield",
+   "name": "Crystal Shield",
+   "category": "effect",
+   "mode": "crystal_shield",
+   "file": "crystal_shield.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "gravity_well",
+   "name": "Gravity Well",
+   "category": "effect",
+   "mode": "gravity_well",
+   "file": "gravity_well.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "celestial_orbit",
+   "name": "Celestial Orbit",
+   "category": "effect",
+   "mode": "celestial_orbit",
+   "file": "celestial_orbit.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": true,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": []
+  },
+  {
+   "id": "summoning_star",
+   "name": "Summoning Star",
+   "category": "effect",
+   "mode": "summoning_star",
+   "file": "summoning_star.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "spectral_blade",
+   "name": "Spectral Blade",
+   "category": "effect",
+   "mode": "spectral_blade",
+   "file": "spectral_blade.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  },
+  {
+   "id": "soul_chain",
+   "name": "Soul Chain",
+   "category": "effect",
+   "mode": "soul_chain",
+   "file": "soul_chain.webp",
+   "sheet": [
+    1920,
+    768
+   ],
+   "frame": [
+    192,
+    192
+   ],
+   "cols": 10,
+   "frames": 32,
+   "ms": 60,
+   "loop": false,
+   "anchor": [
+    96,
+    128
+   ],
+   "blend": "alpha",
+   "events": [
+    {
+     "frame": 14,
+     "name": "peak_visual"
+    }
+   ]
+  }
+ ]
+}
