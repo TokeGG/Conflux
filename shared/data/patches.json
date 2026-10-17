@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.7",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:26:53Z",
+    "notes": [
+      "Chunky render profile and the first scene, with a browser smoke test."
+    ]
+  },
+  {
     "version": "0.1.6",
     "date": "2026-10-17",
     "at": "2026-10-17T20:23:19Z",

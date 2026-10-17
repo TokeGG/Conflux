@@ -1,4 +1,4 @@
-# Conflux · v0.1.6
+# Conflux · v0.1.7
 
 A third-person action roguelite that runs in your browser. You hold one of four elements at a time (fire, water, earth, wind), fight elemental monsters through a run of rooms, and win by switching element to suit the enemy and chaining elements into reactions. Every run is different.
 
