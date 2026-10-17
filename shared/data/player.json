@@ -3,7 +3,7 @@
   "moveSpeed": 6,
   "radius": 0.4,
   "maxAimRange": 60,
-  "dodge": { "duration": 0.4, "invulnerable": 0.25, "cooldown": 1.2 },
+  "dodge": { "duration": 0.4, "invulnerable": 0.25, "cooldown": 1.2, "speed": 10 },
   "swap": { "cooldown": 0.4, "bonusWindow": 3, "bonusDamage": 1.25 },
   "cast": { "windupMove": 0.7, "channelMove": 0.5 }
 }

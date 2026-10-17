@@ -79,6 +79,7 @@ const EXACT: Record<string, FieldInfo> = {
   'player.dodge.duration': n('Dodge length', 's', 0.1, 2, 0.05),
   'player.dodge.invulnerable': n('Dodge invulnerable time', 's', 0, 2, 0.05),
   'player.dodge.cooldown': n('Dodge cooldown', 's', 0, 10, 0.05),
+  'player.dodge.speed': n('Dodge speed', 'm/s', 1, 30, 0.5),
   'player.swap.cooldown': n('Element swap cooldown', 's', 0, 5, 0.05),
   'player.swap.bonusWindow': n('Swap-in bonus window', 's', 0, 10, 0.1),
   'player.swap.bonusDamage': n('Swap-in bonus damage', '×', 1, 3, 0.05),

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.12",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:43:58Z",
+    "notes": [
+      "The player now moves, slides along walls and dodges."
+    ]
+  },
+  {
     "version": "0.1.11",
     "date": "2026-10-17",
     "at": "2026-10-17T20:42:41Z",

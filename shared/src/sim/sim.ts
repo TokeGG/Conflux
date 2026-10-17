@@ -4,6 +4,7 @@ import { makeStreams, type Streams } from '../rng.ts';
 import { ELEMENTS, type GameData, type Input, type SimEvent } from '../types.ts';
 import { EVENT_TYPES, type SimEventType } from '../events.ts';
 import { stateHash } from './hash.ts';
+import { stepPlayer } from './player.ts';
 import type { EnemyState, PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
 
@@ -58,8 +59,18 @@ export class Sim {
     return e;
   }
 
+  /** Applies damage to the player unless a dodge makes them invulnerable. True when it landed. */
+  hurtPlayer(amount: number): boolean {
+    const p = this.player;
+    if (this.time < p.invulnUntil || p.hp <= 0) return false;
+    p.hp = Math.max(0, p.hp - amount);
+    this.emit('hit', { target: 'player', amount });
+    return true;
+  }
+
   /** Advances one tick and returns the events emitted since the previous step. */
-  step(_inputs: Input[]): SimEvent[] {
+  step(inputs: Input[]): SimEvent[] {
+    if (inputs[0]) stepPlayer(this, this.player, inputs[0], TICK);
     const out = this.events;
     this.events = [];
     this.tick++;

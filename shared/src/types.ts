@@ -76,7 +76,7 @@ export interface PlayerCfg {
   moveSpeed: number;
   radius: number;
   maxAimRange: number;
-  dodge: { duration: number; invulnerable: number; cooldown: number };
+  dodge: { duration: number; invulnerable: number; cooldown: number; speed: number };
   swap: { cooldown: number; bonusWindow: number; bonusDamage: number };
   cast: { windupMove: number; channelMove: number };
 }

@@ -15,3 +15,4 @@ export * from './fields.ts';
 export * from './patch.ts';
 export * from './layers.ts';
 export * from './aim.ts';
+export * from './sim/player.ts';
