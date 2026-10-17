@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.6",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:23:19Z",
+    "notes": [
+      "Asset manifest, licence check and asset loader."
+    ]
+  },
+  {
     "version": "0.1.5",
     "date": "2026-10-17",
     "at": "2026-10-17T20:21:27Z",

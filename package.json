@@ -1,6 +1,6 @@
 {
   "name": "conflux",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
@@ -10,7 +10,7 @@
     "typecheck": "tsc -p shared --noEmit && tsc -p client --noEmit",
     "test": "tsx --test \"shared/test/**/*.test.ts\" \"client/test/**/*.test.ts\"",
     "dev": "npm -w client run dev",
-    "build": "npm -w client run build",
+    "build": "tsx scripts/check-licences.ts && npm -w client run build",
     "bump": "tsx scripts/bump.ts"
   },
   "devDependencies": {
