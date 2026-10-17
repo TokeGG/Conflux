@@ -34,7 +34,7 @@ export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): 
     p.castState = null;
     const heading = mag > 0.01 ? Math.atan2(dirX, dirZ) : p.facing;
     p.facing = heading;
-    sim.emit('dodge', { yaw: heading });
+    sim.emit('dodge', { yaw: heading, x: p.pos.x, y: p.pos.y, z: p.pos.z });
   }
 
   let vx: number;

@@ -7,6 +7,7 @@ import { buildRoomScene } from './renderer/room.ts';
 import { AssetLoader, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
+import { FxSystem } from './fx/sprites.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
 import { devEnabled } from './dev/access.ts';
@@ -19,7 +20,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void };
+    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number };
   }
 }
 
@@ -50,6 +51,7 @@ async function boot(): Promise<void> {
   applyTextureFilters(player, profile);
   game.scene.add(player);
 
+  const fx = new FxSystem(game.scene, loader, profile.spriteFilter);
   const bridge = new WorkerBridge(1, data);
   await bridge.ready;
   const state = { ready: false, tick: 0 };
@@ -99,6 +101,11 @@ async function boot(): Promise<void> {
     room: room.id,
     /** Lets the browser smoke tests pose the player (the real controls arrive with the M1 integration). */
     pose: (state, castClip, castW, aimPitch) => rig.play(state, castClip, castW, aimPitch),
+    /** Plays an effect beside the player (test hook). */
+    async playFx(id) {
+      await fx.spawn(id, { x: room.spawns.player.x - 0.6, y: 0.2, z: room.spawns.player.z + 0.8 });
+    },
+    fxActive: () => fx.active,
     /** Puts the temporary camera in front of the player so the smoke screenshots show the pose. */
     frontView() {
       game.camera.position.set(room.spawns.player.x + 0.8, 1.5, room.spawns.player.z + 3.6);
@@ -124,6 +131,7 @@ async function boot(): Promise<void> {
   const frame = () => {
     const dt = clock.getDelta();
     rig.update(Math.min(dt, 0.1));
+    fx.update(Math.min(dt, 0.1), game.camera);
     bridge.advance(Math.min(dt, 0.25));
     const pose = perf?.benchmarkPose();
     const saved = pose ? { pos: game.camera.position.clone(), quat: game.camera.quaternion.clone() } : null;

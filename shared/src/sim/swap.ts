@@ -20,7 +20,7 @@ export function trySwap(sim: Sim, p: PlayerState, to: number): boolean {
     if (!p.castState.fired) delete p.cooldowns[p.castState.skillId];
     p.castState = null;
   }
-  sim.emit('swap', { from: ELEMENTS[from], to: ELEMENTS[to] });
+  sim.emit('swap', { from: ELEMENTS[from], to: ELEMENTS[to], x: p.pos.x, y: p.pos.y, z: p.pos.z });
   return true;
 }
 

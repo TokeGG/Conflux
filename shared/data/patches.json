@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.20",
+    "date": "2026-10-17",
+    "at": "2026-10-17T21:03:39Z",
+    "notes": [
+      "Spell effects now play: sprite effects for hits, reactions, swaps and dodges."
+    ]
+  },
+  {
     "version": "0.1.19",
     "date": "2026-10-17",
     "at": "2026-10-17T21:01:16Z",

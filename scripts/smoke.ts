@@ -134,6 +134,14 @@ try {
     await pose('idle', 'cast_2h_magic_attack_01', 1, -0.3);
     await page.waitForTimeout(500);
     await page.screenshot({ path: join(shots, 'player-cast-idle.png') });
+    await page.evaluate(async () => {
+      const c = (window as any).__conflux;
+      await Promise.all(['fx.fireball_impact', 'fx.steam_puff', 'fx.burning_ground'].map((id) => c.playFx(id)));
+    });
+    await page.waitForTimeout(350);
+    const live: number = await page.evaluate(() => (window as any).__conflux.fxActive());
+    check(live >= 2, `effects play and are pooled (${live} live)`);
+    await page.screenshot({ path: join(shots, 'player-fx.png') });
     check(errors.length === 0, `the player stands, runs and casts without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }

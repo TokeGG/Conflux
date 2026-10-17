@@ -29,7 +29,7 @@ export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: st
   e.hp = Math.max(0, e.hp - amount);
   sim.emit('hit', { target: 'enemy', id: e.id, amount, skillId, x: point.x, y: point.y, z: point.z });
   if (e.hp <= 0) {
-    sim.emit('enemy_died', { id: e.id, defId: e.def.id });
+    sim.emit('enemy_died', { id: e.id, defId: e.def.id, x: e.pos.x, y: e.pos.y, z: e.pos.z });
     sim.enemies = sim.enemies.filter((x) => x !== e);
   }
 }
