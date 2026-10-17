@@ -14,3 +14,4 @@ export * from './room.ts';
 export * from './fields.ts';
 export * from './patch.ts';
 export * from './layers.ts';
+export * from './aim.ts';

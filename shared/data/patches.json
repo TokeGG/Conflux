@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.11",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:42:41Z",
+    "notes": [
+      "Aiming, the third-person camera and keyboard and mouse input."
+    ]
+  },
+  {
     "version": "0.1.10",
     "date": "2026-10-17",
     "at": "2026-10-17T20:41:44Z",
