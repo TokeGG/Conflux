@@ -1,0 +1,7 @@
+{
+  "forest": {
+    "rooms": ["forest_clearing"],
+    "enemyPool": ["enemy.dummy"],
+    "lighting": { "ambient": "#cfe8ff", "light": "#fff1cc", "intensity": 2.2, "fogColor": "#6fa8d6", "fogNear": 14, "fogFar": 34 }
+  }
+}

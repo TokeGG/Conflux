@@ -1,0 +1,13 @@
+{
+  "fire.fireball": {
+    "element": "fire",
+    "slot": "basic",
+    "shape": { "type": "projectile", "speed": 22, "radius": 0.25, "gravity": 0, "lifetime": 1.2 },
+    "damage": 14,
+    "cooldown": 0.45,
+    "applies": "burning",
+    "cast": { "archetype": "throw", "windup": 0.18, "clip": "cast_1h_magic_attack_02", "move": 0.7 },
+    "fx": { "travel": "fx.fireball_travel", "hit": "fx.fireball_impact" },
+    "tags": ["projectile", "fire"]
+  }
+}

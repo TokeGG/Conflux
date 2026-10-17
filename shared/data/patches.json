@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.3",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:17:20Z",
+    "notes": [
+      "Game data schema, loader and validation, with the first data files."
+    ]
+  },
+  {
     "version": "0.1.2",
     "date": "2026-10-17",
     "at": "2026-10-17T20:14:40Z",

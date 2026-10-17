@@ -1,0 +1,14 @@
+{
+  "forest_clearing": {
+    "biome": "forest",
+    "size": [30, 30],
+    "pieces": [],
+    "colliders": [],
+    "spawns": {
+      "player": { "x": 0, "y": 0, "z": -10 },
+      "enemies": [{ "x": 0, "y": 0, "z": 8 }],
+      "doors": [{ "x": 0, "y": 0, "z": 13 }]
+    },
+    "lighting": { "ambient": "#cfe8ff", "light": "#fff1cc", "intensity": 2.2, "fogColor": "#6fa8d6", "fogNear": 14, "fogFar": 34 }
+  }
+}
