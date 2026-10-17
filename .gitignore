@@ -3,3 +3,4 @@ dist/
 assets-src/
 .DS_Store
 *.log
+.superpowers/
