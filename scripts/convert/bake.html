@@ -1,0 +1,74 @@
+<!doctype html><meta charset=utf-8><script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+// Bakes Mixamo clips onto a target rig: world-turn-since-rest retargeting plus a swing correction (aim each limb along the source's), sampled at 30 fps.
+import * as THREE from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const V = THREE.Vector3, Q = THREE.Quaternion;
+const MIX = ['Hips','Spine','Spine2','Neck','Head','LeftShoulder','LeftArm','LeftForeArm','LeftHand','RightShoulder','RightArm','RightForeArm','RightHand','LeftUpLeg','LeftLeg','LeftFoot','RightUpLeg','RightLeg','RightFoot'];
+const CHILD = { LeftArm: 'LeftForeArm', LeftForeArm: 'LeftHand', RightArm: 'RightForeArm', RightForeArm: 'RightHand', LeftUpLeg: 'LeftLeg', LeftLeg: 'LeftFoot', RightUpLeg: 'RightLeg', RightLeg: 'RightFoot', Spine2: 'Neck', Neck: 'Head' };
+const depth = (b) => { let d = 0; for (let p = b.parent; p; p = p.parent) d++; return d; };
+class Source {
+  constructor(root, clip) {
+    this.root = root; root.updateMatrixWorld(true); this.b = {}; this.rest = {}; this.restPos = {};
+    for (const m of MIX) { const b = root.getObjectByName('mixamorig' + m); if (!b) continue; this.b[m] = b; this.rest[m] = b.getWorldQuaternion(new Q()); this.restPos[m] = b.getWorldPosition(new V()); }
+    this.mixer = new THREE.AnimationMixer(root); this.mixer.clipAction(clip).play(); this.duration = clip.duration;
+  }
+  at(t) { this.mixer.setTime(t); this.root.updateMatrixWorld(true); }
+  delta(m) { return this.b[m].getWorldQuaternion(new Q()).multiply(this.rest[m].clone().invert()); }
+  pos(m) { return this.b[m].getWorldPosition(new V()); }
+}
+const RIGS = {
+  wizardpack: { scale: 1.8 / 405.6, load: async () => new FBXLoader().loadAsync('/in/wizardpack.fbx'), map: { Hips: 'Hips', Abdomen: 'Spine', Torso: 'Spine2', Neck: 'Neck', Head: 'Head', ShoulderL: 'LeftShoulder', UpperArmL: 'LeftArm', LowerArmL: 'LeftForeArm', FistL: 'LeftHand', ShoulderR: 'RightShoulder', UpperArmR: 'RightArm', LowerArmR: 'RightForeArm', FistR: 'RightHand', UpperLegL: 'LeftUpLeg', LowerLegL: 'LeftLeg', UpperLegR: 'RightUpLeg', LowerLegR: 'RightLeg' } },
+  oldwizard: { scale: 1, load: async () => (await new GLTFLoader().loadAsync('/staging/models/player/oldwizard.glb')).scene, map: { Bip01_Pelvis_02: 'Hips', Bip01_Spine_03: 'Spine', Bip01_Spine1_05: 'Spine2', Bip01_Neck_055: 'Neck', Bip01_Head_056: 'Head', Bip01_L_Clavicle_028: 'LeftShoulder', Bip01_L_UpperArm_029: 'LeftArm', Bip01_L_Forearm_030: 'LeftForeArm', Bip01_L_Hand_031: 'LeftHand', Bip01_R_Clavicle_06: 'RightShoulder', Bip01_R_UpperArm_07: 'RightArm', Bip01_R_Forearm_08: 'RightForeArm', Bip01_R_Hand_09: 'RightHand', Bip01_L_Thigh_013: 'LeftUpLeg', Bip01_L_Calf_024: 'LeftLeg', Bip01_L_Foot_035: 'LeftFoot', Bip01_R_Thigh_057: 'RightUpLeg', Bip01_R_Calf_059: 'RightLeg', Bip01_R_Foot_060: 'RightFoot' } },
+};
+async function makePoser(name) {
+  const rig = RIGS[name]; const root = await rig.load(); root.scale.multiplyScalar(rig.scale); const scene = new THREE.Scene(); scene.add(root); root.updateMatrixWorld(true);
+  const tb = {}, rest = {}, byMix = {};
+  for (const [n, m] of Object.entries(rig.map)) { const b = root.getObjectByName(n); if (!b) throw new Error(name + ': missing bone ' + n); tb[n] = b; rest[n] = b.getWorldQuaternion(new Q()); byMix[m] = n; }
+  const order = Object.keys(rig.map).sort((a, b) => depth(tb[a]) - depth(tb[b]));
+  const seg = {}; for (const [n, m] of Object.entries(rig.map)) if (CHILD[m] && byMix[CHILD[m]]) seg[n] = [byMix[CHILD[m]], m, CHILD[m]];
+  const hipsN = byMix.Hips, hips = tb[hipsN], hipsRest = hips.position.clone(); const tmp = new Q();
+  const hipY = hips.getWorldPosition(new V()).y;
+  return { name, order, hipsN, tb, hipY,
+    apply(src, ratio) {
+      for (const n of order) {
+        const m = rig.map[n]; const tw = src.delta(m).multiply(rest[n].clone()); const bone = tb[n];
+        bone.parent.updateWorldMatrix(true, false); bone.parent.getWorldQuaternion(tmp).invert(); bone.quaternion.copy(tmp.multiply(tw));
+        const s = seg[n]; if (s) {
+          const child = tb[s[0]]; bone.updateWorldMatrix(true, false); child.updateWorldMatrix(true, false);
+          const want = src.pos(s[2]).sub(src.pos(s[1])).normalize(); const have = child.getWorldPosition(new V()).sub(bone.getWorldPosition(new V())).normalize();
+          const w = bone.getWorldQuaternion(new Q()).premultiply(new Q().setFromUnitVectors(have, want));
+          bone.parent.getWorldQuaternion(tmp).invert(); bone.quaternion.copy(tmp.multiply(w));
+        }
+      }
+      hips.parent.updateWorldMatrix(true, false); const inv = hips.parent.matrixWorld.clone().invert();
+      const drop = (src.pos('Hips').y - src.restPos.Hips.y) * ratio;
+      const dl = new V(0, drop, 0).applyMatrix4(inv).sub(new V().applyMatrix4(inv)); hips.position.copy(hipsRest).add(dl); root.updateMatrixWorld(true);
+    } };
+}
+const b64 = (arr) => { const u = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+let glbSet = new Set(); window.setGlb = (a) => { glbSet = new Set(a); };
+const LOOP = /idle|walk|run|sprint|fall_a_loop/; const NOLOOP = /stop|land|jump|turn|death|dodge|dive|react|block|melee|cast|magic/;
+window.bake = async (rigName, clipNames) => {
+  const P = await makePoser(rigName); const out = []; const fl = new FBXLoader();
+  for (const cn of clipNames) {
+    try {
+      const isGlb = glbSet.has(cn); const f = isGlb ? (await (async () => { const g = await new GLTFLoader().loadAsync(`/in/clips/${cn}.glb`); g.scene.userData.__anims = g.animations; return g; })()).scene : await fl.loadAsync(`/in/clips/${cn}.fbx`); const anims = isGlb ? f.userData.__anims : f.animations; const clip = anims.find((a) => a.tracks.length > 0); const src = new Source(f, clip);
+      const ratio = P.hipY / src.restPos.Hips.y; const loop = LOOP.test(cn) && !NOLOOP.test(cn);
+      const N = Math.max(2, Math.round(clip.duration * 30)) + (loop ? 0 : 1); const B = P.order.length;
+      const q = new Int16Array(N * B * 4), hp = new Float32Array(N * 3); const prev = P.order.map(() => null); let x0 = null, x1 = null;
+      for (let i = 0; i < N; i++) {
+        const t = Math.min(i / 30, clip.duration); src.at(t); P.apply(src, ratio);
+        P.order.forEach((n, k) => { const o = P.tb[n].quaternion.clone(); if (prev[k] && o.dot(prev[k]) < 0) { o.x = -o.x; o.y = -o.y; o.z = -o.z; o.w = -o.w; } prev[k] = o; const j = (i * B + k) * 4; q[j] = Math.round(o.x * 32767); q[j + 1] = Math.round(o.y * 32767); q[j + 2] = Math.round(o.z * 32767); q[j + 3] = Math.round(o.w * 32767); });
+        const hpos = P.tb[P.hipsN].position; hp[i * 3] = +hpos.x.toFixed(5); hp[i * 3 + 1] = +hpos.y.toFixed(5); hp[i * 3 + 2] = +hpos.z.toFixed(5);
+        const p = src.pos('Hips'); if (i === 0) x0 = p; x1 = p;
+      }
+      const dx = Math.hypot(x1.x - x0.x, x1.z - x0.z) * ratio * 1 * RIGS[rigName].scale / RIGS[rigName].scale; // metres travelled at the rig's scale
+      out.push({ v: 1, rig: rigName, name: cn, fps: 30, frames: N, loop, duration: +clip.duration.toFixed(3), rootSpeed: +(dx / clip.duration).toFixed(3), bones: P.order, q: b64(q), hips: b64(hp) });
+    } catch (e) { out.push({ name: cn, error: String(e).slice(0, 120) }); }
+  }
+  return out;
+};
+document.title = 'ready';
+</script>

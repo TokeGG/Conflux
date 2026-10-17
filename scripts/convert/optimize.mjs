@@ -1,0 +1,20 @@
+// Generic GLB optimizer for the staging pipeline: dedup, prune, resize textures, optional mesh simplification. Keeps skins and animations.
+import { NodeIO } from '@gltf-transform/core';
+import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
+import { dedup, prune, textureCompress, simplify, weld, getBounds } from '@gltf-transform/functions';
+import { MeshoptSimplifier } from 'meshoptimizer';
+import sharp from 'sharp';
+import fs from 'node:fs';
+const [, , inp, out, maxTex = '1024', ratio = '0', err = '0.01'] = process.argv;
+await MeshoptSimplifier.ready;
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+const doc = await io.read(inp);
+const tris = () => { let t = 0; for (const m of doc.getRoot().listMeshes()) for (const p of m.listPrimitives()) { const i = p.getIndices(); t += (i ? i.getCount() : p.getAttribute('POSITION').getCount()) / 3; } return Math.round(t); };
+const before = tris();
+const steps = [dedup(), prune()];
+if (+ratio > 0) steps.splice(1, 0, weld(), simplify({ simplifier: MeshoptSimplifier, ratio: +ratio, error: +err, lockBorder: false }));
+steps.push(textureCompress({ encoder: sharp, resize: [+maxTex, +maxTex] }));
+await doc.transform(...steps);
+await io.write(out, doc);
+const b = getBounds(doc.getRoot().listScenes()[0]);
+console.log(inp.split('/').pop(), '->', out.split('/').pop(), `${(fs.statSync(inp).size / 1e6).toFixed(1)}MB -> ${(fs.statSync(out).size / 1e6).toFixed(2)}MB`, `tris ${before} -> ${tris()}`, 'size', b.max.map((v, i) => +(v - b.min[i]).toFixed(2)).join('x'));

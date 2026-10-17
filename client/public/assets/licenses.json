@@ -1,0 +1,184 @@
+{
+ "generated": "staging manifest",
+ "entries": [
+  {
+   "path": "models/enemies/golem.glb",
+   "title": "Drugd\u00f6r The Golem Animated",
+   "author": "Phons",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/drugdor-the-golem-animated-19c1855bdb2c4cdc89da2cfb64da48cf",
+   "note": "read from the file's own glTF metadata; textures reduced to 512 px"
+  },
+  {
+   "path": "models/enemies/treefellow.glb",
+   "title": "Treefellow",
+   "author": "paburoviii",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/treefellow-05b311c607564274a26b3c26f4318066",
+   "note": "from the file's glTF metadata; textures reduced"
+  },
+  {
+   "path": "models/enemies/stump.glb",
+   "title": "Halloween tree stump monster",
+   "author": "BEZDNA-UA",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/halloween-tree-stump-monster-17d588220c1948f19157a0af994c89d2",
+   "note": "from the file's glTF metadata; textures reduced"
+  },
+  {
+   "path": "models/enemies/wisp.glb",
+   "title": "Chromatic Wisp",
+   "author": "Tycho Magnetic Anomaly",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/chromatic-wisp-caef4492f38c4319998ed87afa5cc7f3",
+   "note": "from the file's glTF metadata; decimated from 604,800 to 25,491 triangles"
+  },
+  {
+   "path": "models/enemies/treegolem.glb",
+   "title": "Tree golem (Holz+Golem)",
+   "author": "unknown",
+   "license": "unknown",
+   "verified": false,
+   "note": "owner says free on Sketchfab; page link and license needed (could be a non-commercial or no-derivatives license). Converted from FBX, decimated 989,256 -> 11,868 triangles."
+  },
+  {
+   "path": "models/bosses/reaper.glb",
+   "title": "Pumpkin Reaper",
+   "author": "unknown",
+   "license": "unknown",
+   "verified": false,
+   "note": "owner says free on Sketchfab; page link and license needed. Converted from USDZ, static (no rig), decimated 487,646 -> 19,484 triangles."
+  },
+  {
+   "path": "models/bosses/maw.glb",
+   "title": "Maw J Laygo",
+   "author": "Mixamo / Adobe",
+   "license": "Mixamo terms (free for use in projects; raw files may not be redistributed on their own)",
+   "verified": true,
+   "source": "https://www.mixamo.com",
+   "note": "textures are embedded in the FBX (diffuse, glow, normal); converted with them, textures reduced to 1024 px"
+  },
+  {
+   "path": "models/player/wizardpack.glb",
+   "title": "Wizard (from the 52-character pack)",
+   "author": "unknown",
+   "license": "unknown",
+   "verified": false,
+   "note": "owner-supplied pack with no license file; looks like a Quaternius-style pack but unconfirmed. Blocks release if used as the player."
+  },
+  {
+   "path": "models/player/oldwizard.glb",
+   "title": "Terror Engine - Old Wizard",
+   "author": "JuanCarlosOsanteHernandez",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/terror-engine-old-wizard-0561d94ddd46405aaea85043dbebbdaa",
+   "note": "taken from MMO Arena (already credited there); rigged and animated by its author"
+  },
+  {
+   "path": "models/weapons/staff-fire.glb",
+   "title": "Stylised Fire Staff",
+   "author": "Bl4ckGh0st",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/stylised-fire-staff-fbd37dc983474820a2ad3c4e6872e6d5",
+   "note": "from MMO Arena"
+  },
+  {
+   "path": "models/weapons/staff-ice.glb",
+   "title": "Stylized Magical Ice Staff - Game Ready",
+   "author": "Nexus Assets",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/stylized-magical-ice-staff-game-ready-d98a534be7ef4b1e8de76182e355ce0b",
+   "note": "from MMO Arena"
+  },
+  {
+   "path": "models/weapons/staff-arcane.glb",
+   "title": "Arcane staff of Resonance",
+   "author": "Johan Pindeville",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/arcane-staff-of-resonance-wow-inspired-weapon-b2a8d6386cbd47939acadb94f637872a",
+   "note": "from MMO Arena"
+  },
+  {
+   "path": "models/weapons/staff-necro.glb",
+   "title": "Necro Staff",
+   "author": "suddel",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/necro-staff-05bdb7eb36ea487a8acba0c71fa116ef",
+   "note": "from MMO Arena"
+  },
+  {
+   "path": "models/weapons/staff-holy.glb",
+   "title": "Holy Staff",
+   "author": "3DMode",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "source": "https://sketchfab.com/3d-models/holy-staff-e1c417929c424c15908014ef361bde15",
+   "note": "from MMO Arena"
+  },
+  {
+   "path": "fx/spellwoven/",
+   "title": "Spellwoven - Animated Fantasy Effects v4.0",
+   "author": "Spellwoven",
+   "license": "Full Version terms: commercial use and modification allowed; unmodified redistribution not allowed",
+   "verified": true,
+   "note": "ship only the converted atlases, never the original pack"
+  },
+  {
+   "path": "fx/spell_animations/",
+   "title": "spell_animations",
+   "author": "Viktor Hahn",
+   "license": "CC-BY-4.0",
+   "verified": true,
+   "note": "from the license.txt in the pack; credit required"
+  },
+  {
+   "path": "env/{graveyard,dungeon,cave,forest,minidungeon,nature}/",
+   "title": "Kenney kits: Graveyard 5.0, Modular Dungeon 2.1, Modular Cave 1.0, Mini Forest 1.0, Mini Dungeon 2.0, Nature Kit",
+   "author": "Kenney (kenney.nl)",
+   "license": "CC0",
+   "verified": true
+  },
+  {
+   "path": "tex/sbs128, tex/sbs256",
+   "title": "SBS Tiny Texture Packs (128 and 256)",
+   "author": "Screaming Brain Studios",
+   "license": "CC0",
+   "verified": true,
+   "note": "read from License.txt in both archives"
+  },
+  {
+   "path": "tex/wood, tex/vegetation, tex/grounds, tex/cave, tex/grassdirt",
+   "title": "Wood, Vegetation, Grounds, Cave and Stylized Grass/Dirt textures",
+   "author": "unknown",
+   "license": "unknown",
+   "verified": false,
+   "note": "no license or source in the downloads"
+  },
+  {
+   "path": "clips/",
+   "title": "Mixamo animations (locomotion pack, longbow pack, six magic casts)",
+   "author": "Mixamo / Adobe",
+   "license": "Mixamo terms",
+   "verified": true,
+   "source": "https://www.mixamo.com",
+   "note": "baked into our own clip format for two rigs; originals stay out of the repo"
+  },
+  {
+   "path": "audio/mmo-arena-audio/",
+   "title": "RPG Essentials (Free) sound effects and the fireball samples",
+   "author": "unknown",
+   "license": "unknown",
+   "verified": false,
+   "note": "copied from MMO Arena, whose CREDITS.md also lists these as unverified (the Freesound fireball could be non-commercial)"
+  }
+ ]
+}

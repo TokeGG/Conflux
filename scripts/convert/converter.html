@@ -1,0 +1,30 @@
+<!doctype html><meta charset=utf-8><script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+const b64 = (buf) => { let s = ''; const u = new Uint8Array(buf); for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+window.convert = async (kind, url, opts = {}) => {
+  const loader = kind === 'usdz' ? new USDZLoader() : new FBXLoader();
+  const obj = await loader.loadAsync(url);
+  const info = { meshes: 0, skinned: 0, tris: 0, bones: 0, clips: [], materials: [] };
+  const clips = (obj.animations || []).filter((a) => a.tracks.length);
+  if (opts.textures) {
+    const tl = new THREE.TextureLoader();
+    const T = {}; for (const [k, u] of Object.entries(opts.textures)) { T[k] = await tl.loadAsync(u); if (k === 'map') T[k].colorSpace = THREE.SRGBColorSpace; T[k].flipY = false; }
+    obj.traverse((o) => { if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ map: T.map, normalMap: T.normalMap, roughnessMap: T.roughnessMap, metalnessMap: T.metalnessMap, roughness: 1, metalness: 1 }); });
+  }
+  // drop textures whose image never loaded (FBX files that point at external files), keep the colour
+  obj.traverse((o) => { if (!o.isMesh) return; for (const m of [].concat(o.material)) for (const k of ['map','normalMap','roughnessMap','metalnessMap','emissiveMap','aoMap','bumpMap','specularMap','alphaMap']) { const t = m[k]; if (t && !(t.image && (t.image.width || t.image.data))) { m[k] = null; info.dropped = (info.dropped || []).concat(k); } } });
+  obj.traverse((o) => {
+    if (o.isBone) info.bones++;
+    if (o.isMesh) { info.meshes++; if (o.isSkinnedMesh) info.skinned++; const g = o.geometry; info.tris += (g.index ? g.index.count : g.attributes.position.count) / 3; for (const m of [].concat(o.material)) info.materials.push((m.name || '?') + ':' + (m.map ? (m.map.image?.width + 'x' + m.map.image?.height) : 'nomap')); }
+  });
+  info.clips = clips.map((a) => a.name + ':' + a.duration.toFixed(2));
+  info.bbox = new THREE.Box3().setFromObject(obj).getSize(new THREE.Vector3()).toArray().map((v) => +v.toFixed(2));
+  const glb = await new Promise((res, rej) => new GLTFExporter().parse(obj, res, rej, { binary: true, animations: clips, onlyVisible: false, maxTextureSize: opts.maxTex || 1024 }));
+  return { info, glb: b64(glb) };
+};
+document.title = 'ready';
+</script>
