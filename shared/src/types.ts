@@ -43,6 +43,9 @@ export interface Input {
   swapTo: number;
 }
 
+/** An input that does nothing: standing still, aiming straight ahead. */
+export const idleInput = (): Input => ({ moveX: 0, moveZ: 0, aimYaw: 0, aimPitch: 0, camOrigin: { x: 0, y: 1.6, z: 0 }, buttons: 0, swapTo: -1 });
+
 export interface SimEvent {
   t: number;
   type: string;

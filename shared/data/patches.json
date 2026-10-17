@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.5",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:21:27Z",
+    "notes": [
+      "Simulation bridge with a worker, and a cap on catch-up after a backgrounded tab."
+    ]
+  },
+  {
     "version": "0.1.4",
     "date": "2026-10-17",
     "at": "2026-10-17T20:19:55Z",

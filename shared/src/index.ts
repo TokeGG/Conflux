@@ -8,3 +8,4 @@ export * from './events.ts';
 export * from './sim/sim.ts';
 export * from './sim/state.ts';
 export * from './sim/hash.ts';
+export * from './bridge.ts';
