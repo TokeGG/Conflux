@@ -60,6 +60,8 @@ try {
     check(true, 'worker round trip: a frame arrived after advance (tick > 0)');
     const colours: number = await page.evaluate(() => (window as any).__conflux.distinctColours());
     check(colours > 100, `the canvas shows more than 100 distinct colours (${colours})`);
+    const info: { room: string; pieces: number } = await page.evaluate(() => ({ room: (window as any).__conflux.room, pieces: (window as any).__conflux.pieces }));
+    check(info.room === 'forest_clearing' && info.pieces > 30, `the forest clearing is in the scene (${info.room}, ${info.pieces} pieces)`);
     await page.screenshot({ path: join(shots, 'smoke-boot.png') });
     check(errors.length === 0, `no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();

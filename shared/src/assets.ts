@@ -19,6 +19,9 @@ export interface LicenceEntry {
   note?: string;
 }
 
+/** The id form of a file name: lower case, runs of other characters become one underscore. */
+export const slugId = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+
 /** Our own generated data files carry no third-party licence. */
 export const GENERATED_LICENCE = 'generated';
 export const DEFAULT_PROFILE = 'chunky';

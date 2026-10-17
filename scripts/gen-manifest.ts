@@ -3,9 +3,7 @@
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { DEFAULT_PROFILE, GENERATED_LICENCE, licenceCovers, type AssetEntry, type LicenceEntry } from '../shared/src/assets.ts';
-
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+import { DEFAULT_PROFILE, GENERATED_LICENCE, licenceCovers, slugId as slug, type AssetEntry, type LicenceEntry } from '../shared/src/assets.ts';
 const slugPath = (p: string) => p.split('/').map(slug).join('.');
 
 /** [pattern, id builder, generated?] in priority order. */

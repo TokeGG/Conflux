@@ -206,10 +206,19 @@ export interface RoomPiece {
   scale: number;
 }
 
+export interface RoomFloor {
+  kit: string;
+  tile: string;
+  path?: string;
+  /** Edge length in metres of one floor tile. */
+  tileSize: number;
+}
+
 export interface RoomDef {
   id: string;
   biome: string;
   size: [number, number];
+  floor: RoomFloor;
   pieces: RoomPiece[];
   colliders: Collider[];
   spawns: { player: Vec3; enemies: Vec3[]; doors: Vec3[] };

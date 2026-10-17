@@ -10,3 +10,4 @@ export * from './sim/state.ts';
 export * from './sim/hash.ts';
 export * from './bridge.ts';
 export * from './assets.ts';
+export * from './room.ts';

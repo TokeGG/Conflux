@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.8",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:33:22Z",
+    "notes": [
+      "The forest clearing: pieces, generated colliders and boundary walls, drawn in the scene."
+    ]
+  },
+  {
     "version": "0.1.7",
     "date": "2026-10-17",
     "at": "2026-10-17T20:26:53Z",

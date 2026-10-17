@@ -3,13 +3,14 @@ import { defaultData, DEFAULT_PROFILE } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyTextureFilters, createRenderer, CHUNKY } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
+import { buildRoomScene } from './renderer/room.ts';
 import { AssetLoader, fetchManifest } from './assets/loader.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 
 declare global {
   interface Window {
     /** Read by the browser smoke tests. */
-    __conflux?: { ready: boolean; tick: number; distinctColours(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number };
   }
 }
 
@@ -17,12 +18,20 @@ async function boot(): Promise<void> {
   const data = defaultData();
   const renderer = createRenderer(CHUNKY);
   document.body.append(renderer.domElement);
-  const game = createScene(data.biomes.forest.lighting);
+  const room = data.rooms.forest_clearing;
+  const game = createScene(room.lighting);
 
   const loader = new AssetLoader(await fetchManifest(), DEFAULT_PROFILE);
+  const roomGroup = await buildRoomScene(room, loader);
+  game.scene.add(roomGroup);
   const gltf = await loader.loadModel('model.wizardpack');
   const player = gltf.scene;
   fitHeight(player, 1.8);
+  player.position.x += room.spawns.player.x;
+  player.position.z += room.spawns.player.z;
+  // a temporary vantage inside the room (Task 12 adds the real third-person camera with collision pull-in)
+  game.camera.position.set(room.spawns.player.x + 3, 3.6, room.spawns.player.z - 2.4);
+  game.camera.lookAt(room.spawns.player.x, 1.2, room.spawns.player.z + 5);
   applyTextureFilters(player, CHUNKY);
   game.scene.add(player);
 
@@ -45,6 +54,8 @@ async function boot(): Promise<void> {
     get tick() {
       return state.tick;
     },
+    room: room.id,
+    pieces: room.pieces.length,
     /** Draws a frame and counts the distinct colours on a coarse grid of it. */
     distinctColours() {
       renderer.render(game.scene, game.camera);
