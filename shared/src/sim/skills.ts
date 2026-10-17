@@ -153,7 +153,7 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
   }
 }
 
-/** The enemies a cone, stream line or zone circle reaches from origin along dir, nearest first. */
+/** The enemies a cone, stream line or zone circle reaches from origin along dir, in enemy id order (so reactions resolve in a stable order). */
 export function hitEnemies(sim: Sim, shape: ShapeDef, origin: Vec3, dir: Vec3): EnemyHit[] {
   const out: EnemyHit[] = [];
   for (const e of sim.enemies) {
@@ -185,5 +185,5 @@ export function hitEnemies(sim: Sim, shape: ShapeDef, origin: Vec3, dir: Vec3): 
     }
     if (best) out.push(best);
   }
-  return out.sort((a, b) => a.t - b.t);
+  return out.sort((a, b) => a.enemy.id - b.enemy.id);
 }

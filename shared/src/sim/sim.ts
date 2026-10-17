@@ -8,7 +8,7 @@ import { stepPlayer } from './player.ts';
 import { handleSwapAndCast } from './swap.ts';
 import { tickStatuses } from './statuses.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
-import type { EnemyState, PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
+import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
 
 export const TICK = 1 / 60;
@@ -47,6 +47,7 @@ export class Sim {
       facing: 0,
       hp: data.player.health,
       statuses: {},
+      marks: {},
       dodgeUntil: 0,
       invulnUntil: 0,
       dodgeReadyAt: 0,
@@ -98,9 +99,9 @@ export class Sim {
       handleSwapAndCast(this, this.player, inputs[0]);
       stepPlayer(this, this.player, inputs[0], TICK);
     }
-    for (const c of [this.player, ...this.enemies]) tickStatuses(this, c, TICK);
     stepProjectiles(this, TICK);
     stepZones(this);
+    for (const c of [this.player, ...this.enemies]) tickStatuses(this, c, TICK);
     const out = this.events;
     this.events = [];
     this.tick++;
@@ -136,6 +137,7 @@ export class Sim {
         statuses: list(e.statuses),
         aiState: e.aiState,
         guardOn: !!e.guard?.on,
+        marks: MARK_IDS.filter((id) => (e.marks[id]?.until ?? 0) > now),
       })),
       projectiles: this.projectiles.map((q) => ({ id: q.id, pos: { ...q.pos }, skillId: q.skillId })),
       zones: this.zones.map((z) => ({ id: z.id, kind: z.kind, pos: { ...z.pos }, radius: z.radius, remaining: Math.max(0, z.until - now) })),

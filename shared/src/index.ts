@@ -20,3 +20,4 @@ export * from './sim/skills.ts';
 export * from './sim/projectiles.ts';
 export * from './sim/swap.ts';
 export * from './sim/statuses.ts';
+export * from './sim/reactions.ts';

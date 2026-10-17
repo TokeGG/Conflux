@@ -1,7 +1,8 @@
 // Projectiles in flight and the timed zones (ground effects, walls) that stay in the room.
 import { rayVsBox, rayVsCapsule, v3, type Vec3 } from '../math.ts';
 import { damageEnemy, hitEnemies } from './skills.ts';
-import { enemyHurtboxes, type Zone } from './state.ts';
+import { enemyHurtboxes, type EnemyState, type Zone } from './state.ts';
+import { applyStatus } from './statuses.ts';
 import type { Sim } from './sim.ts';
 
 /** A ray from a to b against a wall zone's box (turned by its yaw); the distance of the hit or null. */
@@ -63,10 +64,30 @@ export function stepProjectiles(sim: Sim, dt: number): void {
 export function stepZones(sim: Sim): void {
   const now = sim.time;
   for (const z of sim.zones) {
-    if (z.tick > 0 && z.damage > 0 && now >= z.nextTick && now < z.until) {
+    if (z.tick > 0 && (z.damage > 0 || z.effects) && now >= z.nextTick && now < z.until) {
       z.nextTick += z.tick;
-      for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point, z.bonus);
+      for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) {
+        if (z.damage > 0) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point, z.bonus);
+        zoneEffects(sim, z, h.enemy);
+      }
+      healInZone(sim, z);
     }
   }
   sim.zones = sim.zones.filter((z) => now < z.until);
+}
+
+function zoneEffects(sim: Sim, z: Zone, e: EnemyState): void {
+  const fx = z.effects;
+  if (!fx || e.hp <= 0) return;
+  if (fx.blindSeconds) e.marks.blind = { until: sim.time + fx.blindSeconds };
+  if (fx.soak) applyStatus(sim, e, 'soaked', sim.time);
+  if (fx.burn) applyStatus(sim, e, 'burning', sim.time);
+}
+
+function healInZone(sim: Sim, z: Zone): void {
+  const pct = z.effects?.healPercentPerSecond;
+  if (!pct) return;
+  const p = sim.player;
+  if (Math.hypot(p.pos.x - z.pos.x, p.pos.z - z.pos.z) > z.radius) return;
+  p.hp = Math.min(sim.data.player.health, p.hp + (sim.data.player.health * pct * z.tick) / 100);
 }

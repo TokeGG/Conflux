@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.16",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:52:56Z",
+    "notes": [
+      "Reactions between elements now work: steam, mud, shock chain, magma and the rest."
+    ]
+  },
+  {
     "version": "0.1.15",
     "date": "2026-10-17",
     "at": "2026-10-17T20:49:50Z",

@@ -18,6 +18,18 @@ export interface CastState {
   bonus?: Bonus;
 }
 
+export const MARK_IDS = ['blind', 'rooted', 'slowed', 'brittle', 'stunned', 'airborne'] as const;
+export type MarkId = (typeof MARK_IDS)[number];
+
+/** A timed effect from a reaction. It carries its own numbers, so reactions can be tuned in data. */
+export interface Mark {
+  until: number;
+  speedMul?: number;
+  damageTakenMul?: number;
+  canAct?: boolean;
+}
+export type MarkMap = Partial<Record<MarkId, Mark>>;
+
 /** What the swap-in bonus adds to one cast, carried by whatever the cast leaves behind. */
 export interface Bonus {
   mul: number;
@@ -40,6 +52,7 @@ export interface PlayerState {
   facing: number;
   hp: number;
   statuses: StatusMap;
+  marks: MarkMap;
   dodgeUntil: number;
   invulnUntil: number;
   dodgeReadyAt: number;
@@ -63,6 +76,7 @@ export interface EnemyState {
   facing: number;
   hp: number;
   statuses: StatusMap;
+  marks: MarkMap;
   aiState: string;
   guard: GuardState | null;
   cooldowns: Record<string, number>;
@@ -97,6 +111,15 @@ export interface Zone {
   tick: number;
   nextTick: number;
   bonus?: Bonus;
+  effects?: ZoneEffects;
+}
+
+/** What a zone does to whoever stands in it, besides damage. */
+export interface ZoneEffects {
+  blindSeconds?: number;
+  soak?: boolean;
+  burn?: boolean;
+  healPercentPerSecond?: number;
 }
 
 export interface HurtCapsule {
@@ -134,6 +157,7 @@ export interface EnemySnap {
   statuses: StatusSnap[];
   aiState: string;
   guardOn: boolean;
+  marks: string[];
 }
 
 export interface ProjectileSnap {
@@ -169,6 +193,7 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {
     facing: 0,
     hp: def.hp,
     statuses: {},
+    marks: {},
     aiState: 'idle',
     guard: def.guard ? { on: false, until: 0, staggeredUntil: 0 } : null,
     cooldowns: {},

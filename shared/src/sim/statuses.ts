@@ -1,6 +1,7 @@
 // Statuses: timed conditions on the player or an enemy. Applying one again refreshes it; it never stacks.
 import type { GameData, StatusId } from '../types.ts';
 import { STATUS_IDS } from '../types.ts';
+import { MARK_IDS } from './state.ts';
 import { damageEnemy } from './skills.ts';
 import type { EnemyState, PlayerState } from './state.ts';
 import type { Sim } from './sim.ts';
@@ -38,6 +39,10 @@ export function tickStatuses(sim: Sim, target: Combatant, dt: number): void {
     const s = target.statuses[id];
     if (s && now >= s.until - EPS) delete target.statuses[id];
   }
+  for (const id of MARK_IDS) {
+    const m = target.marks[id];
+    if (m && now >= m.until - EPS) delete target.marks[id];
+  }
 }
 
 function burnTick(sim: Sim, target: Combatant, damage: number, spread: number, until: number): void {
@@ -65,6 +70,13 @@ export function statusModifiers(target: Combatant, now: number, cfg: GameData['s
     speedMul *= def.speedMul ?? 1;
     damageTakenMul *= def.damageTakenMul ?? 1;
     if (def.canAct === false) canAct = false;
+  }
+  for (const id of MARK_IDS) {
+    const m = target.marks[id];
+    if (!m || now >= m.until - EPS) continue;
+    speedMul *= m.speedMul ?? 1;
+    damageTakenMul *= m.damageTakenMul ?? 1;
+    if (m.canAct === false) canAct = false;
   }
   return { speedMul, damageTakenMul, canAct };
 }
