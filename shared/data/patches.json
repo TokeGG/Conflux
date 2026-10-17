@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.4",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:19:55Z",
+    "notes": [
+      "Simulation core: fixed 60 Hz tick, entities, events, snapshots and a state hash."
+    ]
+  },
+  {
     "version": "0.1.3",
     "date": "2026-10-17",
     "at": "2026-10-17T20:17:20Z",

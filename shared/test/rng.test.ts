@@ -61,3 +61,14 @@ test('pick returns an item of the array and throws on an empty array', () => {
   for (let i = 0; i < 100; i++) assert.ok(['p', 'q', 'r'].includes(r.pick(['p', 'q', 'r'])));
   assert.throws(() => r.pick([]), /empty/i);
 });
+
+test('state() is the same for same-seed streams, changes after a draw, and is four numbers', () => {
+  const a = new Rng(21);
+  const b = new Rng(21);
+  assert.deepEqual(a.state(), b.state());
+  assert.equal(a.state().length, 4);
+  a.next();
+  assert.notDeepEqual(a.state(), b.state());
+  b.next();
+  assert.deepEqual(a.state(), b.state());
+});

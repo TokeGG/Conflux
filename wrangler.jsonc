@@ -1,0 +1,8 @@
+{
+  // Cloudflare Workers static assets: serves the Vite build. The name must match the Cloudflare project name.
+  "name": "conflux",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./client/dist"
+  }
+}

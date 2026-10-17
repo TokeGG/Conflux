@@ -1,5 +1,5 @@
 // Turns the raw JSON files into GameData and checks it. Entries keyed by id in their file get that id as a field.
-import { ELEMENTS, STATUS_IDS, SLOTS, SHAPE_TYPES, CAST_ARCHETYPES, AI_ARCHETYPES, RIG_TYPES, ATTACK_TEMPLATES, type GameData, type Element, type StatusId } from './types.ts';
+import { ELEMENTS, STATUS_IDS, SLOTS, SHAPE_TYPES, CAST_ARCHETYPES, AI_ARCHETYPES, RIG_TYPES, ATTACK_TEMPLATES, type GameData } from './types.ts';
 
 const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes'] as const;
 const SECTIONS = ['player', 'elements', 'statuses', 'reactions', 'rewards', ...KEYED] as const;
@@ -126,4 +126,3 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
   return errors;
 }
 
-export type { Element, StatusId };

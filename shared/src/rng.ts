@@ -68,6 +68,11 @@ export class Rng {
     return items[items.length - 1];
   }
 
+  /** The four generator words, for hashing the state of a stream. */
+  state(): [number, number, number, number] {
+    return [this.a >>> 0, this.b >>> 0, this.c >>> 0, this.d >>> 0];
+  }
+
   /** A new stream named by `label`. It depends only on this stream's seed and path, never on how much has been drawn. */
   fork(label: string): Rng {
     return new Rng(this.seed, `${this.path}/${label}`);
