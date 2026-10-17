@@ -5,6 +5,7 @@ import type { Input, ShapeDef, SkillDef } from '../types.ts';
 import type { Sim } from './sim.ts';
 import { enemyHurtboxes, type Bonus, type EnemyState, type PlayerState } from './state.ts';
 import { consumeSwapBonus } from './swap.ts';
+import { applyStatus } from './statuses.ts';
 
 export interface CastResult {
   ok: boolean;
@@ -41,7 +42,7 @@ function applyHitStatus(sim: Sim, e: EnemyState, skillId: string, bonus?: Bonus)
   if (!skill?.applies) return;
   const chance = skill.statusChance ?? 1;
   const lands = bonus?.guarantee || chance >= 1 || (chance > 0 && sim.streams.combat.next() < chance);
-  if (lands) e.statuses[skill.applies] = { until: sim.time + sim.data.statuses[skill.applies].duration };
+  if (lands) applyStatus(sim, e, skill.applies, sim.time);
 }
 
 /** Starts a cast. The effect lands when the windup ends (see stepCast). */

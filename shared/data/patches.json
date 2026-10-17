@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.15",
+    "date": "2026-10-17",
+    "at": "2026-10-17T20:49:50Z",
+    "notes": [
+      "Burning, soaked, rocked and gusted now work and burning spreads."
+    ]
+  },
+  {
     "version": "0.1.14",
     "date": "2026-10-17",
     "at": "2026-10-17T20:48:07Z",

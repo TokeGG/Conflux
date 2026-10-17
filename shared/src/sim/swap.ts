@@ -2,6 +2,7 @@
 import { ELEMENTS, BTN, type Input, type Slot } from '../types.ts';
 import type { PlayerCfg } from '../types.ts';
 import { resolveAim } from '../aim.ts';
+import { statusModifiers } from './statuses.ts';
 import { castSkill } from './skills.ts';
 import { enemyHurtboxes, type PlayerState } from './state.ts';
 import type { Sim } from './sim.ts';
@@ -40,7 +41,7 @@ export function activeSkillFor(p: PlayerState, slot: Slot): string {
 /** Applies this tick's swap request and button presses. A dodge in progress blocks casting. */
 export function handleSwapAndCast(sim: Sim, p: PlayerState, input: Input): void {
   if (input.swapTo >= 0) trySwap(sim, p, input.swapTo);
-  if (sim.time < p.dodgeUntil) return;
+  if (sim.time < p.dodgeUntil || !statusModifiers(p, sim.time, sim.data.statuses).canAct) return;
   const slot: Slot | null = input.buttons & BTN.LMB ? 'basic' : input.buttons & BTN.RMB ? 'secondary' : input.buttons & BTN.UTIL ? 'utility' : null;
   if (!slot) return;
   const id = activeSkillFor(p, slot);

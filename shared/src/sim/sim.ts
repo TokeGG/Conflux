@@ -6,6 +6,7 @@ import { EVENT_TYPES, type SimEventType } from '../events.ts';
 import { stateHash } from './hash.ts';
 import { stepPlayer } from './player.ts';
 import { handleSwapAndCast } from './swap.ts';
+import { tickStatuses } from './statuses.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
 import type { EnemyState, PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
@@ -97,6 +98,7 @@ export class Sim {
       handleSwapAndCast(this, this.player, inputs[0]);
       stepPlayer(this, this.player, inputs[0], TICK);
     }
+    for (const c of [this.player, ...this.enemies]) tickStatuses(this, c, TICK);
     stepProjectiles(this, TICK);
     stepZones(this);
     const out = this.events;
@@ -107,7 +109,7 @@ export class Sim {
 
   snapshot(): Snapshot {
     const now = this.time;
-    const list = (m: StatusMap): StatusSnap[] => (Object.keys(m) as (keyof StatusMap)[]).map((id) => ({ id, remaining: Math.max(0, m[id]!.until - now) }));
+    const list = (m: StatusMap): StatusSnap[] => (Object.keys(m) as (keyof StatusMap)[]).filter((id) => m[id]!.until > now).map((id) => ({ id, remaining: m[id]!.until - now }));
     const p = this.player;
     return {
       tick: this.tick,

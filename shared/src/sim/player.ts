@@ -3,11 +3,17 @@ import type { Input } from '../types.ts';
 import { BTN } from '../types.ts';
 import type { Sim } from './sim.ts';
 import { stepCast } from './skills.ts';
+import { statusModifiers } from './statuses.ts';
 import type { PlayerState } from './state.ts';
 
 export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): void {
   const cfg = sim.data.player;
   const now = sim.time;
+  const mods = statusModifiers(p, now, sim.data.statuses);
+  if (!mods.canAct) {
+    p.castState = null;
+    input = { ...input, moveX: 0, moveZ: 0, buttons: 0 };
+  }
   stepCast(sim, p, input);
 
   const sin = Math.sin(input.aimYaw);
@@ -37,7 +43,7 @@ export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): 
     vx = Math.sin(p.facing) * cfg.dodge.speed;
     vz = Math.cos(p.facing) * cfg.dodge.speed;
   } else {
-    const speed = cfg.moveSpeed * (p.castState ? p.castState.move : 1) * (p.buff && now < p.buff.until ? p.buff.speedMul : 1);
+    const speed = cfg.moveSpeed * (p.castState ? p.castState.move : 1) * (p.buff && now < p.buff.until ? p.buff.speedMul : 1) * mods.speedMul;
     vx = dirX * speed;
     vz = dirZ * speed;
     if (p.castState) p.facing = input.aimYaw;
