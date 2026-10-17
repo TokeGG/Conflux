@@ -98,6 +98,7 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^statuses\.(?:burning|soaked|rocked|gusted)\.(\w+)$/, (m) => STATUS[m[1]]],
   [/^reactions\..+\.params\.(\w+)$/, (m) => REACTION_PARAM[m[1]]],
   [/^skills\..+\.damage$/, () => n('Damage', 'hp', 0, 1000, 1)],
+  [/^skills\..+\.statusChance$/, () => n('Status chance', '', 0, 1, 0.05)],
   [/^skills\..+\.cooldown$/, () => n('Cooldown', 's', 0, 60, 0.05)],
   [/^skills\..+\.cast\.windup$/, () => n('Windup', 's', 0, 5, 0.01)],
   [/^skills\..+\.cast\.move$/, () => n('Move speed while casting', '×', 0, 1, 0.05)],

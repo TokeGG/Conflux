@@ -1,15 +1,26 @@
 // The simulation: a fixed 60 Hz tick over plain data. It takes inputs and returns events; it never touches graphics.
 import { World } from '../world.ts';
 import { makeStreams, type Streams } from '../rng.ts';
-import { ELEMENTS, type GameData, type Input, type SimEvent } from '../types.ts';
+import { ELEMENTS, SLOTS, type Element, type GameData, type Input, type SimEvent, type Slot } from '../types.ts';
 import { EVENT_TYPES, type SimEventType } from '../events.ts';
 import { stateHash } from './hash.ts';
 import { stepPlayer } from './player.ts';
+import { handleSwapAndCast } from './swap.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
 import type { EnemyState, PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
 
 export const TICK = 1 / 60;
+
+/** The first skill (by id) of each element and slot; the loadout system replaces this per run. */
+function defaultLoadout(data: GameData): Record<Element, Record<Slot, string>> {
+  const out = {} as Record<Element, Record<Slot, string>>;
+  for (const el of ELEMENTS) {
+    out[el] = {} as Record<Slot, string>;
+    for (const slot of SLOTS) out[el][slot] = Object.keys(data.skills).sort().find((id) => data.skills[id].element === el && data.skills[id].slot === slot) ?? '';
+  }
+  return out;
+}
 
 export class Sim {
   readonly data: GameData;
@@ -43,6 +54,8 @@ export class Sim {
       castState: null,
       cooldowns: {},
       buff: null,
+      swapBonusUntil: 0,
+      loadout: defaultLoadout(data),
     };
   }
 
@@ -80,7 +93,10 @@ export class Sim {
 
   /** Advances one tick and returns the events emitted since the previous step. */
   step(inputs: Input[]): SimEvent[] {
-    if (inputs[0]) stepPlayer(this, this.player, inputs[0], TICK);
+    if (inputs[0]) {
+      handleSwapAndCast(this, this.player, inputs[0]);
+      stepPlayer(this, this.player, inputs[0], TICK);
+    }
     stepProjectiles(this, TICK);
     stepZones(this);
     const out = this.events;

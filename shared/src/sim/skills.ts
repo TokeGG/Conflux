@@ -3,7 +3,8 @@ import { rayVsCapsule, v3, type Vec3 } from '../math.ts';
 import { resolveAim } from '../aim.ts';
 import type { Input, ShapeDef, SkillDef } from '../types.ts';
 import type { Sim } from './sim.ts';
-import { enemyHurtboxes, type EnemyState, type PlayerState } from './state.ts';
+import { enemyHurtboxes, type Bonus, type EnemyState, type PlayerState } from './state.ts';
+import { consumeSwapBonus } from './swap.ts';
 
 export interface CastResult {
   ok: boolean;
@@ -22,14 +23,25 @@ const CHEST = 1.4;
 const chest = (p: PlayerState): Vec3 => ({ x: p.pos.x, y: p.pos.y + CHEST, z: p.pos.z });
 
 /** Takes health off an enemy and emits the hit; removes it when it dies. */
-export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3): void {
+export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3, bonus?: Bonus): void {
   if (e.hp <= 0) return;
-  e.hp = Math.max(0, e.hp - amount);
-  sim.emit('hit', { target: 'enemy', id: e.id, amount, skillId, x: point.x, y: point.y, z: point.z });
+  const dealt = amount * (bonus?.mul ?? 1);
+  e.hp = Math.max(0, e.hp - dealt);
+  sim.emit('hit', { target: 'enemy', id: e.id, amount: dealt, skillId, x: point.x, y: point.y, z: point.z });
+  applyHitStatus(sim, e, skillId, bonus);
   if (e.hp <= 0) {
     sim.emit('enemy_died', { id: e.id, defId: e.def.id });
     sim.enemies = sim.enemies.filter((x) => x !== e);
   }
+}
+
+/** The status a skill's hit leaves behind: certain with the swap-in bonus, otherwise by the skill's chance. */
+function applyHitStatus(sim: Sim, e: EnemyState, skillId: string, bonus?: Bonus): void {
+  const skill = sim.data.skills[skillId];
+  if (!skill?.applies) return;
+  const chance = skill.statusChance ?? 1;
+  const lands = bonus?.guarantee || chance >= 1 || (chance > 0 && sim.streams.combat.next() < chance);
+  if (lands) e.statuses[skill.applies] = { until: sim.time + sim.data.statuses[skill.applies].duration };
 }
 
 /** Starts a cast. The effect lands when the windup ends (see stepCast). */
@@ -41,6 +53,8 @@ export function castSkill(sim: Sim, caster: PlayerState, skillId: string, aimPoi
   if (now < (caster.cooldowns[skillId] ?? 0)) return { ok: false, reason: 'cooldown' };
   const channel = skill.shape.type === 'stream' ? (skill.shape.duration ?? 0) : 0;
   caster.cooldowns[skillId] = now + skill.cooldown;
+  const swap = consumeSwapBonus(caster, now, sim.data.player.swap);
+  const bonus: Bonus = { mul: swap.damageMul, guarantee: swap.guaranteeStatus };
   caster.castState = {
     skillId,
     until: now + skill.cast.windup + channel,
@@ -49,6 +63,7 @@ export function castSkill(sim: Sim, caster: PlayerState, skillId: string, aimPoi
     fired: false,
     aim: { ...aimPoint },
     nextTick: now + skill.cast.windup,
+    bonus,
   };
   sim.emit('cast', { skillId, archetype: skill.cast.archetype, clip: skill.cast.clip });
   return { ok: true };
@@ -74,20 +89,20 @@ export function stepCast(sim: Sim, p: PlayerState, input: Input): void {
   }
   if (!cs.fired && now >= (cs.fireAt ?? 0)) {
     cs.fired = true;
-    fire(sim, p, skill, origin, cs.aim ?? { x: origin.x, y: origin.y, z: origin.z + 1 });
+    fire(sim, p, skill, origin, cs.aim ?? { x: origin.x, y: origin.y, z: origin.z + 1 }, cs.bonus);
   }
   if (cs.fired && skill.shape.type === 'stream') {
     const tick = skill.shape.tick ?? 0.25;
     while (cs.nextTick !== undefined && now >= cs.nextTick && cs.nextTick < cs.until - 1e-9) {
       cs.nextTick += tick;
       const dir = v3.norm(v3.sub(cs.aim ?? origin, origin));
-      for (const h of hitEnemies(sim, skill.shape, origin, dir)) damageEnemy(sim, h.enemy, skill.damage, skill.id, h.point);
+      for (const h of hitEnemies(sim, skill.shape, origin, dir)) damageEnemy(sim, h.enemy, skill.damage, skill.id, h.point, cs.bonus);
     }
   }
   if (now >= cs.until && cs.fired) p.castState = null;
 }
 
-function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3): void {
+function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3, bonus?: Bonus): void {
   const s = skill.shape;
   const now = sim.time;
   const dir = v3.norm(v3.sub(aim, origin));
@@ -100,18 +115,18 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
         const c = Math.cos(off);
         const sn = Math.sin(off);
         const d = { x: dir.x * c + dir.z * sn, y: dir.y, z: -dir.x * sn + dir.z * c };
-        sim.projectiles.push({ id: sim.allocId(), pos: { ...origin }, vel: v3.scale(d, s.speed ?? 20), r: s.radius ?? 0.25, gravity: s.gravity ?? 0, skillId: skill.id, ownerId: 0, diesAt: now + (s.lifetime ?? 1) });
+        sim.projectiles.push({ id: sim.allocId(), pos: { ...origin }, vel: v3.scale(d, s.speed ?? 20), r: s.radius ?? 0.25, gravity: s.gravity ?? 0, skillId: skill.id, ownerId: 0, diesAt: now + (s.lifetime ?? 1), bonus });
       }
       break;
     }
     case 'cone':
-      for (const h of hitEnemies(sim, s, origin, dir)) damageEnemy(sim, h.enemy, skill.damage, skill.id, h.point);
+      for (const h of hitEnemies(sim, s, origin, dir)) damageEnemy(sim, h.enemy, skill.damage, skill.id, h.point, bonus);
       break;
     case 'stream':
       break; // ticks run in stepCast
     case 'zone': {
       const tick = s.tick ?? 0;
-      sim.zones.push({ id: sim.allocId(), kind: skill.id, pos: { x: aim.x, y: sim.world.groundAt(aim.x, aim.z), z: aim.z }, radius: s.radius ?? 2, until: now + (s.duration ?? 1), ownerId: 0, skillId: skill.id, yaw: 0, width: 0, height: 0, damage: skill.damage, tick, nextTick: now });
+      sim.zones.push({ id: sim.allocId(), kind: skill.id, pos: { x: aim.x, y: sim.world.groundAt(aim.x, aim.z), z: aim.z }, radius: s.radius ?? 2, until: now + (s.duration ?? 1), ownerId: 0, skillId: skill.id, yaw: 0, width: 0, height: 0, damage: skill.damage, tick, nextTick: now, bonus });
       break;
     }
     case 'wall': {

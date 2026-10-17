@@ -54,7 +54,7 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     const point = v3.add(from, v3.scale(dir, best));
     const target = enemyId === null ? null : sim.enemies.find((e) => e.id === enemyId);
     const skill = sim.data.skills[q.skillId];
-    if (target && skill) damageEnemy(sim, target, skill.damage, q.skillId, point);
+    if (target && skill) damageEnemy(sim, target, skill.damage, q.skillId, point, q.bonus);
     else sim.emit('hit', { target: 'world', skillId: q.skillId, x: point.x, y: point.y, z: point.z });
   }
   sim.projectiles = alive;
@@ -65,7 +65,7 @@ export function stepZones(sim: Sim): void {
   for (const z of sim.zones) {
     if (z.tick > 0 && z.damage > 0 && now >= z.nextTick && now < z.until) {
       z.nextTick += z.tick;
-      for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point);
+      for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point, z.bonus);
     }
   }
   sim.zones = sim.zones.filter((z) => now < z.until);

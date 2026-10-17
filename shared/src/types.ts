@@ -136,6 +136,8 @@ export interface SkillDef {
   damage: number;
   cooldown: number;
   applies: StatusId | null;
+  /** Chance (0 to 1) a hit applies the status; a swap-in bonus makes it certain. Missing means always. */
+  statusChance?: number;
   cast: { archetype: CastArchetype; windup: number; clip: string; move: number };
   fx: Record<string, string>;
   tags: string[];

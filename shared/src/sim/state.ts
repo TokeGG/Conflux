@@ -1,6 +1,6 @@
 // Entities the simulation holds, their snapshot views, and spawning.
 import type { Vec3 } from '../math.ts';
-import type { EnemyDef, GuardState, StatusId, StatusMap } from '../types.ts';
+import type { Element, EnemyDef, GuardState, Slot, StatusId, StatusMap } from '../types.ts';
 import type { Sim } from './sim.ts';
 
 export interface CastState {
@@ -15,6 +15,13 @@ export interface CastState {
   aim?: Vec3;
   /** A stream's next damage tick. */
   nextTick?: number;
+  bonus?: Bonus;
+}
+
+/** What the swap-in bonus adds to one cast, carried by whatever the cast leaves behind. */
+export interface Bonus {
+  mul: number;
+  guarantee: boolean;
 }
 
 /** A short-lived defensive effect from a self skill. */
@@ -43,6 +50,10 @@ export interface PlayerState {
   /** Time each skill is ready again. */
   cooldowns: Record<string, number>;
   buff: Buff | null;
+  /** The swap-in bonus can be claimed until this time. */
+  swapBonusUntil: number;
+  /** Skill id per element and slot; empty string when the slot has none. */
+  loadout: Record<Element, Record<Slot, string>>;
 }
 
 export interface EnemyState {
@@ -66,6 +77,7 @@ export interface Projectile {
   skillId: string;
   ownerId: number;
   diesAt: number;
+  bonus?: Bonus;
 }
 
 export interface Zone {
@@ -84,6 +96,7 @@ export interface Zone {
   damage: number;
   tick: number;
   nextTick: number;
+  bonus?: Bonus;
 }
 
 export interface HurtCapsule {
