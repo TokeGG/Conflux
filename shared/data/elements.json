@@ -1,0 +1,11 @@
+{
+  "order": ["fire", "water", "earth", "wind"],
+  "cycle": {
+    "fire": { "weak": ["water"], "resist": ["wind"] },
+    "water": { "weak": ["earth"], "resist": ["fire"] },
+    "earth": { "weak": ["wind"], "resist": ["water"] },
+    "wind": { "weak": ["fire"], "resist": ["earth"] }
+  },
+  "multipliers": { "weak": 1.5, "resist": 0.5 },
+  "status": { "fire": "burning", "water": "soaked", "earth": "rocked", "wind": null }
+}

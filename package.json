@@ -1,0 +1,28 @@
+{
+  "name": "conflux",
+  "version": "0.1.21",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "workspaces": [
+    "shared",
+    "client"
+  ],
+  "scripts": {
+    "typecheck": "tsc -p shared --noEmit && tsc -p client --noEmit",
+    "test": "tsx --test \"shared/test/**/*.test.ts\" \"client/test/**/*.test.ts\"",
+    "dev": "npm -w client run dev",
+    "build": "tsx scripts/check-licences.ts && npm -w client run build",
+    "bump": "tsx scripts/bump.ts",
+    "smoke": "npm run build && tsx scripts/smoke.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "playwright-core": "^1.64.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

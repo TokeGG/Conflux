@@ -1,0 +1,17 @@
+{
+  "cooldown": 0.75,
+  "rows": [
+    { "id": "burning.water", "existing": "burning", "hitBy": "water", "effect": "steam", "params": { "radius": 3, "damageMul": 1, "blindSeconds": 3 } },
+    { "id": "soaked.fire", "existing": "soaked", "hitBy": "fire", "effect": "steam", "params": { "radius": 3, "damageMul": 1, "blindSeconds": 3 } },
+    { "id": "burning.earth", "existing": "burning", "hitBy": "earth", "effect": "obsidian", "params": { "brittleSeconds": 4, "damageTakenMul": 1.3, "speedMul": 0.5 } },
+    { "id": "burning.wind", "existing": "burning", "hitBy": "wind", "effect": "firestorm", "params": { "radius": 6, "damageMul": 0.6 } },
+    { "id": "soaked.earth", "existing": "soaked", "hitBy": "earth", "effect": "mud", "params": { "rootSeconds": 2, "slowSeconds": 4, "slowMul": 0.6 } },
+    { "id": "rocked.water", "existing": "rocked", "hitBy": "water", "effect": "mud", "params": { "rootSeconds": 2, "slowSeconds": 4, "slowMul": 0.6 } },
+    { "id": "soaked.wind", "existing": "soaked", "hitBy": "wind", "effect": "shock_chain", "params": { "jumps": 3, "radius": 8, "damageMul": 0.7 } },
+    { "id": "rocked.fire", "existing": "rocked", "hitBy": "fire", "effect": "magma", "params": { "radius": 4, "seconds": 4, "dps": 6 } },
+    { "id": "rocked.wind", "existing": "rocked", "hitBy": "wind", "effect": "sandstorm", "params": { "radius": 4, "seconds": 3, "dps": 5, "blindSeconds": 3 } },
+    { "id": "gusted.fire", "existing": "gusted", "hitBy": "fire", "effect": "fire_tornado", "params": { "damageMul": 1.5, "seconds": 1.5, "spreadBurning": 1 } },
+    { "id": "gusted.water", "existing": "gusted", "hitBy": "water", "effect": "rain_cloud", "params": { "radius": 5, "seconds": 5, "healPercentPerSecond": 2 } },
+    { "id": "gusted.earth", "existing": "gusted", "hitBy": "earth", "effect": "meteor_slam", "params": { "damageMul": 2, "radius": 3, "stunSeconds": 1 } }
+  ]
+}

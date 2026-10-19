@@ -1,0 +1,9 @@
+{
+  "aug.hot_hands": {
+    "name": "Hot Hands",
+    "kind": "stat",
+    "rarity": { "common": { "damage": 2 }, "rare": { "damage": 4 }, "epic": { "damage": 7 } },
+    "target": { "skill": "fire.fireball" },
+    "ops": [{ "op": "add", "path": "damage", "value": "$rarity.damage" }]
+  }
+}

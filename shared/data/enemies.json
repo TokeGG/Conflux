@@ -1,0 +1,18 @@
+{
+  "enemy.dummy": {
+    "name": "Training Dummy",
+    "element": "none",
+    "weak": [],
+    "resist": [],
+    "immune": [],
+    "model": "model.stump",
+    "scale": 1,
+    "rig": { "type": "procedural", "preset": "hop" },
+    "hp": 1000,
+    "speed": 0,
+    "cost": 1,
+    "hurtboxes": [{ "a": [0, 0.4, 0], "b": [0, 1.4, 0], "r": 0.5 }],
+    "ai": "none",
+    "attacks": []
+  }
+}

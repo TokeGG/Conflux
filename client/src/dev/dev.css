@@ -1,0 +1,20 @@
+#devbtn { position: fixed; left: 12px; bottom: 12px; z-index: 999; padding: 6px 10px; font: 13px system-ui, sans-serif; background: #1b2030; color: #e9e4d6; border: 1px solid #3a4258; border-radius: 6px; cursor: pointer; opacity: 0.75; }
+#devbtn:hover { opacity: 1; }
+#devpanel { position: fixed; top: 0; right: 0; bottom: 0; width: min(460px, 100vw); z-index: 1000; overflow: auto; box-sizing: border-box; background: rgba(14, 16, 22, 0.95); color: #e9e4d6; font: 13px/1.45 system-ui, sans-serif; border-left: 1px solid #2b303d; padding: 10px 12px 24px; }
+#devpanel[hidden], #devpanel [hidden] { display: none !important; }
+#devpanel button, #devpanel input { font: inherit; color: inherit; background: #222839; border: 1px solid #3a4258; border-radius: 4px; padding: 3px 8px; }
+#devpanel button { cursor: pointer; }
+#devpanel button:hover { background: #2d3550; }
+.dev-head { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.dev-head b { font-size: 15px; }
+.dev-search { flex: 1; }
+.dev-bar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.dev-msg { min-height: 1.4em; color: #f2c879; margin-bottom: 6px; }
+.dev-drawer { border: 1px solid #2b303d; border-radius: 4px; padding: 6px; margin-bottom: 8px; max-height: 30vh; overflow: auto; }
+.dev-change { display: flex; gap: 6px; align-items: baseline; padding: 2px 0; }
+.dev-staged { color: #f2c879; }
+.dev-nav { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.dev-nav .dev-on { background: #3b4a78; }
+.dev-body h3 { margin: 12px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: #9fb3e8; }
+.dev-row { display: flex; gap: 8px; align-items: center; padding: 2px 0; }
+.dev-label { flex: 0 0 170px; color: #b9b4a6; }

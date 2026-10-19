@@ -1,0 +1,37 @@
+{
+  "events": {
+    "cast": null,
+    "hit": { "by": "skill", "slot": "hit", "at": "pos" },
+    "status_applied": null,
+    "reaction": {
+      "by": "reaction",
+      "at": "pos",
+      "ids": {
+        "burning.water": "fx.steam_puff",
+        "soaked.fire": "fx.steam_puff",
+        "burning.earth": "fx.crystal_eruption",
+        "burning.wind": "fx.ember_burst",
+        "soaked.earth": "fx.root_eruption",
+        "rocked.water": "fx.root_eruption",
+        "soaked.wind": "fx.chain_lightning",
+        "rocked.fire": "fx.lava_geyser",
+        "rocked.wind": "fx.sand_swirl",
+        "gusted.fire": "fx.fire_tornado",
+        "gusted.water": "fx.rain_circle",
+        "gusted.earth": "fx.meteor_fall"
+      }
+    },
+    "guard_broken": { "id": "fx.crystal_shield", "at": "target" },
+    "telegraph": null,
+    "enemy_died": { "id": "fx.soul_release", "at": "pos" },
+    "room_cleared": null,
+    "reward_offered": null,
+    "swap": {
+      "by": "to",
+      "at": "target",
+      "ids": { "fire": "fx.ember_burst", "water": "fx.water_splash", "earth": "fx.stone_impact", "wind": "fx.dust_step" }
+    },
+    "dodge": { "id": "fx.dust_step", "at": "pos" },
+    "shield_pop": { "id": "fx.water_splash", "at": "pos" }
+  }
+}
