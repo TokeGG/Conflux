@@ -125,7 +125,7 @@ export function triggerReaction(sim: Sim, enemy: EnemyState, element: Element, h
   delete enemy.statuses[row.existing];
   const own = sim.data.elements.status[element];
   if (own) applyStatus(sim, enemy, own, now);
-  const damage = handler(sim, enemy, hitDamage, row.params, now);
+  const damage = handler(sim, enemy, hitDamage, sim.reactionParams(row), now);
   sim.emit('reaction', { id: row.id, effect: row.effect, enemyId: enemy.id, pos: { x: enemy.pos.x, y: enemy.pos.y, z: enemy.pos.z } });
   return { id: row.id, effect: row.effect, damage, enemyId: enemy.id };
 }

@@ -11,6 +11,8 @@ export type SkillLoadout = Record<Element, Record<Slot, string>>;
 export interface OwnedAugment {
   id: string;
   rarity: Rarity;
+  /** The skill whose socket it fills, or '*' for a passive aimed at a tag or an element. */
+  skill: string;
 }
 
 export interface RoomPlan {

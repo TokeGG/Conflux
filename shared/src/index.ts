@@ -32,3 +32,4 @@ export * from './run/run.ts';
 export * from './run/encounters.ts';
 export * from './run/roomToRoom.ts';
 export * from './run/rewards.ts';
+export * from './run/augments.ts';

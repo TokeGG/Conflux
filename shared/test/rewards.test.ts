@@ -116,7 +116,7 @@ test('claiming a skill adds it to the pool and keeps the old one; claiming it tw
 test('claiming an augment adds it with its rarity', () => {
   const data = defaultData();
   const next = claimReward(fresh(data), { kind: 'augment', id: 'aug.hot_hands', rarity: 'rare' });
-  assert.deepEqual(next.augments, [{ id: 'aug.hot_hands', rarity: 'rare' }]);
+  assert.deepEqual(next.augments, [{ id: 'aug.hot_hands', rarity: 'rare', skill: 'fire.fireball' }]);
 });
 
 test('claiming a heal restores a share of health, more for a higher rarity, and never past the maximum', () => {

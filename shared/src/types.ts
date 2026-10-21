@@ -129,6 +129,9 @@ export interface ShapeDef {
   /** A dash leaves a trail of ground effect this wide, lasting this long. */
   trailRadius?: number;
   trailSeconds?: number;
+  /** Set by augments: a projectile explodes in this radius, and passes through this many enemies. */
+  explode?: number;
+  pierce?: number;
 }
 
 export interface SkillDef {

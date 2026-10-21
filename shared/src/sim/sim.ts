@@ -1,13 +1,15 @@
 // The simulation: a fixed 60 Hz tick over plain data. It takes inputs and returns events; it never touches graphics.
 import { World } from '../world.ts';
 import { makeStreams, type Streams } from '../rng.ts';
-import { ELEMENTS, SLOTS, type Element, type GameData, type Input, type SimEvent, type Slot } from '../types.ts';
+import { ELEMENTS, SLOTS, type Element, type GameData, type Input, type ReactionDef, type SimEvent, type Slot, type SkillDef } from '../types.ts';
 import { EVENT_TYPES, type SimEventType } from '../events.ts';
 import { stateHash } from './hash.ts';
 import { stepPlayer } from './player.ts';
 import { handleSwapAndCast } from './swap.ts';
 import { popShield } from './skills.ts';
 import { tickStatuses } from './statuses.ts';
+import { applyAugments, applyReactionAugments } from '../run/augments.ts';
+import type { OwnedAugment } from '../run/run.ts';
 import { stepAI } from './ai.ts';
 import { stepAttacks } from './attacks.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
@@ -32,6 +34,9 @@ export class Sim {
   readonly world: World;
   readonly streams: Streams;
   tick = 0;
+  /** The augments the player owns; skills are read through `skill()` so they apply. */
+  augments: OwnedAugment[] = [];
+  private skillCache = new Map<string, { base: SkillDef; augments: OwnedAugment[]; out: SkillDef }>();
   /** How many enemies have ever been spawned, and whether the room has been announced as cleared. */
   spawned = 0;
   roomCleared = false;
@@ -71,6 +76,27 @@ export class Sim {
       swapBonusUntil: 0,
       loadout: defaultLoadout(data),
     };
+  }
+
+  /** Replaces the owned augments. */
+  setAugments(list: OwnedAugment[]): void {
+    this.augments = [...list];
+  }
+
+  /** The skill as the owned augments shape it (cached until the skill's data or the augments change). */
+  skill(id: string): SkillDef | undefined {
+    const base = this.data.skills[id];
+    if (!base) return undefined;
+    const hit = this.skillCache.get(id);
+    if (hit && hit.base === base && hit.augments === this.augments) return hit.out;
+    const out = this.augments.length ? applyAugments(base, this.augments, this.data.augments) : base;
+    this.skillCache.set(id, { base, augments: this.augments, out });
+    return out;
+  }
+
+  /** A reaction's numbers with the owned reaction augments applied. */
+  reactionParams(row: ReactionDef): Record<string, number> {
+    return this.augments.length ? applyReactionAugments(row, this.augments, this.data.augments) : row.params;
   }
 
   get time(): number {
@@ -143,7 +169,7 @@ export class Sim {
           casting: p.castState ? p.castState.skillId : null,
           slots: SLOTS.map((slot) => {
             const skillId = p.loadout[ELEMENTS[p.element]][slot];
-            return { slot, skillId, remaining: Math.max(0, (p.cooldowns[skillId] ?? 0) - now), total: this.data.skills[skillId]?.cooldown ?? 0 };
+            return { slot, skillId, remaining: Math.max(0, (p.cooldowns[skillId] ?? 0) - now), total: this.skill(skillId)?.cooldown ?? 0 };
           }),
           swapRemaining: Math.max(0, p.swapReadyAt - now),
           bonusRemaining: Math.max(0, p.swapBonusUntil - now),
@@ -169,6 +195,6 @@ export class Sim {
 
   hash(): string {
     const s = this.streams;
-    return stateHash({ tick: this.tick, rng: [s.map.state(), s.encounter.state(), s.reward.state(), s.combat.state()], player: this.player, enemies: this.enemies, projectiles: this.projectiles, zones: this.zones });
+    return stateHash({ tick: this.tick, rng: [s.map.state(), s.encounter.state(), s.reward.state(), s.combat.state()], player: this.player, enemies: this.enemies, projectiles: this.projectiles, zones: this.zones, augments: this.augments });
   }
 }

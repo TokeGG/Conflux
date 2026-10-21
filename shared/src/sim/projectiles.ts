@@ -1,11 +1,15 @@
 // Projectiles in flight and the timed zones (ground effects, walls) that stay in the room.
 import { rayVsBox, rayVsCapsule, v3, type Vec3 } from '../math.ts';
 import { damageEnemy, hitEnemies, skillHit } from './skills.ts';
-import { enemyHurtboxes, type EnemyState, type Zone } from './state.ts';
+import { enemyHurtboxes, type Bonus, type EnemyState, type Zone } from './state.ts';
+import type { SkillDef } from '../types.ts';
 import { applyStatus } from './statuses.ts';
 import { projectileVsPlayer } from './attacks.ts';
 import { dealDamage } from './damage.ts';
 import type { Sim } from './sim.ts';
+
+/** What share of a skill's damage its explosion deals. */
+const EXPLOSION_DAMAGE = 0.6;
 
 /** A ray from a to b against a wall zone's box (turned by its yaw); the distance of the hit or null. */
 function rayVsWall(z: Zone, o: Vec3, d: Vec3): number | null {
@@ -44,6 +48,7 @@ export function stepProjectiles(sim: Sim, dt: number): void {
       }
     }
     for (const h of q.ownerId > 0 ? [] : boxes) {
+      if (q.hit?.includes(h.enemyId)) continue; // already passed through this one
       const t = rayVsCapsule(from, dir, h.a, h.b, h.r + q.r);
       if (t !== null && t <= length && (best === null || t < best)) {
         best = t;
@@ -66,13 +71,29 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     }
     const point = v3.add(from, v3.scale(dir, best));
     const target = enemyId === null ? null : sim.enemies.find((e) => e.id === enemyId);
-    const skill = sim.data.skills[q.skillId];
+    const skill = sim.skill(q.skillId);
     const attack = sim.data.attacks[q.skillId];
     if (hitsPlayer && attack) dealDamage(sim, sim.player, attack.damage, 'none', { applies: attack.applies ?? null });
     else if (target && skill) skillHit(sim, target, skill, skill.damage, point, q.bonus);
     else sim.emit('hit', { target: 'world', skillId: q.skillId, x: point.x, y: point.y, z: point.z });
+    if (target && skill && (q.pierce ?? 0) > 0) {
+      // a piercing shot carries on past the enemy it hit
+      q.pierce = (q.pierce ?? 0) - 1;
+      q.hit = [...(q.hit ?? []), target.id];
+      q.pos = to;
+      alive.push(q);
+      continue;
+    }
+    if (q.explode && skill) explode(sim, skill, point, q.explode, [...(q.hit ?? []), ...(target ? [target.id] : [])], q.bonus);
   }
   sim.projectiles = alive;
+}
+
+/** A burst where a shot landed: enemies near it that the shot did not hit itself take part of its damage. */
+function explode(sim: Sim, skill: SkillDef, point: Vec3, radius: number, spare: number[], bonus?: Bonus): void {
+  for (const h of hitEnemies(sim, { type: 'zone', radius }, point, { x: 0, y: 0, z: 1 })) {
+    if (!spare.includes(h.enemy.id)) skillHit(sim, h.enemy, skill, skill.damage * EXPLOSION_DAMAGE, h.point, bonus);
+  }
 }
 
 export function stepZones(sim: Sim): void {
@@ -81,7 +102,7 @@ export function stepZones(sim: Sim): void {
     if (z.tick > 0 && (z.damage > 0 || z.effects) && now >= z.nextTick && now < z.until) {
       z.nextTick += z.tick;
       for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) {
-        const skill = sim.data.skills[z.skillId];
+        const skill = sim.skill(z.skillId);
         if (z.damage > 0 && skill) skillHit(sim, h.enemy, skill, z.damage, h.point, z.bonus);
         else if (z.damage > 0) damageEnemy(sim, h.enemy, z.damage, z.skillId, h.point);
         zoneEffects(sim, z, h.enemy);

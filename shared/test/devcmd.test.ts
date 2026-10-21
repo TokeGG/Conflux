@@ -201,3 +201,16 @@ test('a dev command the runner does not know is ignored without throwing', () =>
   r.command({ op: 'explode' });
   assert.doesNotThrow(() => r.advance(TICK));
 });
+
+test('giveAugment sockets an augment for the next cast, refuses a full skill and unknown ids', () => {
+  const sim = makeSim();
+  assert.equal(applyDevCommand(sim, { op: 'giveAugment', id: 'aug.hot_hands', rarity: 'epic' }), null);
+  assert.deepEqual(sim.augments, [{ id: 'aug.hot_hands', rarity: 'epic', skill: 'fire.fireball' }]);
+  assert.equal(sim.skill('fire.fireball')!.damage, 21);
+  assert.equal(sim.tuned, true);
+  applyDevCommand(sim, { op: 'giveAugment', id: 'aug.hot_hands', rarity: 'common' });
+  applyDevCommand(sim, { op: 'giveAugment', id: 'aug.hot_hands', rarity: 'common' });
+  assert.match(applyDevCommand(sim, { op: 'giveAugment', id: 'aug.hot_hands', rarity: 'rare' })!, /socket/i);
+  assert.match(applyDevCommand(sim, { op: 'giveAugment', id: 'aug.nothing', rarity: 'rare' })!, /aug\.nothing/);
+  assert.match(applyDevCommand(sim, { op: 'giveAugment', id: 'aug.wide_cone', rarity: 'mythic' })!, /rarity/);
+});

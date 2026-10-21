@@ -114,7 +114,8 @@
       "range": 7,
       "width": 0.8,
       "tick": 0.2,
-      "duration": 1.6
+      "duration": 1.6,
+      "count": 1
     },
     "damage": 3,
     "cooldown": 5,

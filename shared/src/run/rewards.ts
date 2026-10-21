@@ -2,6 +2,7 @@
 import { defaultData } from '../files.ts';
 import type { Rng } from '../rng.ts';
 import { RARITIES, type Element, type GameData, type Rarity, type RewardsCfg } from '../types.ts';
+import { canSocket, socketFor } from './augments.ts';
 import type { RewardKind, RunState } from './run.ts';
 
 export interface RewardOffer {
@@ -56,7 +57,13 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
       return { kind, id, element: data.skills[id].element };
     }
     if (kind === 'augment') {
-      const ids = Object.keys(data.augments).sort();
+      // only augments that can be used: a skill augment needs the skill owned and a free socket
+      const ids = Object.keys(data.augments)
+        .filter((id) => {
+          const t = data.augments[id].target;
+          return !t.skill || (state.ownedSkills.includes(t.skill) && canSocket(t.skill, state.augments));
+        })
+        .sort();
       if (ids.length === 0) return null;
       return { kind, id: rng.pick(ids), rarity: drawRarity(state, data, rng) };
     }
@@ -107,8 +114,10 @@ export function claimReward(state: RunState, offer: RewardOffer): RunState {
       if (!offer.id) return state;
       return { ...state, ownedSkills: state.ownedSkills.includes(offer.id) ? state.ownedSkills : [...state.ownedSkills, offer.id] };
     case 'augment':
-      if (!offer.id) return state;
-      return { ...state, augments: [...state.augments, { id: offer.id, rarity: offer.rarity ?? 'common' }] };
+      if (!offer.id || !state.data.augments[offer.id]) return state;
+      const socket = socketFor(state.data.augments[offer.id]);
+      if (socket !== '*' && !canSocket(socket, state.augments)) return state; // the skill's sockets are full
+      return { ...state, augments: [...state.augments, { id: offer.id, rarity: offer.rarity ?? 'common', skill: socket }] };
     case 'heal':
       return { ...state, hp: Math.min(max, state.hp + state.data.rewards.healFraction * max * HEAL_RARITY[offer.rarity ?? 'common']) };
   }

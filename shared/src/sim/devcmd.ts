@@ -3,7 +3,8 @@
 import { resolveAim } from '../aim.ts';
 import { validateData } from '../data.ts';
 import type { SimRunner, DevCommand } from '../bridge.ts';
-import { ELEMENTS, STATUS_IDS, type GameData, type StatusId } from '../types.ts';
+import { ELEMENTS, RARITIES, STATUS_IDS, type GameData, type Rarity, type StatusId } from '../types.ts';
+import { canSocket, socketFor } from '../run/augments.ts';
 import { aimDir, v3, type Vec3 } from '../math.ts';
 import { damageEnemy } from './skills.ts';
 import { applyStatus } from './statuses.ts';
@@ -68,6 +69,15 @@ export function applyDevCommand(sim: Sim, cmd: DevCommand): string | null {
       const s = sim.data.skills[String(cmd.skill)];
       if (!s) return `unknown skill ${String(cmd.skill)}`;
       sim.player.loadout[s.element][s.slot] = s.id;
+      return done(null);
+    }
+    case 'giveAugment': {
+      const def = sim.data.augments[String(cmd.id)];
+      if (!def) return `unknown augment ${String(cmd.id)}`;
+      if (!(RARITIES as readonly unknown[]).includes(cmd.rarity)) return `unknown rarity ${String(cmd.rarity)}`;
+      const socket = socketFor(def);
+      if (socket !== '*' && !canSocket(socket, sim.augments)) return `${socket} has no free socket`;
+      sim.setAugments([...sim.augments, { id: def.id, rarity: cmd.rarity as Rarity, skill: socket }]);
       return done(null);
     }
     case 'setElement': {

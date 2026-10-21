@@ -2,8 +2,301 @@
   "aug.hot_hands": {
     "name": "Hot Hands",
     "kind": "stat",
-    "rarity": { "common": { "damage": 2 }, "rare": { "damage": 4 }, "epic": { "damage": 7 } },
-    "target": { "skill": "fire.fireball" },
-    "ops": [{ "op": "add", "path": "damage", "value": "$rarity.damage" }]
+    "rarity": {
+      "common": {
+        "damage": 2
+      },
+      "rare": {
+        "damage": 4
+      },
+      "epic": {
+        "damage": 7
+      }
+    },
+    "target": {
+      "skill": "fire.fireball"
+    },
+    "ops": [
+      {
+        "op": "add",
+        "path": "damage",
+        "value": "$rarity.damage"
+      }
+    ]
+  },
+  "aug.wide_cone": {
+    "name": "Wide Cone",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "angle": 10
+      },
+      "rare": {
+        "angle": 15
+      },
+      "epic": {
+        "angle": 25
+      }
+    },
+    "target": {
+      "skill": "fire.flame_cone"
+    },
+    "ops": [
+      {
+        "op": "add",
+        "path": "shape.angle",
+        "value": "$rarity.angle"
+      }
+    ]
+  },
+  "aug.explosive_fireball": {
+    "name": "Explosive Fireball",
+    "kind": "behavior",
+    "rarity": {
+      "common": {
+        "radius": 1.5
+      },
+      "rare": {
+        "radius": 2
+      },
+      "epic": {
+        "radius": 3
+      }
+    },
+    "target": {
+      "skill": "fire.fireball"
+    },
+    "ops": [
+      {
+        "op": "hook",
+        "hook": "explode",
+        "value": "$rarity.radius"
+      }
+    ]
+  },
+  "aug.twin_stream": {
+    "name": "Twin Stream",
+    "kind": "behavior",
+    "rarity": {
+      "common": {
+        "extra": 1
+      },
+      "rare": {
+        "extra": 1
+      },
+      "epic": {
+        "extra": 2
+      }
+    },
+    "target": {
+      "skill": "water.tidal_stream"
+    },
+    "ops": [
+      {
+        "op": "hook",
+        "hook": "extraStream",
+        "value": "$rarity.extra"
+      }
+    ]
+  },
+  "aug.quick_hands": {
+    "name": "Quick Hands",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "mul": 0.95
+      },
+      "rare": {
+        "mul": 0.9
+      },
+      "epic": {
+        "mul": 0.8
+      }
+    },
+    "target": {
+      "tag": "projectile"
+    },
+    "ops": [
+      {
+        "op": "mul",
+        "path": "cooldown",
+        "value": "$rarity.mul"
+      }
+    ]
+  },
+  "aug.heavy_boulder": {
+    "name": "Heavy Boulder",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "mul": 1.1
+      },
+      "rare": {
+        "mul": 1.2
+      },
+      "epic": {
+        "mul": 1.35
+      }
+    },
+    "target": {
+      "skill": "earth.boulder"
+    },
+    "ops": [
+      {
+        "op": "mul",
+        "path": "damage",
+        "value": "$rarity.mul"
+      }
+    ]
+  },
+  "aug.piercing_gust": {
+    "name": "Piercing Gust",
+    "kind": "behavior",
+    "rarity": {
+      "common": {
+        "through": 1
+      },
+      "rare": {
+        "through": 1
+      },
+      "epic": {
+        "through": 2
+      }
+    },
+    "target": {
+      "skill": "wind.gust_volley"
+    },
+    "ops": [
+      {
+        "op": "hook",
+        "hook": "pierce",
+        "value": "$rarity.through"
+      }
+    ]
+  },
+  "aug.long_dash": {
+    "name": "Long Dash",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "metres": 1
+      },
+      "rare": {
+        "metres": 2
+      },
+      "epic": {
+        "metres": 3
+      }
+    },
+    "target": {
+      "tag": "dash"
+    },
+    "ops": [
+      {
+        "op": "add",
+        "path": "shape.distance",
+        "value": "$rarity.metres"
+      }
+    ]
+  },
+  "aug.wind_focus": {
+    "name": "Wind Focus",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "mul": 1.05
+      },
+      "rare": {
+        "mul": 1.1
+      },
+      "epic": {
+        "mul": 1.2
+      }
+    },
+    "target": {
+      "element": "wind"
+    },
+    "ops": [
+      {
+        "op": "mul",
+        "path": "damage",
+        "value": "$rarity.mul"
+      }
+    ]
+  },
+  "aug.bigger_steam": {
+    "name": "Bigger Steam",
+    "kind": "reaction",
+    "rarity": {
+      "common": {
+        "radius": 0.5
+      },
+      "rare": {
+        "radius": 1
+      },
+      "epic": {
+        "radius": 1.5
+      }
+    },
+    "target": {
+      "reaction": "steam"
+    },
+    "ops": [
+      {
+        "op": "add",
+        "path": "params.radius",
+        "value": "$rarity.radius"
+      }
+    ]
+  },
+  "aug.wide_spikes": {
+    "name": "Wide Spikes",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "metres": 0.5
+      },
+      "rare": {
+        "metres": 1
+      },
+      "epic": {
+        "metres": 1.5
+      }
+    },
+    "target": {
+      "skill": "earth.spike_field"
+    },
+    "ops": [
+      {
+        "op": "add",
+        "path": "shape.radius",
+        "value": "$rarity.metres"
+      }
+    ]
+  },
+  "aug.thick_bubble": {
+    "name": "Thick Bubble",
+    "kind": "stat",
+    "rarity": {
+      "common": {
+        "hp": 10
+      },
+      "rare": {
+        "hp": 20
+      },
+      "epic": {
+        "hp": 35
+      }
+    },
+    "target": {
+      "skill": "water.bubble_shield"
+    },
+    "ops": [
+      {
+        "op": "add",
+        "path": "shape.absorb",
+        "value": "$rarity.hp"
+      }
+    ]
   }
 }

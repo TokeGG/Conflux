@@ -9,6 +9,7 @@ export interface HashState {
   enemies: EnemyState[];
   projectiles: Projectile[];
   zones: Zone[];
+  augments?: { id: string; rarity: string; skill: string }[];
 }
 
 const r4 = (n: number) => Math.round(n * 1e4);
@@ -37,6 +38,7 @@ export function stateHash(s: HashState): string {
   }
   for (const q of s.projectiles) parts.push(`j|${q.id}|${q.skillId}|${vec(q.pos)}|${vec(q.vel)}|${r4(q.diesAt)}`);
   for (const z of s.zones) parts.push(`z|${z.id}|${z.kind}|${vec(z.pos)}|${r4(z.radius)}|${r4(z.until)}|${r4(z.yaw)}|${r4(z.nextTick)}|${JSON.stringify(z.effects ?? {})}`);
+  for (const a of s.augments ?? []) parts.push(`a|${a.id}|${a.rarity}|${a.skill}`);
   const text = parts.join('\n');
   return fnv(text, 2166136261).toString(16).padStart(8, '0') + fnv(text, 40503).toString(16).padStart(8, '0');
 }

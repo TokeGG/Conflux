@@ -107,6 +107,10 @@ export interface Projectile {
   ownerId: number;
   diesAt: number;
   bonus?: Bonus;
+  /** From augments: explode in this radius on impact, pass through this many more enemies, and which have been hit. */
+  explode?: number;
+  pierce?: number;
+  hit?: number[];
 }
 
 export interface Zone {

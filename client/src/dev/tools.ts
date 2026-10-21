@@ -115,6 +115,9 @@ export class ToolsPage implements DevPage {
     const skills = select(give, Object.keys(this.data().skills), 'tool-skill');
     button(give, 'Give skill', () => this.send({ op: 'giveSkill', skill: skills.value }), 'tool-give');
     ELEMENTS.forEach((name, i) => button(give, `Hold ${name}`, () => this.send({ op: 'setElement', i })));
+    const augs = select(give, Object.keys(this.data().augments), 'tool-augment');
+    const rarity = select(give, ['common', 'rare', 'epic'], 'tool-rarity');
+    button(give, 'Give augment', () => this.send({ op: 'giveAugment', id: augs.value, rarity: rarity.value }), 'tool-give-augment');
     const apply = select(give, STATUS_IDS as unknown as string[]);
     button(give, 'Apply status to target', () => this.send({ op: 'applyStatus', id: apply.value }));
 

@@ -113,6 +113,14 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     if (a.target.skill && !d.skills[a.target.skill]) err(`augment ${key}: target skill "${a.target.skill}" does not exist`);
     if (a.target.element && !has(ELEMENTS, a.target.element)) err(`augment ${key}: target element "${a.target.element}" is not an element`);
     if (!['stat', 'behavior', 'reaction'].includes(a.kind)) err(`augment ${key}: kind "${a.kind}" is not a kind`);
+    if (!a.target.skill && !a.target.tag && !a.target.element && !a.target.reaction) err(`augment ${key}: it targets nothing`);
+    if (a.target.reaction && !d.reactions.some((r) => r.id === a.target.reaction || r.effect === a.target.reaction)) err(`augment ${key}: target reaction "${a.target.reaction}" does not exist`);
+    for (const op of a.ops) {
+      if (!['add', 'mul', 'set', 'hook'].includes(op.op)) err(`augment ${key}: op "${op.op}" is not an op`);
+      if (op.op === 'hook' ? !op.hook || !['explode', 'pierce', 'extraStream'].includes(op.hook) : !op.path) err(`augment ${key}: an op needs ${op.op === 'hook' ? 'a known hook' : 'a path'}`);
+      const m = typeof op.value === 'string' ? /^\$rarity\.(\w+)$/.exec(op.value) : null;
+      if (m) for (const r of ['common', 'rare', 'epic'] as const) if (typeof a.rarity?.[r]?.[m[1]] !== 'number') err(`augment ${key}: ${r} has no number "${m[1]}" for ${op.value}`);
+    }
   }
 
   // rooms and biomes

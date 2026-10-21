@@ -18,6 +18,9 @@ export interface EnemyHit {
   t: number;
 }
 
+/** How far apart extra streams fan, in radians. */
+const STREAM_FAN = 0.25;
+
 /** Chest height: where spells leave the caster. */
 const CHEST = 1.4;
 
@@ -46,7 +49,7 @@ export function popShield(sim: Sim, skillId: string): void {
   const p = sim.player;
   p.buff = null;
   sim.emit('shield_pop', { skillId, x: p.pos.x, y: p.pos.y, z: p.pos.z });
-  const skill = sim.data.skills[skillId];
+  const skill = sim.skill(skillId);
   if (!skill) return;
   for (const h of hitEnemies(sim, { type: 'zone', radius: skill.shape.radius ?? 3 }, p.pos, { x: 0, y: 0, z: 1 })) {
     dealDamage(sim, h.enemy, skill.damage, skill.element, { applies: skill.applies, skillId, point: h.point });
@@ -55,7 +58,7 @@ export function popShield(sim: Sim, skillId: string): void {
 
 /** Starts a cast. The effect lands when the windup ends (see stepCast). */
 export function castSkill(sim: Sim, caster: PlayerState, skillId: string, aimPoint: Vec3): CastResult {
-  const skill = sim.data.skills[skillId];
+  const skill = sim.skill(skillId);
   if (!skill) return { ok: false, reason: 'unknown' };
   const now = sim.time;
   if (caster.castState && now < caster.castState.until) return { ok: false, reason: 'casting' };
@@ -87,7 +90,7 @@ export function stepCast(sim: Sim, p: PlayerState, input: Input): void {
     p.castState = null;
     return;
   }
-  const skill = sim.data.skills[cs.skillId];
+  const skill = sim.skill(cs.skillId);
   if (!skill) {
     p.castState = null;
     return;
@@ -105,7 +108,17 @@ export function stepCast(sim: Sim, p: PlayerState, input: Input): void {
     while (cs.nextTick !== undefined && now >= cs.nextTick && cs.nextTick < cs.until - 1e-9) {
       cs.nextTick += tick;
       const dir = v3.norm(v3.sub(cs.aim ?? origin, origin));
-      for (const h of hitEnemies(sim, skill.shape, origin, dir)) skillHit(sim, h.enemy, skill, skill.damage, h.point, cs.bonus);
+      // extra streams fan out either side of the aim; an enemy in two of them is hit once
+      const lines = Math.max(1, Math.round(skill.shape.count ?? 1));
+      const hits = new Map<number, ReturnType<typeof hitEnemies>[number]>();
+      for (let k = 0; k < lines; k++) {
+        const turn = (k - (lines - 1) / 2) * STREAM_FAN;
+        const c = Math.cos(turn);
+        const sn = Math.sin(turn);
+        const d = { x: dir.x * c + dir.z * sn, y: dir.y, z: -dir.x * sn + dir.z * c };
+        for (const h of hitEnemies(sim, skill.shape, origin, d)) if (!hits.has(h.enemy.id)) hits.set(h.enemy.id, h);
+      }
+      for (const h of [...hits.values()].sort((a, b) => a.enemy.id - b.enemy.id)) skillHit(sim, h.enemy, skill, skill.damage, h.point, cs.bonus);
     }
   }
   if (now >= cs.until && cs.fired) p.castState = null;
@@ -125,7 +138,7 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
         const c = Math.cos(off);
         const sn = Math.sin(off);
         const d = { x: aimDir.x * c + aimDir.z * sn, y: aimDir.y, z: -aimDir.x * sn + aimDir.z * c };
-        sim.projectiles.push({ id: sim.allocId(), pos: { ...origin }, vel: v3.scale(d, s.speed ?? 20), r: s.radius ?? 0.25, gravity: s.gravity ?? 0, skillId: skill.id, ownerId: 0, diesAt: now + (s.lifetime ?? 1), bonus });
+        sim.projectiles.push({ id: sim.allocId(), pos: { ...origin }, vel: v3.scale(d, s.speed ?? 20), r: s.radius ?? 0.25, gravity: s.gravity ?? 0, skillId: skill.id, ownerId: 0, diesAt: now + (s.lifetime ?? 1), bonus, explode: s.explode, pierce: s.pierce, hit: [] });
       }
       break;
     }
