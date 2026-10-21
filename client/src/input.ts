@@ -17,6 +17,11 @@ export const defaultBindings = (): Bindings => ({ forward: 'KeyW', back: 'KeyS',
 
 const PITCH_LIMIT = 1.3;
 
+/** Keys typed into a dev panel box are not game controls. */
+function typingInAField(t: EventTarget | null): boolean {
+  return t instanceof HTMLElement && /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName);
+}
+
 export class InputController {
   bindings = defaultBindings();
   sensitivity = 0.0022;
@@ -59,7 +64,7 @@ export class InputController {
   unlocked = false;
 
   private down(e: KeyboardEvent): void {
-    if (e.repeat) return;
+    if (e.repeat || typingInAField(e.target)) return;
     this.keys.add(e.code);
     const i = this.bindings.elements.indexOf(e.code);
     if (i >= 0) this.swap = i;

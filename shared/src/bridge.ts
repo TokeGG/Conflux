@@ -19,7 +19,7 @@ export interface SimBridge {
   dispose(): void;
 }
 
-export type ToWorker = { t: 'init'; seed: number; data: GameData } | { t: 'input'; input: Input } | { t: 'command'; cmd: DevCommand } | { t: 'advance'; dt: number } | { t: 'dispose' };
+export type ToWorker = { t: 'init'; seed: number; data: GameData; room?: string } | { t: 'input'; input: Input } | { t: 'command'; cmd: DevCommand } | { t: 'advance'; dt: number } | { t: 'dispose' };
 export type FromWorker = { t: 'ready' } | { t: 'frame'; snapshot: Snapshot; events: SimEvent[] };
 
 export interface Frame {

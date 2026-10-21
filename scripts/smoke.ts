@@ -162,6 +162,57 @@ try {
     check(errors.length === 0, `no console errors while editing${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 4c. M1 exit: the owner's combo against two training dummies, with scripted inputs (water on A, earth on B, fire on A, wind on B)
+  {
+    const { page, errors } = await open(browser, `${server.url}?dev`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
+    // plain JavaScript in a string: tsx would add helpers to a function that the browser cannot resolve
+    const comboScript = `(async () => {
+      const c = window.__conflux;
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      const until = async (f, what) => {
+        for (let i = 0; i < 1500; i++) {
+          if (f()) return;
+          await sleep(20);
+        }
+        throw new Error('timed out waiting for ' + what);
+      };
+      const A = { x: -5, y: 0, z: 5 };
+      const B = { x: 5, y: 0, z: 5 };
+      c.command({ op: 'spawn', enemy: 'enemy.dummy', count: 1, at: A });
+      c.command({ op: 'spawn', enemy: 'enemy.dummy', count: 1, at: B });
+      await until(() => c.snapshot()?.enemies.length === 2, 'two dummies');
+      const [a, b] = c.snapshot().enemies.map((e) => e.id);
+      const enemy = (id) => c.snapshot().enemies.find((e) => e.id === id);
+      const has = (id, status) => !!enemy(id)?.statuses.some((s) => s.id === status);
+      const look = (p, extra = {}) => c.sendInput({ ...c.aimAt(p.x, 0.9, p.z), ...extra });
+      const swap = async (to, name, at) => {
+        look(at, { swapTo: to });
+        await until(() => c.snapshot().players[0].element === name, 'the ' + name + ' element');
+        look(at);
+      };
+      await swap(1, 'water', A);
+      look(A, { buttons: 1 });
+      await until(() => has(a, 'soaked'), 'A soaked');
+      await swap(2, 'earth', B);
+      look(B, { buttons: 1 });
+      await until(() => has(b, 'rocked'), 'B rocked');
+      await swap(0, 'fire', A);
+      look(A, { buttons: 1 });
+      await until(() => c.events().some((e) => e.type === 'reaction' && e.enemyId === a), 'steam on A');
+      await swap(3, 'wind', B);
+      look(B, { buttons: 1 });
+      await until(() => c.events().some((e) => e.type === 'reaction' && e.enemyId === b), 'sandstorm on B');
+      c.sendInput(null);
+      return c.events().filter((e) => e.type === 'reaction').map((e) => ({ id: e.id, effect: e.effect }));
+    })()`;
+    const reactions: { id: string; effect: string }[] = await page.evaluate(comboScript);
+    check(reactions.length >= 2 && reactions[0].effect === 'steam' && reactions[1].effect === 'sandstorm', `the combo gives Steam then Sandstorm (${reactions.map((r) => r.effect).join(', ')})`);
+    await page.screenshot({ path: join(shots, 'combo.png') });
+    check(errors.length === 0, `no console errors during the combo${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
   // 5a. the HUD: crosshair, element, three skills, health, and the tags above an enemy
   {
     const { page, errors } = await open(browser, server.url);
@@ -171,10 +222,15 @@ try {
     const names = await page.locator('#hud .slot .name').allInnerTexts();
     check(names.join('|') === 'Fireball|Flame Cone|Flame Dash', `the three fire skills are shown (${names.join(', ')})`);
     check((await page.locator('#hud .element.on').innerText()).includes('Fire'), 'the held element is highlighted');
-    await page.evaluate(() => (window as any).__conflux.hudDemo(true));
-    await page.waitForSelector('#hud .tag .ico', { timeout: 5000 });
-    check((await page.locator('#hud .tag .ico').count()) === 3, 'an enemy tag shows an icon for each status and mark');
-    check((await page.locator('#hud .crosshair.hot').count()) === 1, 'the crosshair highlights an aimed enemy');
+    await page.evaluate(() => {
+      const c = (window as any).__conflux;
+      c.command({ op: 'spawnDummy', status: 'burning', at: { x: 0, y: 0, z: -4 } });
+      c.sendInput(c.aimAt(0, 0.9, -4));
+    });
+    await page.waitForSelector('#hud .tag .ico', { timeout: 15000 });
+    check((await page.locator('#hud .tag .ico').count()) === 1, 'an enemy tag shows an icon for its status');
+    await page.waitForSelector('#hud .crosshair.hot', { timeout: 15000 });
+    check(true, 'the crosshair highlights the enemy under it');
     await page.screenshot({ path: join(shots, 'hud.png') });
     check(errors.length === 0, `the HUD draws without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();

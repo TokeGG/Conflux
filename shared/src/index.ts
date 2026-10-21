@@ -23,3 +23,4 @@ export * from './sim/statuses.ts';
 export * from './sim/reactions.ts';
 export * from './sim/damage.ts';
 export * from './sim/devcmd.ts';
+export * from './sim/roomSim.ts';

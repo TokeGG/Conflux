@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.23",
+    "date": "2026-10-21",
+    "at": "2026-10-21T20:26:43Z",
+    "notes": [
+      "The game is playable end to end: move, aim, cast, swap elements and see reactions on training dummies."
+    ]
+  },
+  {
     "version": "0.1.22",
     "date": "2026-10-21",
     "at": "2026-10-21T20:20:51Z",

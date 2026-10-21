@@ -8,7 +8,7 @@ export class WorkerBridge implements SimBridge {
   /** Resolves when the worker has built the sim. */
   readonly ready: Promise<void>;
 
-  constructor(seed: number, data: GameData) {
+  constructor(seed: number, data: GameData, room?: string) {
     this.worker = new Worker(new URL('./simWorker.ts', import.meta.url), { type: 'module' });
     this.ready = new Promise((resolve) => {
       this.worker.onmessage = (e: MessageEvent<FromWorker>) => {
@@ -17,7 +17,7 @@ export class WorkerBridge implements SimBridge {
         else if (m.t === 'frame') for (const cb of this.listeners) cb(m.snapshot, m.events);
       };
     });
-    this.post({ t: 'init', seed, data });
+    this.post({ t: 'init', seed, data, room });
   }
 
   private post(m: ToWorker): void {

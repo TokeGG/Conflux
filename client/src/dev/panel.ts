@@ -100,6 +100,7 @@ export class DevPanel {
 
   show(): void {
     this.isOpen = true;
+    document.exitPointerLock?.(); // the cursor is needed for the panel
     this.root.hidden = false;
     this.showPage(this.current?.id ?? this.pages[0]?.id);
     this.syncPause();
