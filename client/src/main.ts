@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { defaultData, DEFAULT_PROFILE, DataLayers } from '@conflux/shared';
+import { defaultData, DEFAULT_PROFILE, DataLayers, RunDirector, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyProfile, applyTextureFilters, createRenderer } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
@@ -8,6 +8,7 @@ import { AssetLoader, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
+import { RunScreens } from './hud/runScreens.ts';
 import { idleInput, type DevCommand, type Input, type SimEvent, type Snapshot } from '@conflux/shared';
 import { Game } from './game.ts';
 import { FxSystem } from './fx/sprites.ts';
@@ -33,7 +34,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; counters: Record<string, number>; unlocked: string[] } | null; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
   }
 }
 
@@ -58,12 +59,15 @@ async function boot(): Promise<void> {
   document.body.append(renderer.domElement);
   // ?room=<id> opens a particular room (to look at a template); otherwise the first forest room
   const wanted = new URL(location.href).searchParams.get('room');
-  const room = (wanted && data.rooms[wanted]) || data.rooms.forest_clearing;
+  const params = new URL(location.href).searchParams;
+  // a normal visit plays a run; ?room=<id> or ?sandbox opens the single room with the dev tools
+  const runMode = !wanted && !params.has('sandbox');
+  let room = (wanted && data.rooms[wanted]) || data.rooms.forest_clearing;
   const game = createScene(room.lighting);
 
   const loader = new AssetLoader(await fetchManifest(), DEFAULT_PROFILE);
   for (const [key, glb] of customModels) loader.addCustomModel(key, glb);
-  const roomGroup = await buildRoomScene(room, loader);
+  let roomGroup = await buildRoomScene(room, loader);
   game.scene.add(roomGroup);
   const { scene: player, rig } = await loadPlayer(loader, data);
 
@@ -130,7 +134,13 @@ async function boot(): Promise<void> {
     get tick() {
       return state.tick;
     },
-    room: room.id,
+    get room() {
+      return room.id;
+    },
+    run: () =>
+      director
+        ? { phase: director.phase, roomIndex: director.run.roomIndex, tuned: director.run.tuned, screen: screens.open, hp: director.run.hp, counters: director.ledger.counters, unlocked: director.ledger.unlocked }
+        : null,
     /** Lets the browser smoke tests pose the player (the real controls arrive with the M1 integration). */
     pose: (state, castClip, castW, aimPitch) => (play.poseOverride = { state, castClip, castW, pitch: aimPitch }),
     /** Plays an effect beside the player (test hook). */
@@ -170,6 +180,67 @@ async function boot(): Promise<void> {
     },
   };
   state.ready = true;
+
+  // ---- the run: screens between rooms, driven by what the sim reports ----
+  const screens = new RunScreens();
+  let director: RunDirector | null = null;
+  let shown: RunPhase | null = null;
+  const seedOf = () => Number(params.get('seed')) || Date.now() % 1_000_000;
+
+  /** Loads a room's scene and swaps the sim to it. The sim's swap is asked for first, so frames of the old room are dropped. */
+  const loadPlan = async (plan: RoomPlan): Promise<void> => {
+    const run = director!.run;
+    play.inputEnabled = false;
+    const swapped = bridge.enter({ seed: run.seed, current: plan, skills: run.skills, augments: run.augments, hp: run.hp, tuned: run.tuned });
+    const next = layers.current().rooms[plan.roomId];
+    const group = await buildRoomScene(next, loader);
+    game.scene.remove(roomGroup);
+    roomGroup = group;
+    game.scene.add(roomGroup);
+    game.setLighting(next.lighting);
+    room = next;
+    play.loadRoom(next);
+    await swapped;
+    play.inputEnabled = true;
+  };
+
+  const sync = (): void => {
+    if (!director || director.phase === shown) return;
+    shown = director.phase;
+    saveLedger(storage, director.ledger);
+    const d = director;
+    const data = layers.current();
+    if (d.phase === 'reward') screens.rewards(d.offers, data, (i) => (d.pick(i), sync()));
+    else if (d.phase === 'doors') screens.doors(d.doors, data, d.run.roomIndex + 1, (i) => void enterDoor(i));
+    else if (d.phase === 'dead' || d.phase === 'won') screens.end(d.run, d.earned, data, () => void beginRun());
+  };
+
+  const enterDoor = async (i: number): Promise<void> => {
+    const plan = director!.enter(i);
+    shown = director!.phase;
+    screens.hide();
+    await loadPlan(plan);
+  };
+
+  const beginRun = async (): Promise<void> => {
+    const ledger = director?.ledger ?? loadLedger(storage);
+    director = new RunDirector(layers.current(), seedOf(), ledger);
+    shown = director.phase;
+    screens.hide();
+    await loadPlan(director.run.current);
+  };
+
+  if (runMode) {
+    bridge.onFrame((snapshot, events) => {
+      if (!director) return;
+      if (snapshot.tuned) director.markTuned();
+      director.onEvents(events);
+      director.onPlayerHp(snapshot.players[0].hp);
+      sync();
+    });
+    play.inputEnabled = false;
+    screens.start(loadLedger(storage), layers.current(), () => void beginRun());
+  }
 
   const clock = new THREE.Clock();
   const frame = () => {

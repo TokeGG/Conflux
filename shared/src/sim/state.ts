@@ -223,6 +223,8 @@ export interface Snapshot {
   enemies: EnemySnap[];
   projectiles: ProjectileSnap[];
   zones: ZoneSnap[];
+  /** True once a dev command has changed this simulation, so the run never counts toward unlocks. */
+  tuned: boolean;
 }
 
 export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {

@@ -2,7 +2,7 @@
 // (the player and enemies, effects, the HUD). The sim decides everything; this only shows it.
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { buildWorld, hurtboxesFor, resolveAim, type GameData, type Input, type RoomDef, type SimEvent, type SimBridge, type Snapshot, type Vec3, type World } from '@conflux/shared';
+import { buildWorld, hurtboxesFor, idleInput, resolveAim, type GameData, type Input, type RoomDef, type SimEvent, type SimBridge, type Snapshot, type Vec3, type World } from '@conflux/shared';
 import { castClipFor, pickLocomotion, type LocoState } from './anim/locomotion.ts';
 import type { CharacterRig } from './anim/rig.ts';
 import type { AssetLoader } from './assets/loader.ts';
@@ -36,7 +36,9 @@ const LOG_LIMIT = 300;
 
 export class Game {
   readonly input: InputController;
-  readonly world: World;
+  world: World;
+  /** False while a run screen is up: the controls are not read, so a click on a card is not a cast. */
+  inputEnabled = true;
   /** The input to send instead of the controls (the browser smoke tests script the player with this). */
   scripted: Input | null = null;
   latest: Snapshot | null = null;
@@ -46,6 +48,7 @@ export class Game {
   poseOverride: { state: LocoState; castClip: string | null; castW: number; pitch: number } | null = null;
   cameraOverride: ((camera: THREE.PerspectiveCamera) => void) | null = null;
 
+  private room: RoomDef;
   private cam: ThirdPersonCamera;
   private holder = new THREE.Group();
   private enemies = new Map<number, EnemyView>();
@@ -56,9 +59,11 @@ export class Game {
   private vel: Vec3 = { x: 0, y: 0, z: 0 };
   private castW = 0;
   private lastEnemies = new Map<number, Snapshot['enemies'][number]>();
+  private lastYaw = 0;
   private lastCamOrigin: Vec3 = { x: 0, y: 1.6, z: 0 };
 
   constructor(private d: GameDeps) {
+    this.room = d.room;
     this.world = buildWorld(d.room);
     this.cam = new ThirdPersonCamera(this.world);
     this.input = new InputController(d.canvas);
@@ -69,6 +74,23 @@ export class Game {
     d.scene.add(this.holder);
     d.hud.setCamera(d.camera);
     d.bridge.onFrame((s, events) => this.onFrame(s, events));
+  }
+
+  /** Moves the game into another room: a new world and camera, the old room's enemies and effects cleared. */
+  loadRoom(room: RoomDef): void {
+    this.room = room;
+    this.world = buildWorld(room);
+    this.cam = new ThirdPersonCamera(this.world);
+    for (const view of [...this.enemies.values(), ...this.dying]) this.d.scene.remove(view.root);
+    this.enemies.clear();
+    this.dying = [];
+    this.enemyLoads.clear();
+    this.lastEnemies.clear();
+    for (const rec of this.projectiles.values()) rec.handle?.stop();
+    this.projectiles.clear();
+    this.latest = null;
+    this.prevPos = null;
+    this.holder.position.set(room.spawns.player.x, 0, room.spawns.player.z);
   }
 
   private onFrame(s: Snapshot, events: SimEvent[]): void {
@@ -149,7 +171,7 @@ export class Game {
 
   /** The yaw and pitch that put the crosshair on a point, allowing for the camera sitting behind the shoulder (test and tool helper). */
   aimAt(target: Vec3): { aimYaw: number; aimPitch: number } {
-    const feet = this.latest?.players[0].pos ?? this.d.room.spawns.player;
+    const feet = this.latest?.players[0].pos ?? this.room.spawns.player;
     let yaw = 0;
     let pitch = 0;
     for (let i = 0; i < 5; i++) {
@@ -166,8 +188,9 @@ export class Game {
   update(dt: number): void {
     const snap = this.latest;
     const player = snap?.players[0];
-    const base = this.scripted ?? this.input.poll(this.lastCamOrigin);
-    const feet = player?.pos ?? this.d.room.spawns.player;
+    const base = this.scripted ?? (this.inputEnabled ? this.input.poll(this.lastCamOrigin) : { ...idleInput(), aimYaw: this.lastYaw, aimPitch: 0 });
+    this.lastYaw = base.aimYaw;
+    const feet = player?.pos ?? this.room.spawns.player;
     const cam = this.cam.update(feet, base.aimYaw, base.aimPitch);
     this.lastCamOrigin = cam.origin;
     this.d.camera.position.set(cam.origin.x, cam.origin.y, cam.origin.z);

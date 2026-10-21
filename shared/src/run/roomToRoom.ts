@@ -76,8 +76,8 @@ function skillOfferedBefore(seed: number, index: number): boolean {
 export const ROOM_TO_ROOM: RunMode = {
   id: 'room_to_room',
 
-  start(seed, data, tuned = false): RunState {
-    const skills = startingLoadout(data, mapStream(seed, 'loadout'));
+  start(seed, data, tuned = false, pool): RunState {
+    const skills = startingLoadout(data, mapStream(seed, 'loadout'), pool?.skills);
     return {
       seed,
       mode: 'room_to_room',
@@ -91,6 +91,7 @@ export const ROOM_TO_ROOM: RunMode = {
       reward: 'heal',
       augments: [],
       tuned,
+      pool,
       status: 'running',
       data,
     };

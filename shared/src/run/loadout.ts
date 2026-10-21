@@ -11,12 +11,12 @@ export interface SkillLoadout {
 }
 
 /** One random skill per slot per element, from that element's skills. They all start in the pool. */
-export function startingLoadout(data: GameData, rng: Rng): SkillLoadout {
+export function startingLoadout(data: GameData, rng: Rng, allowed?: Set<string>): SkillLoadout {
   const slots = {} as SkillLoadout['slots'];
   for (const el of ELEMENTS) {
     slots[el] = {} as Record<Slot, string>;
     for (const slot of SLOTS) {
-      const options = Object.keys(data.skills).filter((id) => data.skills[id].element === el && data.skills[id].slot === slot).sort();
+      const options = Object.keys(data.skills).filter((id) => data.skills[id].element === el && data.skills[id].slot === slot && (!allowed || allowed.has(id))).sort();
       slots[el][slot] = options.length ? rng.pick(options) : '';
     }
   }

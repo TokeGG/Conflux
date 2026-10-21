@@ -1,0 +1,16 @@
+#runscreen { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #0a0e14cc; color: #fff; font: 15px/1.4 system-ui, sans-serif; z-index: 20; }
+#runscreen.open { display: flex; }
+#runscreen .panel { max-width: 860px; width: calc(100% - 32px); text-align: center; }
+#runscreen h1 { margin: 0 0 4px; font-size: 34px; letter-spacing: 0.04em; }
+#runscreen h2 { margin: 0 0 16px; font-size: 20px; font-weight: 600; opacity: 0.85; }
+#runscreen p { margin: 4px 0; opacity: 0.8; }
+#runscreen .row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+#runscreen button.card { flex: 1 1 200px; max-width: 260px; min-height: 120px; padding: 14px; border: 2px solid #ffffff55; border-radius: 10px; background: #1b2433; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+#runscreen button.card:hover, #runscreen button.card:focus-visible { border-color: #ffd36b; background: #263248; outline: none; }
+#runscreen .card .title { font-size: 18px; font-weight: 700; }
+#runscreen .card .tag { font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+#runscreen .card .badge { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: 99px; background: #c0392b; font-size: 12px; font-weight: 700; }
+#runscreen button.go { padding: 12px 34px; font: 700 18px system-ui, sans-serif; border: 0; border-radius: 8px; background: #ffd36b; color: #1b1b1b; cursor: pointer; }
+#runscreen button.go:hover { background: #ffe08f; }
+#runscreen .earned { color: #9be28f; }
+#runscreen .hint { font-size: 13px; opacity: 0.6; margin-top: 18px; }

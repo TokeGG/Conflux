@@ -242,6 +242,16 @@ export interface EliteDef {
   params: Record<string, number>;
 }
 
+/** An achievement: reaching `atLeast` on a ledger counter unlocks the listed content, which stays hidden until then. */
+export interface AchievementDef {
+  id: string;
+  name: string;
+  description: string;
+  counter: string;
+  atLeast: number;
+  unlocks: { skills?: string[]; augments?: string[] };
+}
+
 export interface BiomeDef {
   id: string;
   rooms: string[];
@@ -271,5 +281,6 @@ export interface GameData {
   rooms: Record<string, RoomDef>;
   biomes: Record<string, BiomeDef>;
   elites: Record<string, EliteDef>;
+  unlocks: Record<string, AchievementDef>;
   rewards: RewardsCfg;
 }

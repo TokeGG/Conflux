@@ -1,7 +1,7 @@
 // Turns the raw JSON files into GameData and checks it. Entries keyed by id in their file get that id as a field.
 import { ELEMENTS, STATUS_IDS, SLOTS, SHAPE_TYPES, CAST_ARCHETYPES, AI_ARCHETYPES, RIG_TYPES, ATTACK_TEMPLATES, type GameData } from './types.ts';
 
-const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes', 'elites'] as const;
+const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes', 'elites', 'unlocks'] as const;
 const SECTIONS = ['player', 'elements', 'statuses', 'reactions', 'rewards', ...KEYED] as const;
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -29,6 +29,7 @@ export function loadData(raw: Record<string, unknown>): GameData {
     rooms: copy.rooms,
     biomes: copy.biomes,
     elites: copy.elites,
+    unlocks: copy.unlocks,
     rewards: copy.rewards,
   } as GameData;
 }
@@ -136,6 +137,13 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     if (!['fire_aura', 'burning_trail', 'haste', 'extra_guard'].includes(key)) err(`elite ${key}: there is no behaviour for it`);
     if (!m.name) err(`elite ${key}: it needs a name`);
     for (const [k, v] of Object.entries(m.params ?? {})) if (typeof v !== 'number') err(`elite ${key}: ${k} must be a number`);
+  }
+
+  for (const [key, a] of Object.entries(d.unlocks)) {
+    if (!a.name) err(`achievement ${key}: it needs a name`);
+    if (!(a.atLeast > 0)) err(`achievement ${key}: atLeast must be above 0`);
+    for (const s of a.unlocks.skills ?? []) if (!d.skills[s]) err(`achievement ${key}: skill "${s}" does not exist`);
+    for (const x of a.unlocks.augments ?? []) if (!d.augments[x]) err(`achievement ${key}: augment "${x}" does not exist`);
   }
 
   if (!(d.rewards.offers > 0)) err('rewards.offers must be above 0');

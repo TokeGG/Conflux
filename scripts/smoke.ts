@@ -54,7 +54,7 @@ mkdirSync(shots, { recursive: true });
 try {
   // 1. the page boots, the worker answers, and something real is drawn
   {
-    const { page, errors } = await open(browser, server.url);
+    const { page, errors } = await open(browser, `${server.url}?sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 0, null, { timeout: 20000 });
     check(true, 'worker round trip: a frame arrived after advance (tick > 0)');
@@ -90,7 +90,7 @@ try {
   }
   // 4. the dev panel: absent without ?dev; with ?dev F2 opens it, the performance page samples while open and stops when closed
   {
-    const { page } = await open(browser, server.url);
+    const { page } = await open(browser, `${server.url}?sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     check((await page.locator('#devpanel').count()) === 0, 'there is no dev panel without ?dev');
     await page.keyboard.press('F2');
@@ -98,7 +98,7 @@ try {
     await page.close();
   }
   {
-    const { page, errors } = await open(browser, `${server.url}?dev`);
+    const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.keyboard.press('F2');
     await page.waitForSelector('#devpanel', { state: 'visible', timeout: 5000 });
@@ -119,7 +119,7 @@ try {
   }
   // 4b. editing a number in the panel reaches the running sim, shows in Changes, and undoes
   {
-    const { page, errors } = await open(browser, `${server.url}?dev`);
+    const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
     await page.keyboard.press('F2');
@@ -164,7 +164,7 @@ try {
   }
   // 4c. M1 exit: the owner's combo against two training dummies, with scripted inputs (water on A, earth on B, fire on A, wind on B)
   {
-    const { page, errors } = await open(browser, `${server.url}?dev`);
+    const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
     // plain JavaScript in a string: tsx would add helpers to a function that the browser cannot resolve
@@ -216,7 +216,7 @@ try {
   }
   // 4d. every enemy of the roster spawns through the dev tool, loads its model and renders without console errors
   {
-    const { page, errors } = await open(browser, `${server.url}?dev`);
+    const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
     const ids = ['enemy.stump', 'enemy.treefellow', 'enemy.treegolem', 'enemy.golem_fire', 'enemy.golem_water', 'enemy.golem_wind', 'enemy.fire_sprite', 'enemy.wisp', 'enemy.gust', 'boss.maw', 'boss.reaper'];
@@ -234,7 +234,7 @@ try {
   }
   // 4e. upload a model in the panel, make it a mob, spawn it, and find it still saved after a reload
   {
-    const { page, errors } = await open(browser, `${server.url}?dev`);
+    const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.keyboard.press('F2');
     await page.click('#devpanel nav button:has-text("Models and mobs")');
@@ -278,7 +278,7 @@ try {
   }
   // 5a. the HUD: crosshair, element, three skills, health, and the tags above an enemy
   {
-    const { page, errors } = await open(browser, server.url);
+    const { page, errors } = await open(browser, `${server.url}?sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => document.querySelectorAll('#hud .slot').length === 3 && /\d/.test(document.querySelector('#hud .hp .txt')?.textContent ?? ''), null, { timeout: 10000 });
     check((await page.locator('#hud .crosshair').count()) === 1, 'the crosshair is drawn');
@@ -300,7 +300,7 @@ try {
   }
   // 5. the player body: standing, running and casting render and animate without errors
   {
-    const { page, errors } = await open(browser, server.url);
+    const { page, errors } = await open(browser, `${server.url}?sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     const pose = (state: string, cast: string | null, w: number, pitch: number) => page.evaluate(([a, b, c, d]) => (window as any).__conflux.pose(a, b, c, d), [state, cast, w, pitch] as const);
     await page.evaluate(() => (window as any).__conflux.frontView());
@@ -325,6 +325,36 @@ try {
     check(live >= 2, `effects play and are pooled (${live} live)`);
     await page.screenshot({ path: join(shots, 'player-fx.png') });
     check(errors.length === 0, `the player stands, runs and casts without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
+  // 6. the run flow: begin, clear a room, pick a reward, pick a door, fight the next room
+  {
+    const { page, errors } = await open(browser, `${server.url}?seed=1`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.waitForSelector('#runscreen.open button.go', { timeout: 20000 });
+    check(true, 'a normal visit opens the run start screen');
+    await page.click('#runscreen button.go');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
+    check(true, 'beginning the run puts the first room fight on screen');
+    await page.evaluate(() => (window as any).__conflux.command({ op: 'killAll' }));
+    await page.waitForSelector('#runscreen.open button.card', { timeout: 60000 });
+    const offers: number = await page.locator('#runscreen button.card').count();
+    check(offers === 3, `clearing the room offers three rewards (${offers})`);
+    await page.screenshot({ path: join(shots, 'run-reward.png') });
+    await page.click('#runscreen button.card >> nth=0');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'doors', null, { timeout: 20000 });
+    const doors: number = await page.locator('#runscreen button.card').count();
+    check(doors >= 2, `picking a reward shows the doors (${doors})`);
+    await page.screenshot({ path: join(shots, 'run-doors.png') });
+    await page.click('#runscreen button.card >> nth=0');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.roomIndex === 1 && (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
+    check(true, 'a door leads to the next room with its enemies');
+    const run: { tuned: boolean; unlocked: string[]; counters: Record<string, number> } = await page.evaluate(() => (window as any).__conflux.run());
+    check(run.tuned, 'a dev command marks the run tuned');
+    check((run.counters['rooms.cleared'] ?? 0) === 0, 'a tuned run records nothing in the ledger');
+    const saved: string | null = await page.evaluate(() => localStorage.getItem('conflux.ledger'));
+    check(saved !== null, 'the ledger is saved in local storage');
+    check(errors.length === 0, `the run flow has no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
 } finally {

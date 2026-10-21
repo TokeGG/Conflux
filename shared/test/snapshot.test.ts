@@ -41,3 +41,13 @@ test('a used swap bonus leaves the snapshot', () => {
   run(sim, 1, input({ buttons: BTN.LMB }));
   assert.equal(sim.snapshot().players[0].bonusRemaining, 0);
 });
+
+test('the snapshot says whether the sim was tuned with a dev command', async () => {
+  const { Sim } = await import('../src/sim/sim.ts');
+  const { applyDevCommand } = await import('../src/sim/devcmd.ts');
+  const { defaultData } = await import('../src/files.ts');
+  const sim = new Sim(defaultData(), 1);
+  assert.equal(sim.snapshot().tuned, false);
+  applyDevCommand(sim, { op: 'god', on: true });
+  assert.equal(sim.snapshot().tuned, true);
+});

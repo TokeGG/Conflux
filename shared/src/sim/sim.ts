@@ -193,6 +193,7 @@ export class Sim {
       })),
       projectiles: this.projectiles.map((q) => ({ id: q.id, pos: { ...q.pos }, skillId: q.skillId })),
       zones: this.zones.map((z) => ({ id: z.id, kind: z.kind, pos: { ...z.pos }, radius: z.radius, remaining: Math.max(0, z.until - now) })),
+      tuned: this.tuned,
     };
   }
 

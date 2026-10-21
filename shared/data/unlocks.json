@@ -1,0 +1,7 @@
+{
+  "ach.steam_50": { "name": "Steam 50 times", "description": "Trigger the Steam reaction 50 times.", "counter": "reaction.steam", "atLeast": 50, "unlocks": { "skills": ["water.slip_dash"] } },
+  "ach.sandstorm_25": { "name": "Sandstorm 25 times", "description": "Trigger the Sandstorm reaction 25 times.", "counter": "reaction.sandstorm", "atLeast": 25, "unlocks": { "skills": ["wind.whirl"] } },
+  "ach.beat_maw": { "name": "Slay the Maw", "description": "Defeat the Maw.", "counter": "kill.boss.maw", "atLeast": 1, "unlocks": { "augments": ["aug.heavy_boulder"] } },
+  "ach.beat_reaper": { "name": "Slay the Reaper", "description": "Defeat the Reaper.", "counter": "kill.boss.reaper", "atLeast": 1, "unlocks": { "augments": ["aug.explosive_fireball"] } },
+  "ach.first_win": { "name": "First victory", "description": "Win a run.", "counter": "victory", "atLeast": 1, "unlocks": { "skills": ["earth.granite_shell"] } }
+}

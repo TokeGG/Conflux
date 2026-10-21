@@ -1,5 +1,5 @@
 // The simulation's home in the browser: a Web Worker that owns a SimRunner and posts frames back.
-import { createRoomSim, installDevCommands, Sim, SimRunner, type FromWorker, type ToWorker } from '@conflux/shared';
+import { createRoomSim, createRunRoomSim, installDevCommands, Sim, SimRunner, type FromWorker, type ToWorker } from '@conflux/shared';
 
 const scope = self as unknown as { postMessage(m: FromWorker): void; onmessage: ((e: MessageEvent<ToWorker>) => void) | null; close(): void };
 let runner: SimRunner | null = null;
@@ -21,6 +21,14 @@ scope.onmessage = (e) => {
       break;
     case 'command':
       runner?.command(m.cmd);
+      break;
+    case 'enter':
+      if (runner) {
+        const tuned = runner.sim.tuned;
+        runner.replaceSim(createRunRoomSim(m.entry, runner.sim.data));
+        runner.sim.tuned ||= tuned;
+      }
+      scope.postMessage({ t: 'entered' });
       break;
     case 'advance': {
       const frame = runner?.advance(m.dt);

@@ -1,10 +1,12 @@
 // The client's side of the simulation worker. Implements the same SimBridge as the in-thread LocalBridge.
-import type { DevCommand, FrameCallback, FromWorker, GameData, Input, SimBridge, ToWorker } from '@conflux/shared';
+import type { RoomEntry, DevCommand, FrameCallback, FromWorker, GameData, Input, SimBridge, ToWorker } from '@conflux/shared';
 
 export class WorkerBridge implements SimBridge {
   private worker: Worker;
   private listeners: FrameCallback[] = [];
   private disposed = false;
+  /** Frames that arrive while a room change is in flight belong to the old room and are dropped. */
+  private entering: (() => void) | null = null;
   /** Resolves when the worker has built the sim. */
   readonly ready: Promise<void>;
 
@@ -14,7 +16,10 @@ export class WorkerBridge implements SimBridge {
       this.worker.onmessage = (e: MessageEvent<FromWorker>) => {
         const m = e.data;
         if (m.t === 'ready') resolve();
-        else if (m.t === 'frame') for (const cb of this.listeners) cb(m.snapshot, m.events);
+        else if (m.t === 'entered') {
+          this.entering?.();
+          this.entering = null;
+        } else if (m.t === 'frame' && !this.entering) for (const cb of this.listeners) cb(m.snapshot, m.events);
       };
     });
     this.post({ t: 'init', seed, data, room });
@@ -30,6 +35,14 @@ export class WorkerBridge implements SimBridge {
 
   command(cmd: DevCommand): void {
     this.post({ t: 'command', cmd });
+  }
+
+  /** Replaces the simulation with the run's next room; resolves once the worker has swapped. */
+  enter(entry: RoomEntry): Promise<void> {
+    return new Promise((resolve) => {
+      this.entering = resolve;
+      this.post({ t: 'enter', entry });
+    });
   }
 
   onFrame(cb: FrameCallback): void {

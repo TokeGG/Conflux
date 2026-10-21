@@ -7,11 +7,13 @@ export interface GameScene {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   resize(width: number, height: number): void;
+  /** Swaps the lights for another room's preset. */
+  setLighting(preset: LightingPreset): void;
 }
 
 export function createScene(preset: LightingPreset): GameScene {
   const scene = new THREE.Scene();
-  applyLighting(scene, lightingRig(preset));
+  let removeLights = applyLighting(scene, lightingRig(preset));
   const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 200);
   camera.position.set(2.2, 2.2, -4.5);
   camera.lookAt(0, 1, 0);
@@ -21,6 +23,10 @@ export function createScene(preset: LightingPreset): GameScene {
   return {
     scene,
     camera,
+    setLighting(next) {
+      removeLights();
+      removeLights = applyLighting(scene, lightingRig(next));
+    },
     resize(w, h) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();

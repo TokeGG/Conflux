@@ -3,6 +3,7 @@
 import { TICK, Sim } from './sim/sim.ts';
 import { idleInput, type GameData, type Input, type SimEvent } from './types.ts';
 import type { Snapshot } from './sim/state.ts';
+import type { RoomEntry } from './run/director.ts';
 
 /** A tab that was in the background returns with a huge time step: never run more than this many ticks for one advance. */
 export const MAX_TICKS_PER_ADVANCE = 5;
@@ -19,8 +20,8 @@ export interface SimBridge {
   dispose(): void;
 }
 
-export type ToWorker = { t: 'init'; seed: number; data: GameData; room?: string } | { t: 'input'; input: Input } | { t: 'command'; cmd: DevCommand } | { t: 'advance'; dt: number } | { t: 'dispose' };
-export type FromWorker = { t: 'ready' } | { t: 'frame'; snapshot: Snapshot; events: SimEvent[] };
+export type ToWorker = { t: 'init'; seed: number; data: GameData; room?: string } | { t: 'input'; input: Input } | { t: 'command'; cmd: DevCommand } | { t: 'advance'; dt: number } | { t: 'enter'; entry: RoomEntry } | { t: 'dispose' };
+export type FromWorker = { t: 'ready' } | { t: 'entered' } | { t: 'frame'; snapshot: Snapshot; events: SimEvent[] };
 
 export interface Frame {
   snapshot: Snapshot;

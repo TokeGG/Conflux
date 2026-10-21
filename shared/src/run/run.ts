@@ -51,6 +51,8 @@ export interface RunState {
   reward: RewardKind;
   /** True when the run used the dev panel's tuning, so it never counts toward unlocks. */
   tuned: boolean;
+  /** The content the player has unlocked; everything when absent. */
+  pool?: { skills: Set<string>; augments: Set<string> };
   status: 'running' | 'victory' | 'defeat';
   /** The game data the run plans its rooms from (shared, not copied; the run is never sent whole to another thread). */
   data: GameData;
@@ -58,7 +60,7 @@ export interface RunState {
 
 export interface RunMode {
   id: string;
-  start(seed: number, data: GameData, tuned?: boolean): RunState;
+  start(seed: number, data: GameData, tuned?: boolean, pool?: RunState['pool']): RunState;
   nextChoices(state: RunState): DoorChoice[];
   onRoomCleared(state: RunState): RunState;
 }

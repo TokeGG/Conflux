@@ -35,7 +35,7 @@ function skillPool(state: RunState, data: GameData, taken: Set<string>): string[
   const owned = new Set(state.skills.pool);
   const offered = new Set(state.offeredSkills);
   return Object.keys(data.skills)
-    .filter((id) => !owned.has(id) && !offered.has(id) && !taken.has(id))
+    .filter((id) => !owned.has(id) && !offered.has(id) && !taken.has(id) && (!state.pool || state.pool.skills.has(id)))
     .sort();
 }
 
@@ -60,6 +60,7 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
       // only augments that can be used: a skill augment needs the skill owned and a free socket
       const ids = Object.keys(data.augments)
         .filter((id) => {
+          if (state.pool && !state.pool.augments.has(id)) return false;
           const t = data.augments[id].target;
           return !t.skill || (state.skills.pool.includes(t.skill) && canSocket(t.skill, state.augments));
         })
