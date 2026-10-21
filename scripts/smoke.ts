@@ -103,6 +103,7 @@ try {
     await page.keyboard.press('F2');
     await page.waitForSelector('#devpanel', { state: 'visible', timeout: 5000 });
     check(true, 'F2 opens the dev panel');
+    await page.click('#devpanel nav button:has-text("Performance")');
     await page.waitForFunction(() => /\d/.test(document.querySelector('#perf-fps')?.textContent ?? ''), null, { timeout: 8000 });
     const fps = await page.innerText('#perf-fps');
     check(true, `the performance page shows a frame rate (${fps.trim()})`);
@@ -114,6 +115,51 @@ try {
     await page.waitForSelector('#devpanel', { state: 'hidden', timeout: 5000 });
     check((await page.evaluate(() => (window as any).__confluxDev.sampling)) === false, 'closing the panel stops the sampling');
     check(errors.length === 0, `no console errors with the panel${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
+  // 4b. editing a number in the panel reaches the running sim, shows in Changes, and undoes
+  {
+    const { page, errors } = await open(browser, `${server.url}?dev`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
+    await page.keyboard.press('F2');
+    await page.click('#devpanel nav button:has-text("Skills")');
+    await page.selectOption('#skills-pick', 'fire.fireball');
+    const row = '#skills-rows [data-path="skills.fire.fireball.damage"] input';
+    await page.waitForSelector(row, { timeout: 5000 });
+    check((await page.locator('#skills-rows .dev-file').first().innerText()).startsWith('file:'), 'each row shows the file\'s value');
+    const before: number = await page.evaluate(() => (window as any).__conflux.tick);
+    await page.waitForTimeout(400);
+    const after: number = await page.evaluate(() => (window as any).__conflux.tick);
+    check(after === before, `the sim is paused while a data page is open (${before} to ${after})`);
+    await page.fill(row, '50');
+    await page.press(row, 'Tab');
+    await page.click('#devpanel button:has-text("Try now")');
+    check(/in use/i.test(await page.innerText('#dev-msg')), 'Try now reports the edit in use');
+    check((await page.locator('#devpanel button:has-text("Changes (1)")').count()) === 1, 'Changes (1) lists the edit');
+    await page.click('#devpanel nav button:has-text("Run tools")');
+    await page.click('#tool-spawn');
+    await page.keyboard.press('F2');
+    await page.waitForFunction(() => (window as any).__conflux.snapshot()?.enemies.length === 1, null, { timeout: 8000 });
+    check(true, 'the dummy spawned at the crosshair');
+    await page.evaluate(() => (window as any).__conflux.sendInput({ buttons: 1 }));
+    await page.waitForFunction(() => ((window as any).__conflux.snapshot()?.enemies[0]?.hp ?? 1000) < 1000, null, { timeout: 8000 });
+    await page.evaluate(() => (window as any).__conflux.sendInput({ buttons: 0 }));
+    const hp: number = await page.evaluate(() => (window as any).__conflux.snapshot().enemies[0].hp);
+    check(hp === 950, `the next cast used the edited damage (1000 - ${1000 - hp})`);
+    await page.keyboard.press('F2');
+    await page.click('#devpanel button:has-text("Changes (1)")');
+    await page.click('#devpanel .dev-change button:has-text("Undo")');
+    check((await page.locator('#devpanel button:has-text("Changes (0)")').count()) === 1, 'Undo puts the value back');
+    await page.click('#devpanel nav button:has-text("Animation viewer")');
+    await page.waitForFunction(() => /clips/.test(document.querySelector('#viewer-status')?.textContent ?? ''), null, { timeout: 20000 });
+    await page.selectOption('#viewer-clip', 'loco_standing_run_forward');
+    await page.selectOption('#viewer-archetype', 'throw');
+    await page.fill('#viewer-seek', '0.4');
+    await page.waitForTimeout(300);
+    check((await page.innerText('#viewer-status')).includes('model.wizardpack'), 'the animation viewer loads a model and its clips');
+    await page.screenshot({ path: join(shots, 'dev-viewer.png') });
+    check(errors.length === 0, `no console errors while editing${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
   // 5a. the HUD: crosshair, element, three skills, health, and the tags above an enemy

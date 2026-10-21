@@ -59,9 +59,9 @@ export function castSkill(sim: Sim, caster: PlayerState, skillId: string, aimPoi
   if (!skill) return { ok: false, reason: 'unknown' };
   const now = sim.time;
   if (caster.castState && now < caster.castState.until) return { ok: false, reason: 'casting' };
-  if (now < (caster.cooldowns[skillId] ?? 0)) return { ok: false, reason: 'cooldown' };
+  if (!sim.noCooldowns && now < (caster.cooldowns[skillId] ?? 0)) return { ok: false, reason: 'cooldown' };
   const channel = skill.shape.type === 'stream' ? (skill.shape.duration ?? 0) : 0;
-  caster.cooldowns[skillId] = now + skill.cooldown;
+  if (!sim.noCooldowns) caster.cooldowns[skillId] = now + skill.cooldown;
   const swap = consumeSwapBonus(caster, now, sim.data.player.swap);
   const bonus: Bonus = { mul: swap.damageMul, guarantee: swap.guaranteeStatus };
   caster.castState = {

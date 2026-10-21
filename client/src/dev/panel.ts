@@ -16,6 +16,8 @@ export class DevPanel {
   private changesBtn: HTMLButtonElement;
   private isOpen = false;
   private filter = '';
+  private pauseWhileEditing = true;
+  private pausedByPanel = false;
 
   constructor(
     readonly state: DevState,
@@ -47,6 +49,16 @@ export class DevPanel {
     button('Copy changes', 'Copy the edits as JSON to paste back to Claude', () => void this.copyChanges());
     this.changesBtn = button('Changes (0)', 'Every changed value, old to new', () => this.toggleDrawer());
 
+    const pauseLabel = el('label', { class: 'dev-check', title: 'Stop the game while a data page is open' });
+    const pauseBox = el('input', { type: 'checkbox', id: 'dev-pause-edit' });
+    pauseBox.checked = true;
+    pauseBox.addEventListener('change', () => {
+      this.pauseWhileEditing = pauseBox.checked;
+      this.syncPause();
+    });
+    pauseLabel.append(pauseBox, ' Pause while editing');
+    bar.append(pauseLabel);
+
     this.msg = el('div', { class: 'dev-msg', id: 'dev-msg' });
     this.drawer = el('div', { class: 'dev-drawer', hidden: '' });
     this.nav = el('nav', { class: 'dev-nav' });
@@ -64,6 +76,12 @@ export class DevPanel {
       }
     });
     this.updateCount();
+  }
+
+  /** Redraws the Changes count and list (pages call this after an edit). */
+  refresh(): void {
+    this.updateCount();
+    this.drawChanges();
   }
 
   registerPage(page: DevPage): void {
@@ -84,12 +102,14 @@ export class DevPanel {
     this.isOpen = true;
     this.root.hidden = false;
     this.showPage(this.current?.id ?? this.pages[0]?.id);
+    this.syncPause();
   }
 
   hide(): void {
     this.isOpen = false;
     this.root.hidden = true;
     this.current?.dispose?.();
+    this.syncPause();
   }
 
   showPage(id: string | undefined): void {
@@ -99,6 +119,15 @@ export class DevPanel {
     this.current = page;
     page.render(this.body);
     this.drawNav();
+    this.syncPause();
+  }
+
+  /** The sim is held while a data page is open and the toggle is on; it runs again when the panel closes or moves to another kind of page. */
+  private syncPause(): void {
+    const want = this.isOpen && this.pauseWhileEditing && !!this.current?.pausesSim;
+    if (want === this.pausedByPanel) return;
+    this.pausedByPanel = want;
+    this.bridge.command({ op: 'pause', on: want });
   }
 
   private drawNav(): void {

@@ -107,3 +107,21 @@ test('a clip that is not loaded is skipped without throwing', () => {
   rig.play('run_forward', 'cast_missing', 1, 0);
   assert.doesNotThrow(() => rig.update(1 / 60));
 });
+
+test('showClip plays any named clip, and a scrub time pins the pose to that moment', () => {
+  const turn = (a: number) => [0, Math.sin(a / 2), 0, Math.cos(a / 2)];
+  const frames = 5;
+  const q = new Float32Array(frames * BONES.length * 4);
+  for (let f = 0; f < frames; f++) BONES.forEach((b, i) => q.set(b === 'UpperLegL' ? turn(f * 0.2) : [0, 0, 0, 1], (f * BONES.length + i) * 4));
+  const sweep: DecodedClip = { name: 'sweep', fps: 30, frames, loop: false, duration: (frames - 1) / 30, rootSpeed: 0, bones: BONES, q, hips: new Float32Array(frames * 3) };
+  const { by, rig } = rigWith(clip('loco_standing_idle'), sweep);
+  rig.showClip('sweep', 2 / 30);
+  rig.update(1 / 60);
+  rig.update(1 / 60);
+  const angle = 2 * Math.atan2(Math.abs(by.UpperLegL.quaternion.y), by.UpperLegL.quaternion.w);
+  assert.ok(Math.abs(angle - 0.4) < 1e-3, `pinned at frame 2 (${angle})`);
+  rig.showClip(null, null);
+  rig.play('idle', null, 0, 0);
+  for (let i = 0; i < 20; i++) rig.update(1 / 60);
+  assert.ok(2 * Math.atan2(Math.abs(by.UpperLegL.quaternion.y), by.UpperLegL.quaternion.w) < 1e-3, 'back to the locomotion state');
+});

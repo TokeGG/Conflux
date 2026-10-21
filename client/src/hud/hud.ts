@@ -20,6 +20,7 @@ interface Tag {
   root: HTMLDivElement;
   fill: HTMLElement;
   icons: HTMLDivElement;
+  ai: HTMLDivElement;
   shown: string;
   markTotals: Partial<Record<MarkId, number>>;
 }
@@ -37,7 +38,7 @@ export class Hud {
   private v = new THREE.Vector3();
 
   constructor(
-    private data: GameData,
+    private data: () => GameData,
     parent: HTMLElement = document.body,
   ) {
     this.root = div('');
@@ -74,7 +75,7 @@ export class Hud {
     this.camera = camera;
   }
 
-  update(s: Snapshot, aimTarget: number | null): void {
+  update(s: Snapshot, aimTarget: number | null, showAi = false): void {
     const p = s.players[0];
     if (!p) return;
     const colour = ELEMENT_COLOUR[p.element];
@@ -90,10 +91,10 @@ export class Hud {
     this.hpFill.style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
     this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.crosshair.classList.toggle('hot', aimTarget !== null);
-    this.updateTags(s, aimTarget);
+    this.updateTags(s, aimTarget, showAi);
   }
 
-  private updateTags(s: Snapshot, aimTarget: number | null): void {
+  private updateTags(s: Snapshot, aimTarget: number | null, showAi: boolean): void {
     const seen = new Set<number>();
     for (const e of s.enemies) {
       seen.add(e.id);
@@ -104,13 +105,15 @@ export class Hud {
         const fill = document.createElement('i');
         bar.append(fill);
         const icons = div('icons');
-        root.append(icons, bar);
+        const ai = div('ai');
+        root.append(ai, icons, bar);
         this.root.append(root);
-        tag = { root, fill, icons, shown: '', markTotals: {} };
+        tag = { root, fill, icons, ai, shown: '', markTotals: {} };
         this.tags.set(e.id, tag);
       }
       tag.fill.style.width = `${Math.max(0, (e.hp / e.maxHp) * 100)}%`;
       tag.root.classList.toggle('hot', e.id === aimTarget);
+      tag.ai.textContent = showAi ? e.aiState : '';
       this.rebuildIcons(tag, e);
       this.place(tag.root, e.pos.x, e.pos.y + this.topOf(e.defId), e.pos.z);
     }
@@ -126,7 +129,7 @@ export class Hud {
     const rows: { icon: Icon; ring: number }[] = [];
     for (const id of STATUS_IDS) {
       const st = e.statuses.find((x) => x.id === id);
-      if (st) rows.push({ icon: STATUS_ICONS[id], ring: statusRing(st.remaining, this.data.statuses[id].duration) });
+      if (st) rows.push({ icon: STATUS_ICONS[id], ring: statusRing(st.remaining, this.data().statuses[id].duration) });
     }
     for (const id of MARK_IDS) {
       const m = e.marks.find((x) => x.id === id);
@@ -156,7 +159,7 @@ export class Hud {
 
   /** The tallest point of an enemy above its feet, from its hurtboxes. */
   private topOf(defId: string): number {
-    const def = this.data.enemies[defId];
+    const def = this.data().enemies[defId];
     if (!def) return 2;
     return Math.max(...def.hurtboxes.map((h) => Math.max(h.a[1], h.b[1]) + h.r)) * def.scale + 0.3;
   }

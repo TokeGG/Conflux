@@ -28,3 +28,4 @@
 #hud .ico { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: conic-gradient(var(--c) calc(var(--p) * 360deg), #0008 0); position: relative; }
 #hud .ico::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #000b; }
 #hud .ico span { position: relative; }
+#hud .tag .ai { font-size: 10px; opacity: .85; }

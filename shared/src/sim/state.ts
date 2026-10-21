@@ -220,11 +220,13 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {
   return e;
 }
 
-/** The enemy's capsules in world space: offsets turn with the facing (yaw) and move with the position. */
-export function enemyHurtboxes(e: EnemyState): HurtCapsule[] {
-  const c = Math.cos(e.facing);
-  const s = Math.sin(e.facing);
+/** An enemy's capsules in world space: offsets turn with the facing (yaw) and move with the position. */
+export function hurtboxesFor(def: EnemyDef, pos: Vec3, facing: number, enemyId: number): HurtCapsule[] {
+  const c = Math.cos(facing);
+  const s = Math.sin(facing);
   // yaw 0 faces +Z and a positive yaw turns toward +X, so a local +X offset swings toward -Z
-  const world = (p: [number, number, number]): Vec3 => ({ x: e.pos.x + p[0] * c + p[2] * s, y: e.pos.y + p[1], z: e.pos.z - p[0] * s + p[2] * c });
-  return e.def.hurtboxes.map((h) => ({ enemyId: e.id, a: world(h.a), b: world(h.b), r: h.r }));
+  const world = (p: [number, number, number]): Vec3 => ({ x: pos.x + p[0] * c + p[2] * s, y: pos.y + p[1], z: pos.z - p[0] * s + p[2] * c });
+  return def.hurtboxes.map((h) => ({ enemyId, a: world(h.a), b: world(h.b), r: h.r }));
 }
+
+export const enemyHurtboxes = (e: EnemyState): HurtCapsule[] => hurtboxesFor(e.def, e.pos, e.facing, e.id);

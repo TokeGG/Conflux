@@ -30,6 +30,12 @@ export class Sim {
   readonly world: World;
   readonly streams: Streams;
   tick = 0;
+  /** Dev switches. None of them is part of the hash; a run that used one is marked tuned. */
+  god = false;
+  noCooldowns = false;
+  tuned = false;
+  /** The last input the player sent (the dev tools use it to find the crosshair). */
+  lastInput: Input | null = null;
   player: PlayerState;
   enemies: EnemyState[] = [];
   projectiles: Projectile[] = [];
@@ -81,7 +87,7 @@ export class Sim {
   /** Applies damage to the player unless a dodge makes them invulnerable. True when it landed. */
   hurtPlayer(amount: number): boolean {
     const p = this.player;
-    if (this.time < p.invulnUntil || p.hp <= 0) return false;
+    if (this.god || this.time < p.invulnUntil || p.hp <= 0) return false;
     const b = p.buff && this.time < p.buff.until ? p.buff : null;
     let dmg = amount * (b ? b.damageTakenMul : 1);
     if (b && b.absorb > 0) {
@@ -98,6 +104,7 @@ export class Sim {
   /** Advances one tick and returns the events emitted since the previous step. */
   step(inputs: Input[]): SimEvent[] {
     if (inputs[0]) {
+      this.lastInput = inputs[0];
       handleSwapAndCast(this, this.player, inputs[0]);
       stepPlayer(this, this.player, inputs[0], TICK);
     }

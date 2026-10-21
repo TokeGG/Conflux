@@ -123,9 +123,9 @@ test('dev commands reach the handler before the next tick runs', () => {
   sim.step = (i) => (order.push('tick'), real(i));
   const b = new LocalBridge(sim);
   b.setCommandHandler((c: DevCommand) => order.push(`cmd:${c.op}`));
-  b.command({ op: 'pause' });
+  b.command({ op: 'probe' });
   b.advance(TICK);
-  assert.deepEqual(order, ['cmd:pause', 'tick']);
+  assert.deepEqual(order, ['cmd:probe', 'tick']);
 });
 
 test('dispose stops ticks and frames', () => {

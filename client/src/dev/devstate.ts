@@ -29,6 +29,17 @@ export class DevState {
     return null;
   }
 
+  /** Drops a staged edit that has not been tried yet. */
+  unstage(path: string): void {
+    this.staged = this.staged.filter((p) => p.path !== path);
+  }
+
+  /** Puts one value back to the file's: drops it from staging and from the tried and saved layers. */
+  revertPath(path: string): void {
+    this.unstage(path);
+    this.layers.revert(path);
+  }
+
   /** Staged edits go into the run layer. Returns the edits that were refused. */
   tryNow(): string[] {
     const errors = this.layers.setRun(merge([...this.layers.runPatches(), ...this.staged]));

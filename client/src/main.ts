@@ -8,7 +8,7 @@ import { AssetLoader, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
-import type { Snapshot } from '@conflux/shared';
+import { idleInput, type Input, type Snapshot } from '@conflux/shared';
 import { FxSystem } from './fx/sprites.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
@@ -17,12 +17,19 @@ import { DevState } from './dev/devstate.ts';
 import { DevPanel } from './dev/panel.ts';
 import { PerfPage } from './dev/perf.ts';
 import { Benchmark } from './dev/benchmark.ts';
+import { AnimViewerPage } from './dev/animViewer.ts';
+import { DebugDraw } from './dev/debugDraw.ts';
+import { noDebug, ToolsPage } from './dev/tools.ts';
+import { playerPage } from './dev/pages/player.ts';
+import { skillsPage } from './dev/pages/skills.ts';
+import { statusesPage } from './dev/pages/statuses.ts';
+import { reactionsPage } from './dev/pages/reactions.ts';
 
 declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; hudDemo(on: boolean): void };
+    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; hudDemo(on: boolean): void; sendInput(i: Partial<Input>): void; snapshot(): Snapshot | null };
   }
 }
 
@@ -69,7 +76,7 @@ async function boot(): Promise<void> {
     state.tick = snapshot.tick;
     latest = snapshot;
   });
-  const hud = new Hud(data);
+  const hud = new Hud(() => layers.current());
   hud.setCamera(game.camera);
 
   window.addEventListener('resize', () => {
@@ -77,9 +84,21 @@ async function boot(): Promise<void> {
     game.resize(window.innerWidth, window.innerHeight);
   });
 
+  const debugFlags = noDebug();
+  const debugDraw = new DebugDraw(game.scene, () => layers.current(), room.colliders);
   let perf: PerfPage | null = null;
   if (dev) {
-    const panel = new DevPanel(devState, bridge);
+    // numbers tried in the panel reach the sim running in the worker
+    const sendData = () => bridge.command({ op: 'setData', data: layers.current() });
+    const panel = new DevPanel(devState, bridge, sendData);
+    const base = () => layers.base;
+    const refresh = () => panel.refresh();
+    panel.registerPage(playerPage(devState, base, refresh));
+    panel.registerPage(skillsPage(devState, base, refresh));
+    panel.registerPage(statusesPage(devState, base, refresh));
+    panel.registerPage(reactionsPage(devState, base, refresh));
+    panel.registerPage(new ToolsPage(bridge, () => layers.current(), debugFlags));
+    panel.registerPage(new AnimViewerPage(loader));
     perf = new PerfPage({
       renderer,
       profileId: profile.id,
@@ -121,6 +140,9 @@ async function boot(): Promise<void> {
     fxActive: () => fx.active,
     /** Shows one made-up enemy with a few statuses so the smoke test can see the enemy tags (test hook). */
     hudDemo: (on) => (demo = on),
+    /** Sends the player's input until the next call (test hook; the real controls arrive with the M1 integration). */
+    sendInput: (i) => bridge.send({ ...idleInput(), ...i }),
+    snapshot: () => latest,
     /** Puts the temporary camera in front of the player so the smoke screenshots show the pose. */
     frontView() {
       game.camera.position.set(room.spawns.player.x + 0.8, 1.5, room.spawns.player.z + 3.6);
@@ -147,7 +169,10 @@ async function boot(): Promise<void> {
     const dt = clock.getDelta();
     rig.update(Math.min(dt, 0.1));
     fx.update(Math.min(dt, 0.1), game.camera);
-    if (latest) hud.update(demo ? withDemoEnemy(latest, room.spawns.player.x, room.spawns.player.z + 6) : latest, demo ? 1 : null);
+    if (latest) {
+      hud.update(demo ? withDemoEnemy(latest, room.spawns.player.x, room.spawns.player.z + 6) : latest, demo ? 1 : null, debugFlags.aiState);
+      debugDraw.update(latest, debugFlags);
+    }
     bridge.advance(Math.min(dt, 0.25));
     const pose = perf?.benchmarkPose();
     const saved = pose ? { pos: game.camera.position.clone(), quat: game.camera.quaternion.clone() } : null;

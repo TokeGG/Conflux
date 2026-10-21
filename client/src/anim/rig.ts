@@ -35,6 +35,7 @@ export class CharacterRig {
   private readonly hips = new Float32Array(3);
   private fromHips = new Float32Array(3);
   private haveFrom = false;
+  private preview: { clip: string; time: number | null } | null = null;
 
   constructor(
     readonly root: THREE.Object3D,
@@ -60,6 +61,12 @@ export class CharacterRig {
     return this.clips.has(name);
   }
 
+  /** Plays any named clip on the legs instead of the locomotion state (the model viewer). A time pins the pose to that moment; null goes back to the state. */
+  showClip(clip: string | null, time: number | null = null): void {
+    this.preview = clip ? { clip, time } : null;
+    if (clip) this.blendLeft = 0;
+  }
+
   /** What the character should be doing now. castW is 0 for no cast up to 1 for the cast clip fully on the upper body. */
   play(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void {
     if (state !== this.state) {
@@ -79,9 +86,10 @@ export class CharacterRig {
   }
 
   update(dt: number): void {
-    const locoClip = this.clips.get(locoClipName(this.state));
+    const locoClip = this.clips.get(this.preview?.clip ?? locoClipName(this.state));
     if (locoClip) {
-      this.locoTime += dt;
+      if (this.preview?.time != null) this.locoTime = this.preview.time;
+      else this.locoTime += dt;
       sampleClip(locoClip, this.locoTime, this.loco);
       sampleHips(locoClip, this.locoTime, this.hips);
     } else if (!this.haveFrom) {

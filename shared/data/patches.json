@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.22",
+    "date": "2026-10-21",
+    "at": "2026-10-21T20:20:51Z",
+    "notes": [
+      "Dev panel pages for player, skills, statuses and reactions, run tools, debug drawing and an animation viewer."
+    ]
+  },
+  {
     "version": "0.1.21",
     "date": "2026-10-17",
     "at": "2026-10-17T21:06:55Z",
