@@ -120,6 +120,7 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
   for (const [key, b] of Object.entries(d.biomes)) {
     for (const r of b.rooms) if (!d.rooms[r]) err(`biome ${key}: room "${r}" does not exist`);
     for (const e of b.enemyPool) if (!d.enemies[e]) err(`biome ${key}: enemy "${e}" does not exist`);
+    for (const e of b.bosses ?? []) if (!d.enemies[e]) err(`biome ${key}: boss "${e}" does not exist`);
   }
 
   if (!(d.rewards.offers > 0)) err('rewards.offers must be above 0');

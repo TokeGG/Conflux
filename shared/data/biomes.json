@@ -1,7 +1,53 @@
 {
   "forest": {
-    "rooms": ["forest_clearing"],
-    "enemyPool": ["enemy.dummy"],
-    "lighting": { "ambient": "#cfe8ff", "light": "#fff1cc", "intensity": 2.2, "fogColor": "#6fa8d6", "fogNear": 14, "fogFar": 34 }
+    "rooms": [
+      "forest_clearing"
+    ],
+    "enemyPool": [
+      "enemy.stump",
+      "enemy.treefellow",
+      "enemy.treegolem",
+      "enemy.fire_sprite",
+      "enemy.wisp",
+      "enemy.gust"
+    ],
+    "bosses": [
+      "boss.maw"
+    ],
+    "lighting": {
+      "ambient": "#cfe8ff",
+      "light": "#fff1cc",
+      "intensity": 2.2,
+      "fogColor": "#6fa8d6",
+      "fogNear": 14,
+      "fogFar": 34
+    }
+  },
+  "dungeon": {
+    "rooms": [
+      "forest_clearing"
+    ],
+    "enemyPool": [
+      "enemy.golem_fire",
+      "enemy.golem_water",
+      "enemy.golem_wind",
+      "enemy.treegolem",
+      "enemy.treefellow",
+      "enemy.fire_sprite",
+      "enemy.wisp",
+      "enemy.gust"
+    ],
+    "bosses": [
+      "boss.reaper",
+      "boss.maw"
+    ],
+    "lighting": {
+      "ambient": "#8a93b8",
+      "light": "#c9d2ff",
+      "intensity": 1.4,
+      "fogColor": "#1d2233",
+      "fogNear": 8,
+      "fogFar": 24
+    }
   }
 }

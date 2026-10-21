@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.31",
+    "date": "2026-10-21",
+    "at": "2026-10-21T21:24:40Z",
+    "notes": [
+      "Runs now exist: a seeded eight-room path through forest and dungeon to a boss, with doors that show their reward."
+    ]
+  },
+  {
     "version": "0.1.30",
     "date": "2026-10-21",
     "at": "2026-10-21T21:12:45Z",

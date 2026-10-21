@@ -236,6 +236,8 @@ export interface BiomeDef {
   id: string;
   rooms: string[];
   enemyPool: string[];
+  /** Bosses that can close a run that ends in this biome. */
+  bosses?: string[];
   lighting: LightingPreset;
 }
 

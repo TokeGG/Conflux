@@ -28,3 +28,6 @@ export * from './sim/attacks.ts';
 export * from './sim/ai.ts';
 export * from './sim/guard.ts';
 export * from './bot.ts';
+export * from './run/run.ts';
+export * from './run/encounters.ts';
+export * from './run/roomToRoom.ts';
