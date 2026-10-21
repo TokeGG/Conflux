@@ -202,7 +202,7 @@ test('augments are part of the state hash', () => {
 test('rewards only offer augments that can be used: not for a skill that is not owned or whose sockets are full', () => {
   const state = ROOM_TO_ROOM.start(2, data);
   for (let seed = 1; seed <= 60; seed++) {
-    const offers = offerRewards({ ...state, ownedSkills: ['fire.fireball'], augments: [own('aug.hot_hands', 'common', 'fire.fireball'), own('aug.hot_hands', 'rare', 'fire.fireball'), own('aug.hot_hands', 'epic', 'fire.fireball')] }, data, makeStreams(seed).reward);
+    const offers = offerRewards({ ...state, skills: { ...state.skills, pool: ['fire.fireball'] }, augments: [own('aug.hot_hands', 'common', 'fire.fireball'), own('aug.hot_hands', 'rare', 'fire.fireball'), own('aug.hot_hands', 'epic', 'fire.fireball')] }, data, makeStreams(seed).reward);
     for (const o of offers.filter((x) => x.kind === 'augment')) {
       const t = defs[o.id!].target;
       assert.ok(!t.skill, `${o.id} targets ${t.skill}, which is either not owned or full`);

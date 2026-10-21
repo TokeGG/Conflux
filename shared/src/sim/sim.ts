@@ -18,12 +18,12 @@ import type { StatusMap } from '../types.ts';
 
 export const TICK = 1 / 60;
 
-/** The first skill (by id) of each element and slot; the loadout system replaces this per run. */
+/** The first skill (in the data file's order) of each element and slot; the loadout system replaces this per run. */
 function defaultLoadout(data: GameData): Record<Element, Record<Slot, string>> {
   const out = {} as Record<Element, Record<Slot, string>>;
   for (const el of ELEMENTS) {
     out[el] = {} as Record<Slot, string>;
-    for (const slot of SLOTS) out[el][slot] = Object.keys(data.skills).sort().find((id) => data.skills[id].element === el && data.skills[id].slot === slot) ?? '';
+    for (const slot of SLOTS) out[el][slot] = Object.keys(data.skills).find((id) => data.skills[id].element === el && data.skills[id].slot === slot) ?? '';
   }
   return out;
 }

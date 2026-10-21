@@ -1,12 +1,12 @@
 // The shapes of a run: the plan for a room, the choices at a door, and the state that carries from room to room.
-import type { Element, GameData, Rarity, Slot } from '../types.ts';
+import type { GameData, Rarity } from '../types.ts';
 import type { Vec3 } from '../math.ts';
 
 export type RewardKind = 'skill' | 'augment' | 'heal';
 export type RoomType = 'combat' | 'elite' | 'boss';
 
-/** Which skill sits on each slot of each element. */
-export type SkillLoadout = Record<Element, Record<Slot, string>>;
+export type { SkillLoadout } from './loadout.ts';
+import type { SkillLoadout } from './loadout.ts';
 
 export interface OwnedAugment {
   id: string;
@@ -42,8 +42,6 @@ export interface RunState {
   history: string[];
   skills: SkillLoadout;
   augments: OwnedAugment[];
-  /** Every skill the player has found, the starting ones included. Only the loadout's skills are active. */
-  ownedSkills: string[];
   /** Skills that have been offered as a reward, taken or not: they are never offered again. */
   offeredSkills: string[];
   /** Health carried between rooms. */

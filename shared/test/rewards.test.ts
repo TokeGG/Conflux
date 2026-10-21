@@ -7,21 +7,8 @@ import { defaultData } from '../src/files.ts';
 import { makeStreams } from '../src/rng.ts';
 import { ELEMENTS, SLOTS, type GameData } from '../src/types.ts';
 
-/** The real data plus eight more skills, so there is something to offer (the full pool comes with the loadout task). */
-function withPool(): GameData {
-  const d = defaultData();
-  let n = 0;
-  for (const el of ELEMENTS) {
-    for (const slot of SLOTS.slice(0, 2)) {
-      const src = Object.values(d.skills).find((s) => s.element === el && s.slot === slot)!;
-      const id = `${el}.extra_${slot}`;
-      d.skills[id] = { ...structuredClone(src), id };
-      n++;
-    }
-  }
-  assert.equal(n, 8);
-  return d;
-}
+/** The real data: 20 skills, 12 of them owned at the start, so 8 are there to be found. */
+const withPool = (): GameData => defaultData();
 
 /** Plays through the run's rewards: at each cleared room, offer, record, and claim the offer at `pick`. */
 function playRewards(seed: number, data: GameData, pick: (offers: RewardOffer[]) => RewardOffer = (o) => o[0]) {
@@ -79,7 +66,7 @@ test('a skill that is owned or was offered earlier in the run is never offered a
   const data = withPool();
   for (let seed = 1; seed <= 100; seed++) {
     const start = fresh(data, seed);
-    const owned = new Set(start.ownedSkills);
+    const owned = new Set(start.skills.pool);
     const seen = new Set<string>();
     for (const set of playRewards(seed, data, (o) => o[o.length - 1]).sets) {
       for (const o of set) {
@@ -93,24 +80,26 @@ test('a skill that is owned or was offered earlier in the run is never offered a
 });
 
 test('when every skill of the pool is owned, the offers fall back to augments and heals: still three, none a skill', () => {
-  const data = defaultData(); // the twelve starting skills are all owned
+  const data = defaultData();
   for (let seed = 1; seed <= 50; seed++) {
-    for (const set of playRewards(seed, data).sets) {
-      assert.equal(set.length, 3);
-      assert.ok(set.every((o) => o.kind !== 'skill'), 'no skill to offer');
-    }
+    const state = { ...fresh(data, seed), skills: { ...fresh(data, seed).skills, pool: Object.keys(data.skills) } };
+    const offers = offerRewards(state, data, makeStreams(seed).reward);
+    assert.equal(offers.length, 3);
+    assert.ok(offers.every((o) => o.kind !== 'skill'), 'no skill to offer');
   }
 });
 
 test('claiming a skill adds it to the pool and keeps the old one; claiming it twice adds it once', () => {
   const data = withPool();
   const s = fresh(data);
-  const before = s.skills.fire.basic;
-  const next = claimReward(s, { kind: 'skill', id: 'fire.extra_basic', element: 'fire' });
-  assert.ok(next.ownedSkills.includes('fire.extra_basic') && next.ownedSkills.includes(before));
-  assert.equal(next.skills.fire.basic, before, 'the active loadout is not changed by claiming');
-  assert.equal(claimReward(next, { kind: 'skill', id: 'fire.extra_basic', element: 'fire' }).ownedSkills.filter((x) => x === 'fire.extra_basic').length, 1);
-  assert.ok(!s.ownedSkills.includes('fire.extra_basic'), 'the old state is untouched');
+  const before = s.skills.slots.fire.basic;
+  const extra = Object.keys(data.skills).find((id) => id.startsWith('fire.') && !s.skills.pool.includes(id))!;
+  const offer = { kind: 'skill' as const, id: extra, element: 'fire' as const };
+  const next = claimReward(s, offer);
+  assert.ok(next.skills.pool.includes(extra) && next.skills.pool.includes(before));
+  assert.equal(next.skills.slots.fire.basic, before, 'the active loadout is not changed by claiming');
+  assert.equal(claimReward(next, offer).skills.pool.filter((x) => x === extra).length, 1);
+  assert.ok(!s.skills.pool.includes(extra), 'the old state is untouched');
 });
 
 test('claiming an augment adds it with its rarity', () => {

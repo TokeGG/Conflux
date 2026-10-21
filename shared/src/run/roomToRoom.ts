@@ -1,9 +1,10 @@
 // The first run mode: eight rooms through the forest and then the dungeon, then a boss. Every door is a pure function of the
 // seed and the room number, so a plan can be rebuilt at any time and the same seed always gives the same run.
-import { ELEMENTS, SLOTS, type GameData } from '../types.ts';
+import type { GameData } from '../types.ts';
+import { startingLoadout } from './loadout.ts';
 import { makeStreams, type Rng } from '../rng.ts';
 import { encounterFor } from './encounters.ts';
-import type { DoorChoice, RewardKind, RoomPlan, RunMode, RunState, SkillLoadout } from './run.ts';
+import type { DoorChoice, RewardKind, RoomPlan, RunMode, RunState } from './run.ts';
 
 /** The biomes in order and how many ordinary rooms each holds. */
 const STAGES = [
@@ -66,18 +67,6 @@ function skillOfferedBefore(seed: number, index: number): boolean {
   return false;
 }
 
-function startingLoadout(data: GameData, rng: Rng): SkillLoadout {
-  const out = {} as SkillLoadout;
-  for (const el of ELEMENTS) {
-    out[el] = {} as SkillLoadout[typeof el];
-    for (const slot of SLOTS) {
-      const options = Object.keys(data.skills).filter((id) => data.skills[id].element === el && data.skills[id].slot === slot).sort();
-      out[el][slot] = options.length ? rng.pick(options) : '';
-    }
-  }
-  return out;
-}
-
 export const ROOM_TO_ROOM: RunMode = {
   id: 'room_to_room',
 
@@ -91,7 +80,6 @@ export const ROOM_TO_ROOM: RunMode = {
       current: planRoom(seed, 0, 0, data),
       history: [],
       skills,
-      ownedSkills: ELEMENTS.flatMap((el) => SLOTS.map((slot) => skills[el][slot])).filter(Boolean),
       offeredSkills: [],
       hp: data.player.health,
       reward: 'heal',

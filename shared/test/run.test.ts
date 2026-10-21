@@ -157,7 +157,7 @@ test('a run starts with the 12 starting skills, no augments and no tuning, and o
   assert.equal(s.roomsTotal, 9);
   assert.equal(s.tuned, false);
   assert.deepEqual(s.augments, []);
-  for (const el of ['fire', 'water', 'earth', 'wind'] as const) for (const slot of ['basic', 'secondary', 'utility'] as const) assert.ok(s.skills[el][slot].startsWith(`${el}.`), `${el} ${slot}`);
+  for (const el of ['fire', 'water', 'earth', 'wind'] as const) for (const slot of ['basic', 'secondary', 'utility'] as const) assert.ok(s.skills.slots[el][slot].startsWith(`${el}.`), `${el} ${slot}`);
   const before = JSON.stringify(s);
   const after = ROOM_TO_ROOM.onRoomCleared(s);
   assert.equal(JSON.stringify(s), before, 'the old state is untouched');

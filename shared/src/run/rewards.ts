@@ -32,7 +32,7 @@ function drawRarity(state: RunState, data: GameData, rng: Rng): Rarity {
 
 /** Skills not owned, not offered before and not already in this set. */
 function skillPool(state: RunState, data: GameData, taken: Set<string>): string[] {
-  const owned = new Set(state.ownedSkills);
+  const owned = new Set(state.skills.pool);
   const offered = new Set(state.offeredSkills);
   return Object.keys(data.skills)
     .filter((id) => !owned.has(id) && !offered.has(id) && !taken.has(id))
@@ -61,7 +61,7 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
       const ids = Object.keys(data.augments)
         .filter((id) => {
           const t = data.augments[id].target;
-          return !t.skill || (state.ownedSkills.includes(t.skill) && canSocket(t.skill, state.augments));
+          return !t.skill || (state.skills.pool.includes(t.skill) && canSocket(t.skill, state.augments));
         })
         .sort();
       if (ids.length === 0) return null;
@@ -112,7 +112,7 @@ export function claimReward(state: RunState, offer: RewardOffer): RunState {
   switch (offer.kind) {
     case 'skill':
       if (!offer.id) return state;
-      return { ...state, ownedSkills: state.ownedSkills.includes(offer.id) ? state.ownedSkills : [...state.ownedSkills, offer.id] };
+      return state.skills.pool.includes(offer.id) ? state : { ...state, skills: { ...state.skills, pool: [...state.skills.pool, offer.id] } };
     case 'augment':
       if (!offer.id || !state.data.augments[offer.id]) return state;
       const socket = socketFor(state.data.augments[offer.id]);
