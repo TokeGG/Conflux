@@ -25,7 +25,7 @@ const chest = (p: PlayerState): Vec3 => ({ x: p.pos.x, y: p.pos.y + CHEST, z: p.
 
 /** Takes health off an enemy and emits the hit; removes it when it dies. Element, status and reaction rules live in dealDamage. */
 export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3): void {
-  if (e.hp <= 0) return;
+  if (e.hp <= 0 || e.aiState === 'buried') return;
   e.hp = Math.max(0, e.hp - amount);
   sim.emit('hit', { target: 'enemy', id: e.id, amount, skillId, x: point.x, y: point.y, z: point.z });
   if (e.hp <= 0) {

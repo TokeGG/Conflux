@@ -8,6 +8,7 @@ import { stepPlayer } from './player.ts';
 import { handleSwapAndCast } from './swap.ts';
 import { popShield } from './skills.ts';
 import { tickStatuses } from './statuses.ts';
+import { stepAI } from './ai.ts';
 import { stepAttacks } from './attacks.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
 import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
@@ -31,6 +32,9 @@ export class Sim {
   readonly world: World;
   readonly streams: Streams;
   tick = 0;
+  /** How many enemies have ever been spawned, and whether the room has been announced as cleared. */
+  spawned = 0;
+  roomCleared = false;
   /** Dev switches. None of them is part of the hash; a run that used one is marked tuned. */
   god = false;
   noCooldowns = false;
@@ -109,6 +113,7 @@ export class Sim {
       handleSwapAndCast(this, this.player, inputs[0]);
       stepPlayer(this, this.player, inputs[0], TICK);
     }
+    stepAI(this, TICK);
     stepAttacks(this);
     stepProjectiles(this, TICK);
     stepZones(this);

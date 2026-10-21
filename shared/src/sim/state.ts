@@ -81,6 +81,8 @@ export interface EnemyState {
   guard: GuardState | null;
   cooldowns: Record<string, number>;
   attack: ActiveAttack | null;
+  /** When the current AI state ends (recovering, surfacing, diving). */
+  aiUntil: number;
 }
 
 /** An attack in progress: telegraphed, then landing at hitAt. */
@@ -229,7 +231,9 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {
     guard: def.guard ? { on: false, until: 0, staggeredUntil: 0 } : null,
     cooldowns: {},
     attack: null,
+    aiUntil: 0,
   };
+  sim.spawned++;
   sim.enemies.push(e);
   return e;
 }
@@ -243,4 +247,5 @@ export function hurtboxesFor(def: EnemyDef, pos: Vec3, facing: number, enemyId: 
   return def.hurtboxes.map((h) => ({ enemyId, a: world(h.a), b: world(h.b), r: h.r }));
 }
 
-export const enemyHurtboxes = (e: EnemyState): HurtCapsule[] => hurtboxesFor(e.def, e.pos, e.facing, e.id);
+/** Nothing to hit while an ambusher is underground. */
+export const enemyHurtboxes = (e: EnemyState): HurtCapsule[] => (e.aiState === 'buried' ? [] : hurtboxesFor(e.def, e.pos, e.facing, e.id));

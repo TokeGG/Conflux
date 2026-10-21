@@ -25,3 +25,4 @@ export * from './sim/damage.ts';
 export * from './sim/devcmd.ts';
 export * from './sim/roomSim.ts';
 export * from './sim/attacks.ts';
+export * from './sim/ai.ts';

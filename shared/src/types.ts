@@ -159,7 +159,7 @@ export interface AttackDef {
   applies?: StatusId | null;
   fx?: string;
   /** A summon attack: what appears and how many. */
-  summon?: { enemy: string; count: number };
+  summon?: { enemy: string; count: number; /** The most of this kind alive at once; the summoner stops when it is reached. */ cap?: number };
 }
 
 export interface HurtCapsuleDef {

@@ -116,6 +116,7 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^enemies\..+\.hurtboxes\.\d+\.[ab]\.\d+$/, () => n('Hurtbox point', 'm', -20, 20, 0.05)],
   [/^enemies\..+\.phases\.\d+$/, () => n('Phase threshold', 'of health', 0, 1, 0.01)],
   [/^attacks\..+\.summon\.count$/, () => n('Summoned enemies', '', 1, 20, 1)],
+  [/^attacks\..+\.summon\.cap$/, () => n('Most summoned alive', '', 1, 50, 1)],
   [/^attacks\..+\.(\w+)$/, (m) => ATTACK[m[1]]],
   [/^rewards\.rarity\.(?:early|late)\.weights\.(?:common|rare|epic)$/, () => n('Rarity weight', '', 0, 100, 1)],
 ];

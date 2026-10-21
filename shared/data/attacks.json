@@ -41,7 +41,8 @@
     "range": 2,
     "summon": {
       "enemy": "enemy.dummy",
-      "count": 2
+      "count": 2,
+      "cap": 4
     }
   }
 }
