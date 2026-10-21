@@ -124,6 +124,7 @@ export class ToolsPage implements DevPage {
     const cheats = section('Testing');
     check(cheats, 'God mode', false, (on) => this.send({ op: 'god', on }), 'tool-god');
     check(cheats, 'No cooldowns', false, (on) => this.send({ op: 'noCooldowns', on }), 'tool-nocd');
+    check(cheats, 'Bot plays for me', false, (on) => this.send({ op: 'bot', on }), 'tool-bot');
 
     const draw = section('Draw');
     check(draw, 'Hurtboxes', this.flags.hurtboxes, (on) => (this.flags.hurtboxes = on), 'tool-draw-hurt');

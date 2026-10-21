@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.38",
+    "date": "2026-10-21",
+    "at": "2026-10-21T22:07:37Z",
+    "notes": [
+      "Patch notes and Credits on the main menu; a generated wiki; a bot that can play for the owner when testing."
+    ]
+  },
+  {
     "version": "0.1.37",
     "date": "2026-10-21",
     "at": "2026-10-21T21:59:59Z",

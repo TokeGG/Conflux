@@ -1,6 +1,7 @@
 // How the game talks to the simulation. SimRunner is the time accumulator with a hard cap on catch-up; LocalBridge runs it on the
 // same thread (tests, the dev bot), and the client's WorkerBridge runs the very same SimRunner inside a Web Worker.
 import { TICK, Sim } from './sim/sim.ts';
+import { botInput } from './bot.ts';
 import { idleInput, type GameData, type Input, type SimEvent } from './types.ts';
 import type { Snapshot } from './sim/state.ts';
 import type { RoomEntry } from './run/director.ts';
@@ -36,6 +37,8 @@ const MAX_TIME_SCALE = 2;
 export class SimRunner {
   private acc = 0;
   private paused = false;
+  /** The dev tool that lets the scripted bot play the player. */
+  private bot = false;
   private timeScale = 1;
   private stepsOwed = 0;
   private input: Input = idleInput();
@@ -47,6 +50,7 @@ export class SimRunner {
   /** Swaps in a fresh simulation (restart room, new seed). */
   replaceSim(sim: Sim): void {
     this.sim = sim;
+    if (this.bot) sim.tuned = true;
     this.acc = 0;
   }
 
@@ -62,6 +66,9 @@ export class SimRunner {
     } else if (cmd.op === 'step') {
       const n = Number.isInteger(cmd.n) && (cmd.n as number) > 0 ? Math.min(cmd.n as number, 600) : 1;
       this.stepsOwed += n;
+    } else if (cmd.op === 'bot') {
+      this.bot = typeof cmd.on === 'boolean' ? cmd.on : !this.bot;
+      if (this.bot) this.sim.tuned = true;
     } else if (cmd.op === 'timescale') {
       if (typeof cmd.scale === 'number' && Number.isFinite(cmd.scale)) this.timeScale = Math.min(MAX_TIME_SCALE, Math.max(MIN_TIME_SCALE, cmd.scale));
     } else if (this.handler) {
@@ -80,7 +87,7 @@ export class SimRunner {
     let ran = 0;
     if (this.paused) {
       while (this.stepsOwed > 0 && ran < MAX_TICKS_PER_ADVANCE * 120) {
-        events.push(...this.sim.step([this.input]));
+        events.push(...this.sim.step([this.nextInput()]));
         this.stepsOwed--;
         ran++;
       }
@@ -90,13 +97,17 @@ export class SimRunner {
     this.acc += dt * this.timeScale;
     while (this.acc + EPS >= TICK && ran < MAX_TICKS_PER_ADVANCE) {
       this.flushCommands();
-      events.push(...this.sim.step([this.input]));
+      events.push(...this.sim.step([this.nextInput()]));
       this.acc -= TICK;
       ran++;
     }
     if (this.acc + EPS >= TICK) this.acc = 0; // drop the backlog instead of saving it for later
     if (this.acc < 0) this.acc = 0;
     return ran > 0 ? { snapshot: this.sim.snapshot(), events } : null;
+  }
+
+  private nextInput(): Input {
+    return this.bot ? botInput(this.sim) : this.input;
   }
 
   private flushCommands(): void {

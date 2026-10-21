@@ -1,10 +1,11 @@
 // The screens between rooms: run start, reward choice, door choice, and the end of the run. Plain DOM over the canvas; the
 // choices are made by clicking, so each screen lets go of the mouse pointer first.
 import type { DoorChoice, GameData, RewardOffer, RunState, UnlockLedger } from '@conflux/shared';
+import { visiblePatches, patchTime, type PatchEntry } from './patchNotes.ts';
 import { describeDoor, describeOffer, endSummary, achievementLines } from './runFormat.ts';
 import './runScreens.css';
 
-export type ScreenName = 'none' | 'start' | 'reward' | 'doors' | 'end';
+export type ScreenName = 'none' | 'text' | 'start' | 'reward' | 'doors' | 'end';
 
 export class RunScreens {
   private root = document.createElement('div');
@@ -34,7 +35,12 @@ export class RunScreens {
     return panel;
   }
 
-  start(ledger: UnlockLedger, data: GameData, onBegin: () => void): void {
+  /** A page of text with a way back (patch notes, credits). */
+  text(title: string, lines: string[], onBack: () => void): void {
+    this.show('text', el('h2', '', title), el('div', 'scroll', ...lines.map((l) => el('p', '', l))), el('div', 'row', button('go', 'Back', onBack)));
+  }
+
+  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]> }): void {
     const total = Object.keys(data.unlocks).length;
     this.show(
       'start',
@@ -42,6 +48,7 @@ export class RunScreens {
       el('h2', '', 'Fire, water, earth and wind. Combine them.'),
       el('p', '', `${ledger.unlocked.length} of ${total} unlocks earned`),
       el('div', 'row', button('go', 'Begin run', onBegin)),
+      ...(pages ? [el('div', 'row', button('card small', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), () => this.start(ledger, data, onBegin, pages))), button('card small', 'Credits', () => void pages.credits().then((lines) => this.text('Credits', lines.length ? lines : ['No credits yet.'], () => this.start(ledger, data, onBegin, pages)))))] : []),
       el('p', 'hint', 'WASD move, mouse aim, left and right click cast, Q/E/R/F swap element, Space dodge'),
     );
   }

@@ -139,3 +139,18 @@ test('dispose stops ticks and frames', () => {
   assert.equal(sim.tick, 1);
   assert.equal(frames, 1);
 });
+
+test('the bot command plays the player: it moves and fights with no input sent, and marks the sim tuned', async () => {
+  const { createRoomSim } = await import('../src/sim/roomSim.ts');
+  const { defaultData } = await import('../src/files.ts');
+  const sim = createRoomSim(defaultData(), 1, 'forest_clearing');
+  spawnEnemy(sim, 'enemy.treefellow', { x: sim.player.pos.x + 6, y: 0, z: sim.player.pos.z + 6 });
+  const hp = sim.enemies[0].hp;
+  const b = new LocalBridge(sim);
+  b.command({ op: 'bot', on: true });
+  for (let i = 0; i < 600; i++) b.advance(TICK);
+  assert.ok(sim.enemies.length === 0 || sim.enemies[0].hp < hp, 'the bot should have hurt the enemy');
+  assert.equal(sim.tuned, true);
+  b.command({ op: 'bot', on: false });
+  b.advance(TICK);
+});

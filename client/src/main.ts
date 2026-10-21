@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { defaultData, DEFAULT_PROFILE, DataLayers, RunDirector, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
+import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyProfile, applyTextureFilters, createRenderer } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
 import { buildRoomScene } from './renderer/room.ts';
-import { AssetLoader, fetchManifest } from './assets/loader.ts';
+import { AssetLoader, assetBase, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
@@ -239,7 +239,15 @@ async function boot(): Promise<void> {
       sync();
     });
     play.inputEnabled = false;
-    screens.start(loadLedger(storage), layers.current(), () => void beginRun());
+    const credits = async (): Promise<string[]> => {
+      try {
+        const res = await fetch(`${assetBase()}licenses.json`);
+        return genCredits(((await res.json()) as { entries: LicenseEntry[] }).entries).split('\n').filter(Boolean);
+      } catch {
+        return [];
+      }
+    };
+    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits });
   }
 
   const clock = new THREE.Clock();

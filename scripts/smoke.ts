@@ -357,6 +357,38 @@ try {
     check(errors.length === 0, `the run flow has no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 7. M3 acceptance: the bot plays a run in the browser: clears room 1, takes a reward, reaches room 2, with no console errors
+  {
+    const { page, errors } = await open(browser, `${server.url}?dev&seed=1`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.click('#runscreen button.go');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
+    await page.evaluate(() => (window as any).__conflux.command({ op: 'bot', on: true }));
+    await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'reward', null, { timeout: 400000, polling: 1000 });
+    check(true, 'the bot cleared room 1 and the reward screen opened');
+    await page.click('#runscreen button.card >> nth=0');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'doors', null, { timeout: 20000 });
+    await page.click('#runscreen button.card >> nth=0');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.roomIndex === 1 && (window as any).__conflux.run()?.phase === 'fighting', null, { timeout: 90000 });
+    check(true, 'a reward and a door later the run is in room 2');
+    check(errors.length === 0, `the bot-driven run has no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
+  // 8. the main menu: patch notes without owner or dev tool entries, and the credits
+  {
+    const { page, errors } = await open(browser, server.url);
+    await page.waitForSelector('#runscreen.open button.go', { timeout: 60000 });
+    await page.click('#runscreen button:text-is("Patch notes")');
+    await page.waitForSelector('#runscreen .scroll');
+    const notes: string = await page.locator('#runscreen .scroll').innerText();
+    check(/v0\.1\.\d+/.test(notes) && !/dev panel|dev tool|owner/i.test(notes), 'the patch notes list versions and no owner or dev tool entries');
+    await page.click('#runscreen button:text-is("Back")');
+    await page.click('#runscreen button:text-is("Credits")');
+    await page.waitForFunction(() => /by .*CC-BY/.test(document.querySelector('#runscreen .scroll')?.textContent ?? ''), null, { timeout: 20000 });
+    check(true, 'the credits list the CC-BY assets with their authors');
+    check(errors.length === 0, `the menu pages have no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
 } finally {
   await browser.close();
   server.close();

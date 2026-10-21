@@ -37,3 +37,4 @@ export * from './run/unlocks.ts';
 export * from './run/director.ts';
 export * from './run/loadout.ts';
 export * from './sim/elites.ts';
+export * from './wiki.ts';
