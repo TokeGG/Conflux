@@ -159,6 +159,7 @@ export class Sim {
         statuses: list(e.statuses),
         aiState: e.aiState,
         guardOn: !!e.guard?.on,
+        attack: e.attack?.attackId ?? null,
         marks: MARK_IDS.filter((id) => (e.marks[id]?.until ?? 0) > now).map((id) => ({ id, remaining: e.marks[id]!.until - now })),
       })),
       projectiles: this.projectiles.map((q) => ({ id: q.id, pos: { ...q.pos }, skillId: q.skillId })),

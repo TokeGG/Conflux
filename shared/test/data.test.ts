@@ -8,7 +8,7 @@ import { ELEMENTS, STATUS_IDS, BTN } from '../src/types.ts';
 const json = (rel: string) => JSON.parse(readFileSync(new URL(rel, import.meta.url), 'utf8'));
 const fxIds = new Set<string>(json('../data/fxIds.json'));
 const clipNames = new Set<string>(json('../../client/public/assets/clips/wizardpack/index.json').clips.map((c: { name: string }) => c.name));
-const ctx: ValidationContext = { fxIds, clipNames, modelIds: new Set(['model.stump']) };
+const ctx: ValidationContext = { fxIds, clipNames, modelIds: new Set((json('../../client/public/assets/assets.json') as { id: string }[]).filter((a) => a.id.startsWith('model.')).map((a) => a.id)) };
 const fresh = () => structuredClone(defaultData());
 
 test('the shipped data loads and validates with no errors', () => {

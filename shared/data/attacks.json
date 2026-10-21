@@ -44,5 +44,127 @@
       "count": 2,
       "cap": 4
     }
+  },
+  "atk.stump_bite": {
+    "template": "melee_swipe",
+    "damage": 5,
+    "windup": 0.5,
+    "cooldown": 1.5,
+    "range": 1.4,
+    "angle": 100
+  },
+  "atk.root_slam": {
+    "template": "slam",
+    "damage": 14,
+    "windup": 1.0,
+    "cooldown": 4,
+    "range": 2.5,
+    "radius": 2.5
+  },
+  "atk.golem_slam": {
+    "template": "slam",
+    "damage": 20,
+    "windup": 1.2,
+    "cooldown": 5,
+    "range": 3,
+    "radius": 3
+  },
+  "atk.golem_swipe": {
+    "template": "melee_swipe",
+    "damage": 14,
+    "windup": 0.8,
+    "cooldown": 3,
+    "range": 3,
+    "angle": 120
+  },
+  "atk.ember_bolt": {
+    "template": "projectile",
+    "damage": 6,
+    "windup": 0.7,
+    "cooldown": 2.5,
+    "range": 16,
+    "radius": 0.25,
+    "speed": 11,
+    "applies": "burning"
+  },
+  "atk.wisp_dive": {
+    "template": "charge",
+    "damage": 8,
+    "windup": 0.8,
+    "cooldown": 5,
+    "range": 6,
+    "radius": 0.7,
+    "speed": 10
+  },
+  "atk.gust_nip": {
+    "template": "melee_swipe",
+    "damage": 4,
+    "windup": 0.4,
+    "cooldown": 1.2,
+    "range": 1.3,
+    "angle": 110
+  },
+  "atk.maw_claw": {
+    "template": "melee_swipe",
+    "damage": 16,
+    "windup": 0.7,
+    "cooldown": 2.5,
+    "range": 3.5,
+    "angle": 100
+  },
+  "atk.maw_slam": {
+    "template": "slam",
+    "damage": 24,
+    "windup": 1.2,
+    "cooldown": 6,
+    "range": 3.5,
+    "radius": 3.5
+  },
+  "atk.maw_charge": {
+    "template": "charge",
+    "damage": 20,
+    "windup": 1.0,
+    "cooldown": 8,
+    "range": 9,
+    "radius": 1.2,
+    "speed": 13
+  },
+  "atk.maw_summon": {
+    "template": "summon",
+    "damage": 0,
+    "windup": 1.2,
+    "cooldown": 12,
+    "range": 2.5,
+    "summon": {
+      "enemy": "enemy.stump",
+      "count": 2,
+      "cap": 6
+    }
+  },
+  "atk.reaper_scythe": {
+    "template": "melee_swipe",
+    "damage": 18,
+    "windup": 0.8,
+    "cooldown": 2.5,
+    "range": 3.4,
+    "angle": 160
+  },
+  "atk.reaper_wave": {
+    "template": "projectile",
+    "damage": 12,
+    "windup": 0.9,
+    "cooldown": 5,
+    "range": 22,
+    "radius": 0.6,
+    "speed": 9,
+    "applies": "burning"
+  },
+  "atk.reaper_spikes": {
+    "template": "slam",
+    "damage": 16,
+    "windup": 1.1,
+    "cooldown": 7,
+    "range": 6,
+    "radius": 3
   }
 }

@@ -191,6 +191,8 @@ export interface EnemySnap {
   aiState: string;
   guardOn: boolean;
   marks: MarkSnap[];
+  /** The attack being wound up or carried out, for animation. */
+  attack: string | null;
 }
 
 export interface ProjectileSnap {

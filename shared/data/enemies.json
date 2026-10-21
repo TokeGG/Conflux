@@ -7,12 +7,549 @@
     "immune": [],
     "model": "model.stump",
     "scale": 1,
-    "rig": { "type": "procedural", "preset": "hop" },
+    "rig": {
+      "type": "procedural",
+      "preset": "hop"
+    },
     "hp": 1000,
     "speed": 0,
     "cost": 1,
-    "hurtboxes": [{ "a": [0, 0.4, 0], "b": [0, 1.4, 0], "r": 0.5 }],
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          1.4,
+          0
+        ],
+        "r": 0.5
+      }
+    ],
     "ai": "none",
     "attacks": []
+  },
+  "enemy.stump": {
+    "name": "Tree Stump",
+    "element": "earth",
+    "weak": [
+      "wind"
+    ],
+    "resist": [
+      "water"
+    ],
+    "immune": [],
+    "model": "model.stump",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "hop"
+    },
+    "hp": 40,
+    "speed": 3.2,
+    "cost": 1,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.25,
+          0
+        ],
+        "b": [
+          0,
+          0.75,
+          0
+        ],
+        "r": 0.45
+      }
+    ],
+    "ai": "swarm",
+    "attacks": [
+      "atk.stump_bite"
+    ]
+  },
+  "enemy.treefellow": {
+    "name": "Treefellow",
+    "element": "earth",
+    "weak": [
+      "wind"
+    ],
+    "resist": [
+      "water"
+    ],
+    "immune": [],
+    "model": "model.treefellow",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "stomp_sway"
+    },
+    "hp": 260,
+    "speed": 1.8,
+    "cost": 5,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.6,
+          0
+        ],
+        "b": [
+          0,
+          1.9,
+          0
+        ],
+        "r": 0.7
+      }
+    ],
+    "ai": "tank",
+    "attacks": [
+      "atk.root_slam",
+      "atk.swipe_basic"
+    ],
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
+  },
+  "enemy.treegolem": {
+    "name": "Earth Golem",
+    "element": "earth",
+    "weak": [
+      "wind"
+    ],
+    "resist": [
+      "water"
+    ],
+    "immune": [],
+    "model": "model.treegolem",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "stomp_sway"
+    },
+    "hp": 340,
+    "speed": 2.0,
+    "cost": 6,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.8,
+          0
+        ],
+        "b": [
+          0,
+          2.3,
+          0
+        ],
+        "r": 0.9
+      }
+    ],
+    "ai": "tank",
+    "attacks": [
+      "atk.golem_slam",
+      "atk.golem_swipe"
+    ],
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
+  },
+  "enemy.golem_fire": {
+    "name": "Fire Golem",
+    "element": "fire",
+    "weak": [
+      "water"
+    ],
+    "resist": [
+      "wind"
+    ],
+    "immune": [],
+    "model": "model.golem",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "attack": [
+          "Attack1",
+          "Attack2",
+          "Attack3"
+        ],
+        "guard": [
+          "Defence1"
+        ]
+      }
+    },
+    "hp": 220,
+    "speed": 2.2,
+    "cost": 6,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.7,
+          0
+        ],
+        "b": [
+          0,
+          2.0,
+          0
+        ],
+        "r": 0.7
+      }
+    ],
+    "ai": "tank",
+    "attacks": [
+      "atk.golem_slam",
+      "atk.golem_swipe"
+    ],
+    "tint": "#ff6a2a",
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
+  },
+  "enemy.golem_water": {
+    "name": "Water Golem",
+    "element": "water",
+    "weak": [
+      "earth"
+    ],
+    "resist": [
+      "fire"
+    ],
+    "immune": [],
+    "model": "model.golem",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "attack": [
+          "Attack1",
+          "Attack2",
+          "Attack3"
+        ],
+        "guard": [
+          "Defence1"
+        ]
+      }
+    },
+    "hp": 220,
+    "speed": 2.2,
+    "cost": 6,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.7,
+          0
+        ],
+        "b": [
+          0,
+          2.0,
+          0
+        ],
+        "r": 0.7
+      }
+    ],
+    "ai": "tank",
+    "attacks": [
+      "atk.golem_slam",
+      "atk.golem_swipe"
+    ],
+    "tint": "#3aa0ff",
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
+  },
+  "enemy.golem_wind": {
+    "name": "Wind Golem",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.golem",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "attack": [
+          "Attack1",
+          "Attack2",
+          "Attack3"
+        ],
+        "guard": [
+          "Defence1"
+        ]
+      }
+    },
+    "hp": 220,
+    "speed": 2.2,
+    "cost": 6,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.7,
+          0
+        ],
+        "b": [
+          0,
+          2.0,
+          0
+        ],
+        "r": 0.7
+      }
+    ],
+    "ai": "tank",
+    "attacks": [
+      "atk.golem_slam",
+      "atk.golem_swipe"
+    ],
+    "tint": "#bff5e6",
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
+  },
+  "enemy.fire_sprite": {
+    "name": "Fire Sprite",
+    "element": "fire",
+    "weak": [
+      "water"
+    ],
+    "resist": [
+      "wind"
+    ],
+    "immune": [],
+    "model": "model.wisp",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "hover"
+    },
+    "hp": 30,
+    "speed": 3.5,
+    "cost": 2,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          0.8,
+          0
+        ],
+        "r": 0.35
+      }
+    ],
+    "ai": "flyer",
+    "attacks": [
+      "atk.ember_bolt"
+    ],
+    "tint": "#ff7a30"
+  },
+  "enemy.wisp": {
+    "name": "Wisp",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.wisp",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "ribbon_spin"
+    },
+    "hp": 45,
+    "speed": 3.0,
+    "cost": 3,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          1.0,
+          0
+        ],
+        "r": 0.4
+      }
+    ],
+    "ai": "flyer",
+    "attacks": [
+      "atk.wisp_dive"
+    ],
+    "tint": "#bff5e6"
+  },
+  "enemy.gust": {
+    "name": "Gust",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.wisp",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "ribbon_spin"
+    },
+    "hp": 25,
+    "speed": 4.0,
+    "cost": 1,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.3,
+          0
+        ],
+        "b": [
+          0,
+          0.7,
+          0
+        ],
+        "r": 0.3
+      }
+    ],
+    "ai": "swarm",
+    "attacks": [
+      "atk.gust_nip"
+    ],
+    "tint": "#e8fbff"
+  },
+  "boss.maw": {
+    "name": "Maw",
+    "element": "earth",
+    "weak": [
+      "wind"
+    ],
+    "resist": [
+      "water"
+    ],
+    "immune": [],
+    "model": "model.maw",
+    "scale": 1,
+    "rig": {
+      "type": "mixamo",
+      "clips": {
+        "idle": "mixamo.com"
+      }
+    },
+    "hp": 1800,
+    "speed": 2.6,
+    "cost": 0,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.9,
+          0
+        ],
+        "b": [
+          0,
+          2.8,
+          0
+        ],
+        "r": 1.1
+      }
+    ],
+    "ai": "rusher",
+    "attacks": [
+      "atk.maw_claw",
+      "atk.maw_slam",
+      "atk.maw_charge",
+      "atk.maw_summon"
+    ],
+    "phases": [
+      0.66,
+      0.33
+    ]
+  },
+  "boss.reaper": {
+    "name": "Pumpkin Reaper",
+    "element": "earth",
+    "weak": [
+      "water",
+      "wind"
+    ],
+    "resist": [],
+    "immune": [
+      "burning",
+      "rocked"
+    ],
+    "model": "model.reaper",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "part_sway"
+    },
+    "hp": 1500,
+    "speed": 2.4,
+    "cost": 0,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.8,
+          0
+        ],
+        "b": [
+          0,
+          2.6,
+          0
+        ],
+        "r": 0.9
+      }
+    ],
+    "ai": "rusher",
+    "attacks": [
+      "atk.reaper_scythe",
+      "atk.reaper_wave",
+      "atk.reaper_spikes"
+    ],
+    "phases": [
+      0.66,
+      0.33
+    ]
   }
 }

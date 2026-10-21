@@ -30,7 +30,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[] };
+    __conflux?: { ready: boolean; tick: number; room: string; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number };
   }
 }
 
@@ -129,6 +129,7 @@ async function boot(): Promise<void> {
     sendInput: (i) => (play.scripted = i ? { ...idleInput(), ...i } : null),
     snapshot: () => play.latest,
     events: () => play.log,
+    enemyViews: () => play.enemyViews,
     /** Puts the temporary camera in front of the player so the smoke screenshots show the pose. */
     frontView() {
       play.cameraOverride = (camera) => {

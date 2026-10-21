@@ -13,6 +13,7 @@ import type { Hud } from './hud/hud.ts';
 import { InputController } from './input.ts';
 import { applyTextureFilters, type RenderProfile } from './renderer/profile.ts';
 import { fitHeight } from './renderer/scene.ts';
+import { EnemyView } from './renderer/enemyView.ts';
 import type { DebugFlags } from './dev/tools.ts';
 
 export interface GameDeps {
@@ -47,7 +48,7 @@ export class Game {
 
   private cam: ThirdPersonCamera;
   private holder = new THREE.Group();
-  private enemies = new Map<number, THREE.Object3D>();
+  private enemies = new Map<number, EnemyView>();
   private enemyLoads = new Set<number>();
   private projectiles = new Map<number, { handle: FxHandle | null; stopped: boolean; pos: Vec3 }>();
   private prevPos: Vec3 | null = null;
@@ -174,7 +175,7 @@ export class Game {
     if (o) this.d.rig.play(o.state, o.castClip, o.castW, o.pitch);
     else this.d.rig.play(state, clip, this.castW, base.aimPitch);
     this.d.rig.update(Math.min(dt, 0.1));
-    this.syncEnemies(snap);
+    this.syncEnemies(snap, dt);
 
     const boxes = snap.enemies.flatMap((e) => {
       const def = this.d.data().enemies[e.defId];
@@ -184,22 +185,21 @@ export class Game {
     this.d.hud.update(snap, this.aimTarget, this.d.flags.aiState);
   }
 
-  private syncEnemies(s: Snapshot): void {
+  private syncEnemies(s: Snapshot, dt: number): void {
     const seen = new Set<number>();
     for (const e of s.enemies) {
       seen.add(e.id);
-      const obj = this.enemies.get(e.id);
-      if (obj) {
-        obj.position.set(e.pos.x, e.pos.y, e.pos.z);
-        obj.rotation.y = e.facing;
+      const view = this.enemies.get(e.id);
+      if (view) {
+        view.update(e, dt);
       } else if (!this.enemyLoads.has(e.id)) {
         this.enemyLoads.add(e.id);
         void this.loadEnemy(e.id, e.defId, e.pos);
       }
     }
-    for (const [id, obj] of this.enemies) {
+    for (const [id, view] of this.enemies) {
       if (seen.has(id)) continue;
-      this.d.scene.remove(obj);
+      this.d.scene.remove(view.root);
       this.enemies.delete(id);
       this.enemyLoads.delete(id);
     }
@@ -210,17 +210,20 @@ export class Game {
     try {
       const gltf = await this.d.loader.loadModel(def.model);
       const model = cloneSkinned(gltf.scene);
-      const top = Math.max(...def.hurtboxes.map((h) => Math.max(h.a[1], h.b[1]) + h.r));
-      fitHeight(model, top * def.scale);
+      model.animations = gltf.animations; // a clone does not carry the model's own clips
       applyTextureFilters(model, this.d.profile);
-      const holder = new THREE.Group();
-      holder.add(model);
-      holder.position.set(pos.x, pos.y, pos.z);
+      const view = new EnemyView(def, model);
+      view.root.position.set(pos.x, pos.y, pos.z);
       if (!this.enemyLoads.has(id)) return; // it died while loading
-      this.enemies.set(id, holder);
-      this.d.scene.add(holder);
+      this.enemies.set(id, view);
+      this.d.scene.add(view.root);
     } catch {
       this.enemyLoads.delete(id);
     }
+  }
+
+  /** How many enemies have a model on screen (test hook). */
+  get enemyViews(): number {
+    return this.enemies.size;
   }
 }

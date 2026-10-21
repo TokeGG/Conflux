@@ -13,7 +13,7 @@ const json = (rel: string) => JSON.parse(readFileSync(new URL(rel, import.meta.u
 const ctx: ValidationContext = {
   fxIds: new Set<string>(json('../data/fxIds.json')),
   clipNames: new Set<string>(json('../../client/public/assets/clips/wizardpack/index.json').clips.map((c: { name: string }) => c.name)),
-  modelIds: new Set(['model.stump']),
+  modelIds: new Set((json('../../client/public/assets/assets.json') as { id: string }[]).filter((a) => a.id.startsWith('model.')).map((a) => a.id)),
 };
 
 const TWELVE = [
