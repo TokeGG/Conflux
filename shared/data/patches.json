@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.26",
+    "date": "2026-10-21",
+    "at": "2026-10-21T20:52:29Z",
+    "notes": [
+      "Guard stance: tanks cut most damage until you hit their weakness, which breaks the guard."
+    ]
+  },
+  {
     "version": "0.1.25",
     "date": "2026-10-21",
     "at": "2026-10-21T20:50:39Z",

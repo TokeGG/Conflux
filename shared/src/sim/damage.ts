@@ -3,6 +3,7 @@ import type { Element, ElementsCfg, StatusId } from '../types.ts';
 import { defaultData } from '../files.ts';
 import { triggerReaction } from './reactions.ts';
 import { damageEnemy } from './skills.ts';
+import { guardReduction } from './guard.ts';
 import { applyStatus, statusModifiers, type Combatant } from './statuses.ts';
 import type { EnemyState } from './state.ts';
 import type { Sim } from './sim.ts';
@@ -40,11 +41,17 @@ export function dealDamage(sim: Sim, target: Combatant, base: number, element: E
   if (element !== 'none' && target.def.weak.includes(element)) dmg *= m.weak;
   else if (element !== 'none' && target.def.resist.includes(element)) dmg *= m.resist;
   dmg *= mods.damageTakenMul;
-  const g = target.def.guard;
-  if (g && target.guard?.on && now >= target.guard.staggeredUntil) dmg *= 1 - g.reduction;
+  const guard = guardReduction(target, element, false);
+  dmg *= guard.mul;
   const before = target.hp;
   damageEnemy(sim, target, dmg, opts.skillId ?? `element.${element}`, opts.point ?? target.pos);
   const dealt = before - target.hp;
+  if (guard.stagger && target.guard && target.def.guard) {
+    target.guard.on = false;
+    target.guard.staggeredUntil = now + target.def.guard.staggerOnWeak;
+    target.guard.until = target.guard.staggeredUntil; // it goes back up as soon as the stagger ends
+    sim.emit('guard_broken', { enemyId: target.id, x: target.pos.x, y: target.pos.y, z: target.pos.z });
+  }
   if (target.hp > 0) {
     if (element !== 'none') triggerReaction(sim, target, element, dealt, now);
     if (opts.applies) applyStatus(sim, target, opts.applies, now);

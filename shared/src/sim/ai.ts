@@ -2,6 +2,7 @@
 // Nothing here is random, so the same fight plays out the same way every time.
 import { dealDamage } from './damage.ts';
 import { runAttack } from './attacks.ts';
+import { stepGuard } from './guard.ts';
 import { statusModifiers } from './statuses.ts';
 import type { EnemyState } from './state.ts';
 import type { Sim } from './sim.ts';
@@ -114,17 +115,7 @@ const shooter: Behaviour = (sim, e, dt) => {
 };
 
 const tank: Behaviour = (sim, e, dt) => {
-  const g = e.guard;
-  if (g && e.def.guard) {
-    // guard goes up and down on its own timers (a weakness hit can knock it down early)
-    if (g.on && sim.time >= g.until - EPS) {
-      g.on = false;
-      g.until = sim.time + e.def.guard.offFor;
-    } else if (!g.on && sim.time >= g.until - EPS && sim.time >= g.staggeredUntil) {
-      g.on = true;
-      g.until = sim.time + e.def.guard.onFor;
-    }
-  }
+  stepGuard(e, sim.time);
   rush(sim, e, dt, false);
 };
 
