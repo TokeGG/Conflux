@@ -82,6 +82,7 @@ export const ROOM_TO_ROOM: RunMode = {
   id: 'room_to_room',
 
   start(seed, data, tuned = false): RunState {
+    const skills = startingLoadout(data, mapStream(seed, 'loadout'));
     return {
       seed,
       mode: 'room_to_room',
@@ -89,7 +90,11 @@ export const ROOM_TO_ROOM: RunMode = {
       roomsTotal: TOTAL,
       current: planRoom(seed, 0, 0, data),
       history: [],
-      skills: startingLoadout(data, mapStream(seed, 'loadout')),
+      skills,
+      ownedSkills: ELEMENTS.flatMap((el) => SLOTS.map((slot) => skills[el][slot])).filter(Boolean),
+      offeredSkills: [],
+      hp: data.player.health,
+      reward: 'heal',
       augments: [],
       tuned,
       status: 'running',
@@ -126,7 +131,7 @@ export const ROOM_TO_ROOM: RunMode = {
 
 /** Walks through a door into the next room. */
 export function chooseDoor(state: RunState, door: DoorChoice): RunState {
-  return { ...state, roomIndex: state.roomIndex + 1, current: door.room };
+  return { ...state, roomIndex: state.roomIndex + 1, current: door.room, reward: door.reward };
 }
 
 /** The whole run when the first door is always taken (useful for tests, previews and the balance bot). */

@@ -40,6 +40,14 @@ export interface RunState {
   history: string[];
   skills: SkillLoadout;
   augments: OwnedAugment[];
+  /** Every skill the player has found, the starting ones included. Only the loadout's skills are active. */
+  ownedSkills: string[];
+  /** Skills that have been offered as a reward, taken or not: they are never offered again. */
+  offeredSkills: string[];
+  /** Health carried between rooms. */
+  hp: number;
+  /** The kind of reward on the door the current room was entered by. */
+  reward: RewardKind;
   /** True when the run used the dev panel's tuning, so it never counts toward unlocks. */
   tuned: boolean;
   status: 'running' | 'victory' | 'defeat';

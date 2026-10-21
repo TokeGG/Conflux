@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.32",
+    "date": "2026-10-21",
+    "at": "2026-10-21T21:28:03Z",
+    "notes": [
+      "Rewards: after each room choose a skill, an augment or a heal, with rarer picks deeper in."
+    ]
+  },
+  {
     "version": "0.1.31",
     "date": "2026-10-21",
     "at": "2026-10-21T21:24:40Z",

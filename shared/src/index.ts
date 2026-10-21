@@ -31,3 +31,4 @@ export * from './bot.ts';
 export * from './run/run.ts';
 export * from './run/encounters.ts';
 export * from './run/roomToRoom.ts';
+export * from './run/rewards.ts';
