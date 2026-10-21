@@ -27,3 +27,4 @@ export * from './sim/roomSim.ts';
 export * from './sim/attacks.ts';
 export * from './sim/ai.ts';
 export * from './sim/guard.ts';
+export * from './bot.ts';

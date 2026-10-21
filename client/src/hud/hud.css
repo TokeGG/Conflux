@@ -29,3 +29,5 @@
 #hud .ico::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #000b; }
 #hud .ico span { position: relative; }
 #hud .tag .ai { font-size: 10px; opacity: .85; }
+#hud .dmg { position: absolute; transform: translate(-50%, -100%); font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px #000; }
+#hud .dmg.weak { font-size: 24px; color: #ffd54a; }

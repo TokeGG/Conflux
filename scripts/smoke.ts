@@ -208,6 +208,7 @@ try {
       return c.events().filter((e) => e.type === 'reaction').map((e) => ({ id: e.id, effect: e.effect }));
     })()`;
     const reactions: { id: string; effect: string }[] = await page.evaluate(comboScript);
+    check((await page.evaluate(() => (window as any).__conflux.damageShown())) > 0, 'damage numbers floated up from the hits');
     check(reactions.length >= 2 && reactions[0].effect === 'steam' && reactions[1].effect === 'sandstorm', `the combo gives Steam then Sandstorm (${reactions.map((r) => r.effect).join(', ')})`);
     await page.screenshot({ path: join(shots, 'combo.png') });
     check(errors.length === 0, `no console errors during the combo${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);

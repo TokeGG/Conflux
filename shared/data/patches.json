@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.30",
+    "date": "2026-10-21",
+    "at": "2026-10-21T21:12:45Z",
+    "notes": [
+      "Fights feel like fights: enemies flash when hit and sink when they die, damage numbers float up, and a scripted player can clear a mixed room."
+    ]
+  },
+  {
     "version": "0.1.29",
     "date": "2026-10-21",
     "at": "2026-10-21T21:08:54Z",

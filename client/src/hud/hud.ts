@@ -1,13 +1,14 @@
 // The heads-up display: a crosshair, the held element and its three skills with cooldowns, health, and above each enemy its
 // health and a ring icon per status. Plain HTML over the canvas; the game reads nothing back from it.
 import * as THREE from 'three';
-import { ELEMENTS, MARK_IDS, STATUS_IDS, type GameData, type MarkId, type Snapshot } from '@conflux/shared';
+import { ELEMENTS, MARK_IDS, STATUS_IDS, type GameData, type MarkId, type Snapshot, type Vec3 } from '@conflux/shared';
 import { formatCooldown, skillLabel, statusRing } from './format.ts';
 import { MARK_ICONS, STATUS_ICONS, type Icon } from './statusIcons.ts';
 import './hud.css';
 
 const ELEMENT_COLOUR: Record<string, string> = { fire: '#ff7a30', water: '#4aa8ff', earth: '#b08a5a', wind: '#b8f0e0' };
 const KEYS = ['LMB', 'RMB', 'Shift'];
+const NUMBER_LIFE = 0.9;
 
 const div = (cls: string, text = ''): HTMLDivElement => {
   const d = document.createElement('div');
@@ -34,6 +35,10 @@ export class Hud {
   private hpFill = div('fill');
   private hpText = div('txt');
   private tags = new Map<number, Tag>();
+  private numbers: { el: HTMLElement; pos: Vec3; born: number }[] = [];
+  private clock = 0;
+  /** How many damage numbers have been shown in all (test hook). */
+  damageShown = 0;
   private camera: THREE.Camera | null = null;
   private v = new THREE.Vector3();
 
@@ -70,6 +75,15 @@ export class Hud {
     parent.append(this.root);
   }
 
+  /** A number that floats up from where a hit landed; a weakness hit is bigger and warmer. */
+  addDamage(pos: Vec3, amount: number, weak = false): void {
+    if (amount < 0.05) return;
+    const el = div(weak ? 'dmg weak' : 'dmg', String(Math.round(amount * 10) / 10).replace(/\.0$/, ''));
+    this.root.append(el);
+    this.numbers.push({ el, pos: { x: pos.x + (Math.random() - 0.5) * 0.4, y: pos.y, z: pos.z }, born: this.clock });
+    this.damageShown++;
+  }
+
   /** The camera the enemy tags are projected through. */
   setCamera(camera: THREE.Camera): void {
     this.camera = camera;
@@ -92,6 +106,22 @@ export class Hud {
     this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.crosshair.classList.toggle('hot', aimTarget !== null);
     this.updateTags(s, aimTarget, showAi);
+    this.updateNumbers();
+  }
+
+  /** Floats the numbers up and removes them after a moment. */
+  private updateNumbers(): void {
+    this.clock += 1 / 60;
+    this.numbers = this.numbers.filter((n) => {
+      const age = this.clock - n.born;
+      if (age > NUMBER_LIFE) {
+        n.el.remove();
+        return false;
+      }
+      this.place(n.el, n.pos.x, n.pos.y + age * 1.2, n.pos.z);
+      n.el.style.opacity = String(1 - age / NUMBER_LIFE);
+      return true;
+    });
   }
 
   private updateTags(s: Snapshot, aimTarget: number | null, showAi: boolean): void {

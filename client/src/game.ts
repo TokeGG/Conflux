@@ -50,10 +50,12 @@ export class Game {
   private holder = new THREE.Group();
   private enemies = new Map<number, EnemyView>();
   private enemyLoads = new Set<number>();
+  private dying: EnemyView[] = [];
   private projectiles = new Map<number, { handle: FxHandle | null; stopped: boolean; pos: Vec3 }>();
   private prevPos: Vec3 | null = null;
   private vel: Vec3 = { x: 0, y: 0, z: 0 };
   private castW = 0;
+  private lastEnemies = new Map<number, Snapshot['enemies'][number]>();
   private lastCamOrigin: Vec3 = { x: 0, y: 1.6, z: 0 };
 
   constructor(private d: GameDeps) {
@@ -77,18 +79,30 @@ export class Game {
     }
     this.prevPos = { ...p.pos };
     this.latest = s;
+    for (const en of s.enemies) this.lastEnemies.set(en.id, en);
     const skills = this.d.data().skills;
     for (const e of events) {
       if (e.type === 'reaction' || e.type === 'hit') {
         this.log.push(e);
         if (this.log.length > LOG_LIMIT) this.log.shift();
       }
+      if (e.type === 'hit' && e.target === 'enemy') this.onEnemyHit(e, s);
       const at = fxForEvent(e, skills);
       if (!at) continue;
       const pos = this.where(e, at.at, s);
       if (pos) void this.d.fx.spawn(at.id, pos).catch(() => undefined);
     }
     this.syncProjectiles(s);
+  }
+
+  /** A hit on an enemy: flash it and float the number up. A weakness hit shows bigger. */
+  private onEnemyHit(e: SimEvent, s: Snapshot): void {
+    const snap = s.enemies.find((x) => x.id === e.id) ?? this.lastEnemies.get(e.id as number);
+    this.enemies.get(e.id as number)?.hurt();
+    const element = this.d.data().skills[String(e.skillId)]?.element;
+    const def = snap ? this.d.data().enemies[snap.defId] : undefined;
+    const weak = !!(element && def?.weak.includes(element));
+    this.d.hud.addDamage({ x: e.x as number, y: e.y as number, z: e.z as number }, e.amount as number, weak);
   }
 
   private where(e: SimEvent, at: 'pos' | 'target', s: Snapshot): Vec3 | null {
@@ -199,10 +213,18 @@ export class Game {
     }
     for (const [id, view] of this.enemies) {
       if (seen.has(id)) continue;
-      this.d.scene.remove(view.root);
+      view.die(); // it plays its death and is removed when that is over
+      this.dying.push(view);
       this.enemies.delete(id);
       this.enemyLoads.delete(id);
+      this.lastEnemies.delete(id);
     }
+    for (const view of this.dying) view.advanceDeath(dt);
+    this.dying = this.dying.filter((view) => {
+      if (!view.finished) return true;
+      this.d.scene.remove(view.root);
+      return false;
+    });
   }
 
   private async loadEnemy(id: number, defId: string, pos: Vec3): Promise<void> {
