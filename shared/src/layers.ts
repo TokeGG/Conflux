@@ -103,6 +103,11 @@ export class DataLayers {
     return [...this.run];
   }
 
+  /** True when any patch or uploaded mob is in effect: a run on this data must not count toward unlocks. */
+  isModified(): boolean {
+    return this.patches().length > 0 || this.custom.length > 0;
+  }
+
   /** The effective patches, one per path: session patches that are not overridden, then the run patches. */
   patches(): DataPatch[] {
     const last = (list: DataPatch[]) => [...new Map(list.map((p) => [p.path, p])).values()];

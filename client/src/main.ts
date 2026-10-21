@@ -224,7 +224,7 @@ async function boot(): Promise<void> {
 
   const beginRun = async (): Promise<void> => {
     const ledger = director?.ledger ?? loadLedger(storage);
-    director = new RunDirector(layers.current(), seedOf(), ledger);
+    director = new RunDirector(layers.current(), seedOf(), ledger, layers.isModified());
     shown = director.phase;
     screens.hide();
     await loadPlan(director.run.current);

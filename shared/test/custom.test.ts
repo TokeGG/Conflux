@@ -86,3 +86,12 @@ test('the version changes whenever the custom content does', () => {
   layers.addCustom(mob());
   assert.ok(layers.version > v);
 });
+
+test('layers are modified when they hold any patch or custom mob, so a run on them counts as tuned', () => {
+  const layers = new DataLayers(defaultData());
+  assert.equal(layers.isModified(), false);
+  layers.setSession([{ path: 'player.health', value: 150 }]);
+  assert.equal(layers.isModified(), true);
+  layers.reset();
+  assert.equal(layers.isModified(), false);
+});
