@@ -3,6 +3,8 @@ import { rayVsBox, rayVsCapsule, v3, type Vec3 } from '../math.ts';
 import { damageEnemy, hitEnemies, skillHit } from './skills.ts';
 import { enemyHurtboxes, type EnemyState, type Zone } from './state.ts';
 import { applyStatus } from './statuses.ts';
+import { projectileVsPlayer } from './attacks.ts';
+import { dealDamage } from './damage.ts';
 import type { Sim } from './sim.ts';
 
 /** A ray from a to b against a wall zone's box (turned by its yaw); the distance of the hit or null. */
@@ -32,7 +34,16 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     const dir = length > 1e-9 ? v3.scale(v3.sub(to, from), 1 / length) : { x: 0, y: 0, z: 1 };
     let best = sim.world.sweepSphere(from, to, q.r);
     let enemyId: number | null = null;
-    for (const h of boxes) {
+    let hitsPlayer = false;
+    if (q.ownerId > 0) {
+      // an enemy's shot goes for the player and passes the other enemies
+      const t = projectileVsPlayer(sim, from, dir, length, q.r);
+      if (t !== null && (best === null || t < best)) {
+        best = t;
+        hitsPlayer = true;
+      }
+    }
+    for (const h of q.ownerId > 0 ? [] : boxes) {
       const t = rayVsCapsule(from, dir, h.a, h.b, h.r + q.r);
       if (t !== null && t <= length && (best === null || t < best)) {
         best = t;
@@ -45,6 +56,7 @@ export function stepProjectiles(sim: Sim, dt: number): void {
       if (t !== null && t <= length && (best === null || t < best)) {
         best = t;
         enemyId = null;
+        hitsPlayer = false;
       }
     }
     if (best === null) {
@@ -55,7 +67,9 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     const point = v3.add(from, v3.scale(dir, best));
     const target = enemyId === null ? null : sim.enemies.find((e) => e.id === enemyId);
     const skill = sim.data.skills[q.skillId];
-    if (target && skill) skillHit(sim, target, skill, skill.damage, point, q.bonus);
+    const attack = sim.data.attacks[q.skillId];
+    if (hitsPlayer && attack) dealDamage(sim, sim.player, attack.damage, 'none', { applies: attack.applies ?? null });
+    else if (target && skill) skillHit(sim, target, skill, skill.damage, point, q.bonus);
     else sim.emit('hit', { target: 'world', skillId: q.skillId, x: point.x, y: point.y, z: point.z });
   }
   sim.projectiles = alive;

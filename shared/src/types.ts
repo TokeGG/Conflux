@@ -158,6 +158,8 @@ export interface AttackDef {
   speed?: number;
   applies?: StatusId | null;
   fx?: string;
+  /** A summon attack: what appears and how many. */
+  summon?: { enemy: string; count: number };
 }
 
 export interface HurtCapsuleDef {

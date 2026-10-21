@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.24",
+    "date": "2026-10-21",
+    "at": "2026-10-21T20:38:37Z",
+    "notes": [
+      "Enemies can now attack: swipes, slams, shots, charges and summons, each with a ground warning."
+    ]
+  },
+  {
     "version": "0.1.23",
     "date": "2026-10-21",
     "at": "2026-10-21T20:26:43Z",

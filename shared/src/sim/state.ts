@@ -80,6 +80,19 @@ export interface EnemyState {
   aiState: string;
   guard: GuardState | null;
   cooldowns: Record<string, number>;
+  attack: ActiveAttack | null;
+}
+
+/** An attack in progress: telegraphed, then landing at hitAt. */
+export interface ActiveAttack {
+  attackId: string;
+  hitAt: number;
+  /** The facing the attack was aimed with when it started. */
+  yaw: number;
+  phase: 'windup' | 'active';
+  /** A charge: metres still to run, and whether it has already hurt the player. */
+  remaining: number;
+  hit: boolean;
 }
 
 export interface Projectile {
@@ -215,6 +228,7 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {
     aiState: 'idle',
     guard: def.guard ? { on: false, until: 0, staggeredUntil: 0 } : null,
     cooldowns: {},
+    attack: null,
   };
   sim.enemies.push(e);
   return e;

@@ -25,7 +25,7 @@ export function defaultWeakResist(el: Element, cycle: ElementsCfg['cycle'] = def
 const isEnemy = (c: Combatant): c is EnemyState => 'def' in c;
 
 /** Deals damage and returns how much landed (never negative). */
-export function dealDamage(sim: Sim, target: Combatant, base: number, element: Element, opts: DamageOpts = {}): number {
+export function dealDamage(sim: Sim, target: Combatant, base: number, element: Element | 'none', opts: DamageOpts = {}): number {
   const now = sim.time;
   const mods = statusModifiers(target, now, sim.data.statuses);
   if (!isEnemy(target)) {
@@ -37,8 +37,8 @@ export function dealDamage(sim: Sim, target: Combatant, base: number, element: E
   if (target.hp <= 0) return 0;
   const m = sim.data.elements.multipliers;
   let dmg = Math.max(0, base) * (opts.swapBonus ?? 1);
-  if (target.def.weak.includes(element)) dmg *= m.weak;
-  else if (target.def.resist.includes(element)) dmg *= m.resist;
+  if (element !== 'none' && target.def.weak.includes(element)) dmg *= m.weak;
+  else if (element !== 'none' && target.def.resist.includes(element)) dmg *= m.resist;
   dmg *= mods.damageTakenMul;
   const g = target.def.guard;
   if (g && target.guard?.on && now >= target.guard.staggeredUntil) dmg *= 1 - g.reduction;
@@ -46,7 +46,7 @@ export function dealDamage(sim: Sim, target: Combatant, base: number, element: E
   damageEnemy(sim, target, dmg, opts.skillId ?? `element.${element}`, opts.point ?? target.pos);
   const dealt = before - target.hp;
   if (target.hp > 0) {
-    triggerReaction(sim, target, element, dealt, now);
+    if (element !== 'none') triggerReaction(sim, target, element, dealt, now);
     if (opts.applies) applyStatus(sim, target, opts.applies, now);
   }
   return dealt;

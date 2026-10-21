@@ -1,3 +1,47 @@
 {
-  "atk.slam_basic": { "template": "slam", "damage": 10, "windup": 0.8, "cooldown": 3, "range": 3, "radius": 2.5 }
+  "atk.slam_basic": {
+    "template": "slam",
+    "damage": 10,
+    "windup": 0.8,
+    "cooldown": 3,
+    "range": 3,
+    "radius": 2.5
+  },
+  "atk.swipe_basic": {
+    "template": "melee_swipe",
+    "damage": 8,
+    "windup": 0.6,
+    "cooldown": 2,
+    "range": 2.2,
+    "angle": 90
+  },
+  "atk.bolt_basic": {
+    "template": "projectile",
+    "damage": 7,
+    "windup": 0.7,
+    "cooldown": 3,
+    "range": 14,
+    "radius": 0.3,
+    "speed": 12
+  },
+  "atk.charge_basic": {
+    "template": "charge",
+    "damage": 12,
+    "windup": 0.9,
+    "cooldown": 6,
+    "range": 6,
+    "radius": 0.8,
+    "speed": 14
+  },
+  "atk.summon_basic": {
+    "template": "summon",
+    "damage": 0,
+    "windup": 1.0,
+    "cooldown": 10,
+    "range": 2,
+    "summon": {
+      "enemy": "enemy.dummy",
+      "count": 2
+    }
+  }
 }

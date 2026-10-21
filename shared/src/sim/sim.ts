@@ -8,6 +8,7 @@ import { stepPlayer } from './player.ts';
 import { handleSwapAndCast } from './swap.ts';
 import { popShield } from './skills.ts';
 import { tickStatuses } from './statuses.ts';
+import { stepAttacks } from './attacks.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
 import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
@@ -108,6 +109,7 @@ export class Sim {
       handleSwapAndCast(this, this.player, inputs[0]);
       stepPlayer(this, this.player, inputs[0], TICK);
     }
+    stepAttacks(this);
     stepProjectiles(this, TICK);
     stepZones(this);
     for (const c of [this.player, ...this.enemies]) tickStatuses(this, c, TICK);
