@@ -231,6 +231,40 @@ try {
     check(errors.length === 0, `the roster renders without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 4e. upload a model in the panel, make it a mob, spawn it, and find it still saved after a reload
+  {
+    const { page, errors } = await open(browser, `${server.url}?dev`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.keyboard.press('F2');
+    await page.click('#devpanel nav button:has-text("Models and mobs")');
+    await page.setInputFiles('#mob-file', fileURLToPath(new URL('../client/test/fixtures/cube.glb', import.meta.url)));
+    await page.waitForSelector('#mob-report', { timeout: 15000 });
+    check(/12/.test(await page.innerText('#mob-report')), 'the report shows the uploaded cube (12 triangles)');
+    await page.fill('#mob-name', 'Smoke Cube');
+    await page.click('#mob-prepare');
+    await page.waitForSelector('#mob-spawn', { timeout: 15000 });
+    await page.selectOption('#mob-element', 'earth');
+    await page.click('#mob-spawn');
+    await page.waitForFunction(() => (window as any).__conflux.snapshot()?.enemies.some((e: any) => e.defId === 'enemy.custom.smoke_cube'), null, { timeout: 15000 });
+    check(true, 'Spawn now puts the custom mob in the game');
+    await page.waitForFunction(() => (window as any).__conflux.enemyViews() === 1, null, { timeout: 15000 });
+    check(true, 'the custom mob is drawn from its uploaded model');
+    check((await page.locator('#devpanel button:has-text("Changes (")').innerText()).includes('(1)'), 'the new mob is listed in Changes');
+    await page.reload();
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.keyboard.press('F2');
+    await page.click('#devpanel nav button:has-text("Models and mobs")');
+    await page.waitForSelector('#mob-list [data-id="enemy.custom.smoke_cube"]', { timeout: 10000 });
+    check(true, 'after a reload the mob is still listed');
+    await page.click('#mob-list [data-id="enemy.custom.smoke_cube"] button:has-text("Spawn")');
+    await page.waitForFunction(() => (window as any).__conflux.enemyViews() === 1, null, { timeout: 15000 });
+    check(true, 'and it spawns again from the saved model');
+    await page.click('#mob-list [data-id="enemy.custom.smoke_cube"] .mob-delete');
+    await page.waitForFunction(() => !document.querySelector('#mob-list [data-id="enemy.custom.smoke_cube"]'), null, { timeout: 10000 });
+    check(true, 'delete removes it');
+    check(errors.length === 0, `no console errors while adding a mob${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
   // 5a. the HUD: crosshair, element, three skills, health, and the tags above an enemy
   {
     const { page, errors } = await open(browser, server.url);

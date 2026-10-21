@@ -25,6 +25,9 @@ import { playerPage } from './dev/pages/player.ts';
 import { skillsPage } from './dev/pages/skills.ts';
 import { statusesPage } from './dev/pages/statuses.ts';
 import { reactionsPage } from './dev/pages/reactions.ts';
+import { enemiesPage } from './dev/pages/enemies.ts';
+import { ModelsPage } from './dev/pages/models.ts';
+import { CustomContentStore } from './dev/import/store.ts';
 
 declare global {
   interface Window {
@@ -41,6 +44,14 @@ async function boot(): Promise<void> {
   const dev = devEnabled(new URL(location.href), storage);
   const layers = new DataLayers(defaultData());
   const devState = new DevState(layers, storage);
+  // mobs the owner uploaded earlier come back first, so saved numbers for them still apply
+  const store = dev ? await CustomContentStore.open() : null;
+  const customModels: [string, Uint8Array][] = [];
+  if (store) {
+    const saved = (await Promise.all((await store.list()).map((m) => store.get(m.id)))).filter((x): x is NonNullable<typeof x> => !!x);
+    layers.setCustom(saved.map(({ mob }) => ({ id: mob.id, enemy: mob.enemy, pools: mob.pools })));
+    for (const { mob, glb } of saved) customModels.push([mob.glbKey, glb]);
+  }
   if (dev) devState.loadSession();
   const data = layers.current();
   const renderer = createRenderer(profile);
@@ -49,6 +60,7 @@ async function boot(): Promise<void> {
   const game = createScene(room.lighting);
 
   const loader = new AssetLoader(await fetchManifest(), DEFAULT_PROFILE);
+  for (const [key, glb] of customModels) loader.addCustomModel(key, glb);
   const roomGroup = await buildRoomScene(room, loader);
   game.scene.add(roomGroup);
   const { scene: player, rig } = await loadPlayer(loader, data);
@@ -81,6 +93,8 @@ async function boot(): Promise<void> {
     panel.registerPage(skillsPage(devState, base, refresh));
     panel.registerPage(statusesPage(devState, base, refresh));
     panel.registerPage(reactionsPage(devState, base, refresh));
+    panel.registerPage(enemiesPage(devState, base, refresh));
+    panel.registerPage(new ModelsPage({ store, layers, loader, bridge, data: () => layers.current(), sendData, refresh }));
     panel.registerPage(new ToolsPage(bridge, () => layers.current(), debugFlags));
     panel.registerPage(new AnimViewerPage(loader));
     perf = new PerfPage({

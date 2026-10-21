@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.29",
+    "date": "2026-10-21",
+    "at": "2026-10-21T21:08:54Z",
+    "notes": [
+      "Add your own mobs from the dev panel: upload a model, describe it, spawn it, keep it, export it."
+    ]
+  },
+  {
     "version": "0.1.28",
     "date": "2026-10-21",
     "at": "2026-10-21T21:03:00Z",

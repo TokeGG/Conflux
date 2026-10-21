@@ -30,6 +30,7 @@ export class AssetLoader {
   private models = new Map<string, Promise<GLTF>>();
   private json = new Map<string, Promise<unknown>>();
   private gltf = new GLTFLoader();
+  private custom = new Map<string, Uint8Array>();
   private textures = new THREE.TextureLoader();
 
   constructor(
@@ -43,12 +44,27 @@ export class AssetLoader {
   }
 
   has(id: string): boolean {
-    return this.manifest.some((a) => a.id === id);
+    return this.custom.has(id) || this.manifest.some((a) => a.id === id);
+  }
+
+  /** A model that lives in the browser (a mob uploaded in the dev panel) rather than in the manifest. */
+  addCustomModel(id: string, glb: Uint8Array): void {
+    this.custom.set(id, glb);
+    this.models.delete(id);
+  }
+
+  removeCustomModel(id: string): void {
+    this.custom.delete(id);
+    this.models.delete(id);
   }
 
   loadModel(id: string): Promise<GLTF> {
     let p = this.models.get(id);
-    if (!p) this.models.set(id, (p = this.gltf.loadAsync(this.url(id))));
+    if (!p) {
+      const bytes = this.custom.get(id);
+      p = bytes ? this.gltf.parseAsync(bytes.slice().buffer, '') : this.gltf.loadAsync(this.url(id));
+      this.models.set(id, p);
+    }
     return p;
   }
 
