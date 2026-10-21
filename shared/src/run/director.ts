@@ -6,7 +6,7 @@ import { createRoomSim } from '../sim/roomSim.ts';
 import { spawnEnemy } from '../sim/state.ts';
 import { applyElite } from '../sim/elites.ts';
 import type { Sim } from '../sim/sim.ts';
-import { applyLoadout } from './loadout.ts';
+import { applyLoadout, swapIn } from './loadout.ts';
 import { claimReward, offerRewards, recordOffers, type RewardOffer } from './rewards.ts';
 import { ROOM_TO_ROOM, chooseDoor } from './roomToRoom.ts';
 import type { DoorChoice, RoomPlan, RunState } from './run.ts';
@@ -90,7 +90,13 @@ export class RunDirector {
   /** Takes reward `i` of the offers and shows the doors. */
   pick(i: number): void {
     if (this.phase !== 'reward' || !this.offers[i]) return;
-    this.run = claimReward(this.run, this.offers[i]);
+    const offer = this.offers[i];
+    this.run = claimReward(this.run, offer);
+    // a skill found is put to use at once; the one it replaces stays owned
+    if (offer.kind === 'skill' && offer.id && this.run.skills.pool.includes(offer.id)) {
+      const s = this.run.data.skills[offer.id];
+      this.run = { ...this.run, skills: swapIn(this.run.skills, s.element, s.slot, offer.id, this.run.data) };
+    }
     this.doors = ROOM_TO_ROOM.nextChoices(this.run);
     this.phase = 'doors';
   }

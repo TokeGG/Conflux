@@ -1,7 +1,12 @@
 // A scripted player: picks a target, swaps to the element that hurts it most, aims, keeps its distance, and rolls out of
 // attacks that are about to land. It reads the simulation directly, so it is a stand-in for a person in headless fights.
 import { BTN, ELEMENTS, idleInput, type Input } from './types.ts';
-import type { Sim } from './sim/sim.ts';
+import { TICK, type Sim } from './sim/sim.ts';
+import { RunDirector, createRunRoomSim } from './run/director.ts';
+import { emptyLedger } from './run/unlocks.ts';
+import type { DoorChoice, RunState } from './run/run.ts';
+import type { RewardOffer } from './run/rewards.ts';
+import type { GameData } from './types.ts';
 import type { EnemyState } from './sim/state.ts';
 
 const KEEP_DISTANCE = 8;
@@ -149,4 +154,74 @@ export function botInput(sim: Sim): Input {
     input.buttons |= 0; // rolling: no casting this tick
   }
   return input;
+}
+
+// ---- whole runs, for the balance report ----
+
+export interface RunReport {
+  seed: number;
+  victory: boolean;
+  /** Rooms cleared. */
+  rooms: number;
+  /** Simulated seconds the run lasted. */
+  seconds: number;
+  skillUse: Record<string, number>;
+  augmentUse: Record<string, number>;
+  reactions: Record<string, number>;
+}
+
+/** A room the bot cannot clear in this long counts as a loss, so a stuck fight cannot hang a report. */
+const ROOM_LIMIT = 180;
+
+/** The reward to take: a heal when hurt, then a skill, then an augment, then a heal. */
+export function botPickReward(run: RunState, offers: RewardOffer[]): number {
+  const order = run.hp < run.data.player.health * 0.5 ? ['heal', 'skill', 'augment'] : ['skill', 'augment', 'heal'];
+  for (const kind of order) {
+    const i = offers.findIndex((o) => o.kind === kind);
+    if (i >= 0) return i;
+  }
+  return 0;
+}
+
+/** The door to take: the same preference as the reward, so a run keeps finding skills. */
+export function botPickDoor(run: RunState, doors: DoorChoice[]): number {
+  const order = run.hp < run.data.player.health * 0.5 ? ['heal', 'skill', 'augment'] : ['skill', 'augment', 'heal'];
+  for (const kind of order) {
+    const i = doors.findIndex((d) => d.reward === kind);
+    if (i >= 0) return i;
+  }
+  return 0;
+}
+
+const bump = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
+
+/** Plays a whole run with the scripted bot and reports what happened. Deterministic for a seed. */
+export function playRun(data: GameData, seed: number, maxSeconds: number): RunReport {
+  const d = new RunDirector(data, seed, emptyLedger());
+  const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {} };
+  let ticks = 0;
+  const limit = Math.floor(maxSeconds / TICK);
+  while (d.phase !== 'dead' && d.phase !== 'won' && ticks < limit) {
+    if (d.phase === 'reward') d.pick(botPickReward(d.run, d.offers));
+    else if (d.phase === 'doors') d.enter(botPickDoor(d.run, d.doors));
+    else {
+      const sim = createRunRoomSim(d.run, data);
+      while (d.phase === 'fighting' && ticks < limit) {
+        const events = sim.step([botInput(sim)]);
+        ticks++;
+        for (const e of events) {
+          if (e.type === 'cast') bump(report.skillUse, String(e.skillId));
+          else if (e.type === 'reaction') bump(report.reactions, String(e.effect));
+        }
+        d.onPlayerHp(sim.player.hp);
+        d.onEvents(events);
+        if (sim.time > ROOM_LIMIT) d.onPlayerHp(0);
+      }
+    }
+  }
+  for (const a of d.run.augments) bump(report.augmentUse, a.id);
+  report.victory = d.phase === 'won';
+  report.rooms = d.run.history.length;
+  report.seconds = ticks * TICK;
+  return report;
 }

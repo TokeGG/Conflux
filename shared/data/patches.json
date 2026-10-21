@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.37",
+    "date": "2026-10-21",
+    "at": "2026-10-21T21:59:59Z",
+    "notes": [
+      "headless balance bot and report; skills found as rewards are equipped"
+    ]
+  },
+  {
     "version": "0.1.36",
     "date": "2026-10-21",
     "at": "2026-10-21T21:55:04Z",

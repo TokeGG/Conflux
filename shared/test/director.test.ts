@@ -73,3 +73,21 @@ test('the locked content is never found before it is unlocked', () => {
   const d = new RunDirector(data, 1, emptyLedger());
   assert.ok(!d.run.skills.pool.includes('water.slip_dash'));
 });
+
+test('a skill taken as a reward is equipped on its slot at once, and the old one stays owned', () => {
+  const d = new RunDirector(data, 1, emptyLedger());
+  playRoom(d);
+  const i = d.offers.findIndex((o) => o.kind === 'skill');
+  if (i < 0) {
+    d.run = { ...d.run };
+    d.offers = [{ kind: 'skill', id: [...(d.run.pool?.skills ?? [])].find((s) => !d.run.skills.pool.includes(s))!, element: 'fire' }];
+  }
+  const idx = i < 0 ? 0 : i;
+  const offer = d.offers[idx];
+  const skill = data.skills[offer.id!];
+  const before = d.run.skills.slots[skill.element][skill.slot];
+  d.pick(idx);
+  assert.equal(d.run.skills.slots[skill.element][skill.slot], offer.id);
+  assert.ok(d.run.skills.pool.includes(before));
+  assert.ok(d.run.skills.pool.includes(offer.id!));
+});
