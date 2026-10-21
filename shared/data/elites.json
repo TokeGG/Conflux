@@ -1,0 +1,33 @@
+{
+  "fire_aura": {
+    "name": "Fire Aura",
+    "params": {
+      "radius": 2.8,
+      "dps": 6
+    }
+  },
+  "burning_trail": {
+    "name": "Burning Trail",
+    "params": {
+      "interval": 0.5,
+      "seconds": 3,
+      "radius": 1,
+      "damage": 4
+    }
+  },
+  "haste": {
+    "name": "Haste",
+    "params": {
+      "speedMul": 1.4
+    }
+  },
+  "extra_guard": {
+    "name": "Extra Guard",
+    "params": {
+      "reduction": 0.9,
+      "onFor": 4,
+      "offFor": 3,
+      "staggerOnWeak": 1.5
+    }
+  }
+}

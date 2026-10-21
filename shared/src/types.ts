@@ -235,6 +235,13 @@ export interface RoomDef {
   lighting: LightingPreset;
 }
 
+/** An elite modifier: a name and the numbers its behaviour reads. The modifier's id says which behaviour it is. */
+export interface EliteDef {
+  id: string;
+  name: string;
+  params: Record<string, number>;
+}
+
 export interface BiomeDef {
   id: string;
   rooms: string[];
@@ -263,5 +270,6 @@ export interface GameData {
   attacks: Record<string, AttackDef>;
   rooms: Record<string, RoomDef>;
   biomes: Record<string, BiomeDef>;
+  elites: Record<string, EliteDef>;
   rewards: RewardsCfg;
 }

@@ -12,7 +12,7 @@ function model() {
   root.add(new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), mat));
   return { root, mat };
 }
-const snap = (over: Partial<EnemySnap> = {}): EnemySnap => ({ id: 1, defId: 'enemy.stump', pos: { x: 2, y: 0, z: 3 }, facing: 0.5, hp: 10, maxHp: 10, statuses: [], aiState: 'idle', guardOn: false, marks: [], attack: null, ...over });
+const snap = (over: Partial<EnemySnap> = {}): EnemySnap => ({ id: 1, defId: 'enemy.stump', pos: { x: 2, y: 0, z: 3 }, facing: 0.5, hp: 10, maxHp: 10, statuses: [], aiState: 'idle', guardOn: false, marks: [], attack: null, elite: null, ...over });
 const material = (v: EnemyView) => ((v.root.getObjectByProperty('isMesh', true) as THREE.Mesh).material as THREE.MeshStandardMaterial);
 
 test('the view follows the snapshot\'s position and facing', () => {

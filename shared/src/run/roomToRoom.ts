@@ -42,7 +42,13 @@ function planRoom(seed: number, index: number, door: number, data: GameData): Ro
     return { index, roomId, biome: biome.id, type: 'boss', budget, enemies: [{ enemyId: boss, at: { ...spots[0], y: 0 } }] };
   }
   const enemies = encounterFor(budget, biome, data.enemies, encounterStream(seed, label), spots);
-  return { index, roomId, biome: biome.id, type: isElite(index) ? 'elite' : 'combat', budget, enemies };
+  const elite = isElite(index);
+  if (elite) {
+    // the costliest enemy of the room carries a modifier
+    const strongest = enemies.reduce((best, e, i) => (data.enemies[e.enemyId].cost > data.enemies[enemies[best].enemyId].cost ? i : best), 0);
+    enemies[strongest].elite = encounterStream(seed, `${label}/elite`).pick(Object.keys(data.elites).sort());
+  }
+  return { index, roomId, biome: biome.id, type: elite ? 'elite' : 'combat', budget, enemies };
 }
 
 /** The reward kinds on the doors into room `index`, without repeats where there are enough kinds. */

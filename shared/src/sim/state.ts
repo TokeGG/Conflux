@@ -81,6 +81,8 @@ export interface EnemyState {
   guard: GuardState | null;
   cooldowns: Record<string, number>;
   attack: ActiveAttack | null;
+  /** The elite modifier this enemy carries, if any. */
+  elite: string | null;
   /** When the current AI state ends (recovering, surfacing, diving). */
   aiUntil: number;
 }
@@ -197,6 +199,7 @@ export interface EnemySnap {
   marks: MarkSnap[];
   /** The attack being wound up or carried out, for animation. */
   attack: string | null;
+  elite: string | null;
 }
 
 export interface ProjectileSnap {
@@ -237,6 +240,7 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {
     guard: def.guard ? { on: false, until: 0, staggeredUntil: 0 } : null,
     cooldowns: {},
     attack: null,
+    elite: null,
     aiUntil: 0,
   };
   sim.spawned++;

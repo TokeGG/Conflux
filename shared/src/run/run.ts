@@ -22,7 +22,8 @@ export interface RoomPlan {
   biome: string;
   type: RoomType;
   budget: number;
-  enemies: { enemyId: string; at: Vec3 }[];
+  /** `elite` names the modifier this enemy carries (one per elite room). */
+  enemies: { enemyId: string; at: Vec3; elite?: string }[];
 }
 
 export interface DoorChoice {

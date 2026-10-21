@@ -11,6 +11,7 @@ import { tickStatuses } from './statuses.ts';
 import { applyAugments, applyReactionAugments } from '../run/augments.ts';
 import type { OwnedAugment } from '../run/run.ts';
 import { stepAI } from './ai.ts';
+import { stepElites } from './elites.ts';
 import { stepAttacks } from './attacks.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
 import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
@@ -140,6 +141,7 @@ export class Sim {
       stepPlayer(this, this.player, inputs[0], TICK);
     }
     stepAI(this, TICK);
+    stepElites(this);
     stepAttacks(this);
     stepProjectiles(this, TICK);
     stepZones(this);
@@ -186,6 +188,7 @@ export class Sim {
         aiState: e.aiState,
         guardOn: !!e.guard?.on,
         attack: e.attack?.attackId ?? null,
+        elite: e.elite,
         marks: MARK_IDS.filter((id) => (e.marks[id]?.until ?? 0) > now).map((id) => ({ id, remaining: e.marks[id]!.until - now })),
       })),
       projectiles: this.projectiles.map((q) => ({ id: q.id, pos: { ...q.pos }, skillId: q.skillId })),

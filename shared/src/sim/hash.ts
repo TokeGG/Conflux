@@ -34,7 +34,7 @@ export function stateHash(s: HashState): string {
   ];
   for (const e of s.enemies) {
     const g = e.guard ? `${+e.guard.on}:${r4(e.guard.until)}:${r4(e.guard.staggeredUntil)}` : '-';
-    parts.push(`e|${e.id}|${e.def.id}|${vec(e.pos)}|${r4(e.facing)}|${r4(e.hp)}|${statuses(e.statuses)}|${marks(e.marks)}|${e.aiState}|${g}|${rec(e.cooldowns)}|${r4(e.aiUntil)}|${e.attack ? `${e.attack.attackId}:${r4(e.attack.hitAt)}:${r4(e.attack.yaw)}:${e.attack.phase}:${r4(e.attack.remaining)}:${+e.attack.hit}` : '-'}`);
+    parts.push(`e|${e.id}|${e.def.id}|${vec(e.pos)}|${r4(e.facing)}|${r4(e.hp)}|${statuses(e.statuses)}|${marks(e.marks)}|${e.aiState}|${g}|${rec(e.cooldowns)}|${e.elite ?? '-'}|${r4(e.aiUntil)}|${e.attack ? `${e.attack.attackId}:${r4(e.attack.hitAt)}:${r4(e.attack.yaw)}:${e.attack.phase}:${r4(e.attack.remaining)}:${+e.attack.hit}` : '-'}`);
   }
   for (const q of s.projectiles) parts.push(`j|${q.id}|${q.skillId}|${vec(q.pos)}|${vec(q.vel)}|${r4(q.diesAt)}`);
   for (const z of s.zones) parts.push(`z|${z.id}|${z.kind}|${vec(z.pos)}|${r4(z.radius)}|${r4(z.until)}|${r4(z.yaw)}|${r4(z.nextTick)}|${JSON.stringify(z.effects ?? {})}`);

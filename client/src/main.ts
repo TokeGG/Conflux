@@ -56,7 +56,9 @@ async function boot(): Promise<void> {
   const data = layers.current();
   const renderer = createRenderer(profile);
   document.body.append(renderer.domElement);
-  const room = data.rooms.forest_clearing;
+  // ?room=<id> opens a particular room (to look at a template); otherwise the first forest room
+  const wanted = new URL(location.href).searchParams.get('room');
+  const room = (wanted && data.rooms[wanted]) || data.rooms.forest_clearing;
   const game = createScene(room.lighting);
 
   const loader = new AssetLoader(await fetchManifest(), DEFAULT_PROFILE);

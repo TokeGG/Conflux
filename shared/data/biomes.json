@@ -1,7 +1,9 @@
 {
   "forest": {
     "rooms": [
-      "forest_clearing"
+      "forest_clearing",
+      "forest_grove",
+      "forest_trail"
     ],
     "enemyPool": [
       "enemy.stump",
@@ -25,7 +27,9 @@
   },
   "dungeon": {
     "rooms": [
-      "forest_clearing"
+      "dungeon_hall",
+      "dungeon_crypt",
+      "dungeon_ruins"
     ],
     "enemyPool": [
       "enemy.golem_fire",
@@ -42,12 +46,12 @@
       "boss.maw"
     ],
     "lighting": {
-      "ambient": "#8a93b8",
-      "light": "#c9d2ff",
-      "intensity": 1.4,
-      "fogColor": "#1d2233",
-      "fogNear": 8,
-      "fogFar": 24
+      "ambient": "#c0cbe8",
+      "light": "#ffe6bf",
+      "intensity": 1.9,
+      "fogColor": "#4a5a80",
+      "fogNear": 12,
+      "fogFar": 30
     }
   }
 }

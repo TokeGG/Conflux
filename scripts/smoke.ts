@@ -266,6 +266,16 @@ try {
     check(errors.length === 0, `no console errors while adding a mob${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 4f. every room template loads and draws
+  for (const id of ['forest_grove', 'forest_trail', 'dungeon_hall', 'dungeon_crypt', 'dungeon_ruins']) {
+    const { page, errors } = await open(browser, `${server.url}?room=${id}`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    const shown: string = await page.evaluate(() => (window as any).__conflux.room);
+    const colours: number = await page.evaluate(() => (window as any).__conflux.distinctColours());
+    await page.screenshot({ path: join(shots, `room-${id}.png`) });
+    check(shown === id && colours > 100 && errors.length === 0, `${id} loads and draws (${colours} colours${errors.length ? `, errors: ${errors.join(' | ').slice(0, 200)}` : ''})`);
+    await page.close();
+  }
   // 5a. the HUD: crosshair, element, three skills, health, and the tags above an enemy
   {
     const { page, errors } = await open(browser, server.url);

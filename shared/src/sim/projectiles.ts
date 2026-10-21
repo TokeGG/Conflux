@@ -101,6 +101,12 @@ export function stepZones(sim: Sim): void {
   for (const z of sim.zones) {
     if (z.tick > 0 && (z.damage > 0 || z.effects) && now >= z.nextTick && now < z.until) {
       z.nextTick += z.tick;
+      if (z.ownerId > 0) {
+        // an enemy's ground fire hurts the player standing in it
+        const p = sim.player;
+        if (Math.hypot(p.pos.x - z.pos.x, p.pos.z - z.pos.z) <= z.radius) dealDamage(sim, p, z.damage, 'none', { applies: z.effects?.burn ? 'burning' : null });
+        continue;
+      }
       for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) {
         const skill = sim.skill(z.skillId);
         if (z.damage > 0 && skill) skillHit(sim, h.enemy, skill, z.damage, h.point, z.bonus);
