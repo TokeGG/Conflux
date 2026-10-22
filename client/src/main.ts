@@ -8,6 +8,7 @@ import { AssetLoader, assetBase, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
+import { RoomLights } from './renderer/roomLights.ts';
 import { RunScreens } from './hud/runScreens.ts';
 import { idleInput, type DevCommand, type Input, type SimEvent, type Snapshot } from '@conflux/shared';
 import { Game } from './game.ts';
@@ -82,6 +83,8 @@ async function boot(): Promise<void> {
   const debugFlags = noDebug();
   const play = new Game({ scene: game.scene, camera: game.camera, canvas: renderer.domElement, loader, bridge, data: () => layers.current(), room, playerModel: player, rig, fx, hud, profile, flags: debugFlags });
 
+  const roomLights = new RoomLights(game.scene, 8);
+  roomLights.setRoom(room.lights ?? []);
   play.input.invertY = settings.invertY;
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -207,6 +210,7 @@ async function boot(): Promise<void> {
     game.scene.add(roomGroup);
     game.setLighting(next.lighting);
     room = next;
+    roomLights.setRoom(next.lights ?? []);
     play.loadRoom(next);
     await swapped;
     play.inputEnabled = true;
@@ -262,6 +266,7 @@ async function boot(): Promise<void> {
   const frame = () => {
     const dt = clock.getDelta();
     play.update(dt);
+    roomLights.update(performance.now() / 1000, play.latest?.players[0].pos ?? null);
     fx.update(Math.min(dt, 0.1), game.camera);
     if (play.latest) debugDraw.update(play.latest, debugFlags);
     const pose = perf?.benchmarkPose();

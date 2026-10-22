@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.48",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:38:19Z",
+    "notes": [
+      "Under the hood: flickering torch-light and textured, tinted walls and floors for the generated dungeon."
+    ]
+  },
+  {
     "version": "0.1.47",
     "date": "2026-10-22",
     "at": "2026-10-22T04:36:00Z",
