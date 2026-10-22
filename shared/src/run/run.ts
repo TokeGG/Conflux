@@ -1,5 +1,5 @@
 // The shapes of a run: the plan for a room, the choices at a door, and the state that carries from room to room.
-import type { GameData, Rarity } from '../types.ts';
+import type { GameData, Rarity, RoomDef } from '../types.ts';
 import type { Vec3 } from '../math.ts';
 
 export type RewardKind = 'skill' | 'augment' | 'heal';
@@ -24,6 +24,8 @@ export interface RoomPlan {
   budget: number;
   /** `elite` names the modifier this enemy carries (one per elite room). */
   enemies: { enemyId: string; at: Vec3; elite?: string }[];
+  /** A generated room carries its own definition (it is not in the data files). */
+  def?: RoomDef;
 }
 
 export interface DoorChoice {

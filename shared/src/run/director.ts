@@ -9,7 +9,7 @@ import type { Sim } from '../sim/sim.ts';
 import { applyLoadout, swapIn } from './loadout.ts';
 import { claimReward, offerRewards, recordOffers, type RewardOffer } from './rewards.ts';
 import { ROOM_TO_ROOM, chooseDoor } from './roomToRoom.ts';
-import type { DoorChoice, RoomPlan, RunState } from './run.ts';
+import type { DoorChoice, RoomPlan, RunMode, RunState } from './run.ts';
 import { recordEvent, recordRunEnd, unlockedPool, type UnlockLedger } from './unlocks.ts';
 
 export type RunPhase = 'fighting' | 'reward' | 'doors' | 'dead' | 'won';
@@ -20,7 +20,7 @@ export type RoomEntry = Pick<RunState, 'seed' | 'current' | 'skills' | 'augments
 
 export function createRunRoomSim(run: RoomEntry, data: GameData): Sim {
   const plan = run.current;
-  const sim = createRoomSim(data, run.seed * 1009 + plan.index, plan.roomId);
+  const sim = createRoomSim(data, run.seed * 1009 + plan.index, plan.def ?? plan.roomId);
   sim.tuned = run.tuned;
   applyLoadout(sim, run.skills);
   sim.setAugments(run.augments);
@@ -40,10 +40,14 @@ export class RunDirector {
   doors: DoorChoice[] = [];
   /** Achievements earned during this run, newest last. */
   earned: string[] = [];
+  /** Called with the new room's plan when the player walks through a gate (the client then loads it). */
+  onEnter: ((plan: RoomPlan) => void) | null = null;
+  private mode: RunMode;
 
-  constructor(data: GameData, seed: number, ledger: UnlockLedger, tuned = false) {
+  constructor(data: GameData, seed: number, ledger: UnlockLedger, tuned = false, mode: RunMode = ROOM_TO_ROOM) {
     this.ledger = ledger;
-    this.run = ROOM_TO_ROOM.start(seed, data, tuned, unlockedPool(ledger, data));
+    this.mode = mode;
+    this.run = mode.start(seed, data, tuned, unlockedPool(ledger, data));
   }
 
   private record(next: UnlockLedger): void {
@@ -53,11 +57,17 @@ export class RunDirector {
 
   /** Feeds the events of a step. A cleared room moves on to the reward screen, or to victory after the boss. */
   onEvents(events: SimEvent[]): void {
+    if (this.phase === 'doors') {
+      // walking into a gate is choosing that door
+      const gate = events.find((e) => e.type === 'door_entered');
+      if (gate && this.doors[Number(gate.door)]) this.onEnter?.(this.enter(Number(gate.door)));
+      return;
+    }
     if (this.phase !== 'fighting') return;
     for (const e of events) {
       this.record(recordEvent(this.ledger, e, this.run));
       if (e.type !== 'room_cleared') continue;
-      this.run = ROOM_TO_ROOM.onRoomCleared(this.run);
+      this.run = this.mode.onRoomCleared(this.run);
       if (this.run.status === 'victory') {
         this.phase = 'won';
         this.record(recordRunEnd(this.ledger, this.run));
@@ -97,7 +107,7 @@ export class RunDirector {
       const s = this.run.data.skills[offer.id];
       this.run = { ...this.run, skills: swapIn(this.run.skills, s.element, s.slot, offer.id, this.run.data) };
     }
-    this.doors = ROOM_TO_ROOM.nextChoices(this.run);
+    this.doors = this.mode.nextChoices(this.run);
     this.phase = 'doors';
   }
 

@@ -9,6 +9,8 @@ export interface GameScene {
   resize(width: number, height: number): void;
   /** Swaps the lights for another room's preset. */
   setLighting(preset: LightingPreset): void;
+  /** The big green plane under the old outdoor rooms; a generated dungeon has its own floor and hides it. */
+  setGround(visible: boolean): void;
 }
 
 export function createScene(preset: LightingPreset): GameScene {
@@ -23,6 +25,9 @@ export function createScene(preset: LightingPreset): GameScene {
   return {
     scene,
     camera,
+    setGround(visible) {
+      ground.visible = visible;
+    },
     setLighting(next) {
       removeLights();
       removeLights = applyLighting(scene, lightingRig(next));

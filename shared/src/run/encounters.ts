@@ -11,7 +11,7 @@ const JITTER = 1.2;
  * Enemies for a room. Spends at most `budget`, except that a room is never empty: when even the cheapest enemy costs more
  * than the budget, that one enemy comes anyway. Positions come from the room's spawn points, or a ring when none are given.
  */
-export function encounterFor(budget: number, biome: BiomeDef, enemies: Record<string, EnemyDef>, rng: Rng, spots: Vec3[] = []): { enemyId: string; at: Vec3; elite?: string }[] {
+export function encounterFor(budget: number, biome: Pick<BiomeDef, 'id' | 'enemyPool'>, enemies: Record<string, EnemyDef>, rng: Rng, spots: Vec3[] = [], weights?: Record<string, number>): { enemyId: string; at: Vec3; elite?: string }[] {
   const pool = biome.enemyPool.filter((id) => enemies[id]);
   if (pool.length === 0) throw new Error(`biome ${biome.id} has no enemies to draw from`);
   const cheapest = [...pool].sort((a, b) => enemies[a].cost - enemies[b].cost || a.localeCompare(b))[0];
@@ -20,7 +20,7 @@ export function encounterFor(budget: number, biome: BiomeDef, enemies: Record<st
   while (picked.length < MAX_ENEMIES) {
     const fit = pool.filter((id) => enemies[id].cost <= left);
     if (fit.length === 0) break;
-    const id = rng.pick(fit);
+    const id = weights ? rng.weighted(fit, (m) => weights[m] ?? 1) : rng.pick(fit);
     picked.push(id);
     left -= enemies[id].cost;
   }

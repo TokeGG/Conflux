@@ -214,3 +214,13 @@ test('giveAugment sockets an augment for the next cast, refuses a full skill and
   assert.match(applyDevCommand(sim, { op: 'giveAugment', id: 'aug.nothing', rarity: 'rare' })!, /aug\.nothing/);
   assert.match(applyDevCommand(sim, { op: 'giveAugment', id: 'aug.wide_cone', rarity: 'mythic' })!, /rarity/);
 });
+
+test('teleport puts the player on the floor at the point, marks the run tuned, and refuses a point that is not a number', () => {
+  const sim = makeSim();
+  assert.equal(applyDevCommand(sim, { op: 'teleport', x: 3, z: -4 }), null);
+  assert.deepEqual([sim.player.pos.x, sim.player.pos.y, sim.player.pos.z], [3, 0, -4]);
+  assert.equal(sim.tuned, true);
+  const other = makeSim();
+  assert.match(applyDevCommand(other, { op: 'teleport', x: 'a', z: 1 }) ?? '', /teleport/);
+  assert.equal(other.tuned, false);
+});

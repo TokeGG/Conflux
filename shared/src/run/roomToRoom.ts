@@ -52,7 +52,7 @@ function planRoom(seed: number, index: number, door: number, data: GameData): Ro
 }
 
 /** The reward kinds on the doors into room `index`, without repeats where there are enough kinds. */
-function rewardKinds(seed: number, index: number, count: number): RewardKind[] {
+export function rewardKinds(seed: number, index: number, count: number): RewardKind[] {
   const rng = mapStream(seed, `rewards/${index}`);
   const weights: Record<RewardKind, number> = { skill: 4, augment: 4, heal: 2 };
   const left: RewardKind[] = ['skill', 'augment', 'heal'];

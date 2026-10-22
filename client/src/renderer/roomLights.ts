@@ -35,12 +35,16 @@ export class RoomLights {
       scene.add(p);
     }
     scene.add(this.torch);
+    this.setRoom([]);
   }
 
   /** The lights of the room the player is now in. */
   setRoom(lights: readonly LightDef[]): void {
     this.lights = [...lights];
-    for (const p of this.pool) p.intensity = 0;
+    // an unlit room (an old bright one) draws with none of these, so they cost nothing there
+    const lit = this.lights.length > 0;
+    for (const p of this.pool) (p.intensity = 0), (p.visible = lit);
+    this.torch.visible = lit;
   }
 
   update(time: number, player: Vec3 | null): void {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
+import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyProfile, applyTextureFilters, createRenderer } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
@@ -35,7 +35,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; counters: Record<string, number>; unlocked: string[] } | null; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
   }
 }
 
@@ -143,7 +143,7 @@ async function boot(): Promise<void> {
     },
     run: () =>
       director
-        ? { phase: director.phase, roomIndex: director.run.roomIndex, tuned: director.run.tuned, screen: screens.open, hp: director.run.hp, counters: director.ledger.counters, unlocked: director.ledger.unlocked }
+        ? { phase: director.phase, roomIndex: director.run.roomIndex, tuned: director.run.tuned, screen: screens.open, hp: director.run.hp, gates: director.run.current.def?.spawns.doors ?? [], counters: director.ledger.counters, unlocked: director.ledger.unlocked }
         : null,
     /** Lets the browser smoke tests pose the player (the real controls arrive with the M1 integration). */
     pose: (state, castClip, castW, aimPitch) => (play.poseOverride = { state, castClip, castW, pitch: aimPitch }),
@@ -203,12 +203,13 @@ async function boot(): Promise<void> {
     const run = director!.run;
     play.inputEnabled = false;
     const swapped = bridge.enter({ seed: run.seed, current: plan, skills: run.skills, augments: run.augments, hp: run.hp, tuned: run.tuned });
-    const next = layers.current().rooms[plan.roomId];
+    const next = plan.def ?? layers.current().rooms[plan.roomId];
     const group = await buildRoomScene(next, loader);
     game.scene.remove(roomGroup);
     roomGroup = group;
     game.scene.add(roomGroup);
     game.setLighting(next.lighting);
+    game.setGround(!next.look);
     room = next;
     roomLights.setRoom(next.lights ?? []);
     play.loadRoom(next);
@@ -223,7 +224,11 @@ async function boot(): Promise<void> {
     const d = director;
     const data = layers.current();
     if (d.phase === 'reward') screens.rewards(d.offers, data, (i) => (d.pick(i), sync()));
-    else if (d.phase === 'doors') screens.doors(d.doors, data, d.run.roomIndex + 1, (i) => void enterDoor(i));
+    else if (d.phase === 'doors') {
+      // endless: the gates are walked through, so no screen; the player steps up to one and the next room loads
+      if (d.run.mode === 'endless') (screens.hide(), (play.inputEnabled = true));
+      else screens.doors(d.doors, data, d.run.roomIndex + 1, (i) => void enterDoor(i));
+    }
     else if (d.phase === 'dead' || d.phase === 'won') screens.end(d.run, d.earned, data, () => void beginRun());
   };
 
@@ -236,7 +241,11 @@ async function boot(): Promise<void> {
 
   const beginRun = async (): Promise<void> => {
     const ledger = director?.ledger ?? loadLedger(storage);
-    director = new RunDirector(layers.current(), seedOf(), ledger, layers.isModified());
+    director = new RunDirector(layers.current(), seedOf(), ledger, layers.isModified(), ENDLESS);
+    director.onEnter = (plan) => {
+      shown = director!.phase;
+      void loadPlan(plan);
+    };
     shown = director.phase;
     screens.hide();
     await loadPlan(director.run.current);

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.49",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:48:49Z",
+    "notes": [
+      "Runs are now endless and every room is generated: crypts, halls and caves, dark and cluttered, with gates to walk through."
+    ]
+  },
+  {
     "version": "0.1.48",
     "date": "2026-10-22",
     "at": "2026-10-22T04:38:19Z",

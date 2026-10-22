@@ -348,13 +348,18 @@ try {
     check(offers === 3, `clearing the room offers three rewards (${offers})`);
     await page.screenshot({ path: join(shots, 'run-reward.png') });
     await page.click('#runscreen button.card >> nth=0');
-    await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'doors', null, { timeout: 20000 });
-    const doors: number = await page.locator('#runscreen button.card').count();
-    check(doors >= 2, `picking a reward shows the doors (${doors})`);
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 20000 });
+    const gates: number = await page.evaluate(() => (window as any).__conflux.run().gates.length);
+    check(gates >= 1 && gates <= 3, `picking a reward opens the room's gates (${gates})`);
+    check((await page.locator('#runscreen.open').count()) === 0, 'no screen covers the room while the gates are open');
     await page.screenshot({ path: join(shots, 'run-doors.png') });
-    await page.click('#runscreen button.card >> nth=0');
+    await page.evaluate(() => {
+      const c = (window as any).__conflux;
+      const g = c.run().gates[0];
+      c.command({ op: 'teleport', x: g.x, z: g.z });
+    });
     await page.waitForFunction(() => (window as any).__conflux.run()?.roomIndex === 1 && (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
-    check(true, 'a door leads to the next room with its enemies');
+    check(true, 'walking into a gate leads to the next room with its enemies');
     const run: { tuned: boolean; unlocked: string[]; counters: Record<string, number> } = await page.evaluate(() => (window as any).__conflux.run());
     check(run.tuned, 'a dev command marks the run tuned');
     check((run.counters['rooms.cleared'] ?? 0) === 0, 'a tuned run records nothing in the ledger');
@@ -373,8 +378,13 @@ try {
     await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'reward', null, { timeout: 400000, polling: 1000 });
     check(true, 'the bot cleared room 1 and the reward screen opened');
     await page.click('#runscreen button.card >> nth=0');
-    await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'doors', null, { timeout: 20000 });
-    await page.click('#runscreen button.card >> nth=0');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 20000 });
+    await page.evaluate(() => {
+      const c = (window as any).__conflux;
+      c.command({ op: 'bot', on: false });
+      const g = c.run().gates[0];
+      c.command({ op: 'teleport', x: g.x, z: g.z });
+    });
     await page.waitForFunction(() => (window as any).__conflux.run()?.roomIndex === 1 && (window as any).__conflux.run()?.phase === 'fighting', null, { timeout: 90000 });
     check(true, 'a reward and a door later the run is in room 2');
     check(errors.length === 0, `the bot-driven run has no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);

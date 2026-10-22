@@ -35,8 +35,8 @@ test('the live lights never exceed the cap, the torch is always there and follow
   assert.equal(point.length, 9, 'eight room lights and the torch');
   assert.ok(point.filter((p) => p.intensity > 0).length <= 9);
   assert.equal(lights.torch.position.x, 30);
+  assert.ok(lights.torch.visible && point.every((p) => p.visible), 'a lit room uses the whole pool and the torch');
   lights.setRoom([]);
   lights.update(2, { x: 0, y: 0, z: 5 });
-  assert.ok(lights.torch.intensity > 0, 'the torch burns in an empty room');
-  assert.equal(point.filter((p) => p !== lights.torch && p.intensity > 0).length, 0);
+  assert.equal(point.filter((p) => p.visible).length, 0, 'a room with no lights (the bright sandbox) adds no lights to the scene, so it costs nothing');
 });

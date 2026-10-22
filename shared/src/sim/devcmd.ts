@@ -93,6 +93,13 @@ export function applyDevCommand(sim: Sim, cmd: DevCommand): string | null {
       applyStatus(sim, enemy ?? sim.player, cmd.id, sim.time);
       return done(null);
     }
+    case 'teleport': {
+      const x = Number(cmd.x);
+      const z = Number(cmd.z);
+      if (typeof cmd.x !== 'number' || typeof cmd.z !== 'number' || !Number.isFinite(x) || !Number.isFinite(z)) return 'teleport needs numbers x and z';
+      sim.player.pos = { x, y: 0, z };
+      return done(null);
+    }
     case 'god':
       sim.god = cmd.on === true;
       return done(null);
