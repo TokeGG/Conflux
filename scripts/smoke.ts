@@ -347,7 +347,9 @@ try {
     const offers: number = await page.locator('#runscreen button.card').count();
     check(offers === 3, `clearing the room offers three rewards (${offers})`);
     await page.screenshot({ path: join(shots, 'run-reward.png') });
+    const locksBefore: number = await page.evaluate(() => (window as any).__conflux.lockRequests());
     await page.click('#runscreen button.card >> nth=0');
+    check((await page.evaluate(() => (window as any).__conflux.lockRequests())) > locksBefore, 'picking a reward asks for the mouse again');
     await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 20000 });
     const gates: number = await page.evaluate(() => (window as any).__conflux.run().gates.length);
     check(gates >= 1 && gates <= 3, `picking a reward opens the room's gates (${gates})`);

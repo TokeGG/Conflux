@@ -52,6 +52,16 @@ export class InputController {
     target.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
+  /** How many times the game asked for the mouse (the smoke tests read this). */
+  lockRequests = 0;
+
+  /** Asks for the mouse again; call it from the click that closes a menu, since the browser only allows it on a user gesture. */
+  requestLock(): void {
+    if (document.pointerLockElement === this.target) return;
+    this.lockRequests++;
+    void this.target.requestPointerLock?.();
+  }
+
   /** Tells the controller which element is active so Q can step to the next one. */
   setElement(index: number): void {
     this.element = index;

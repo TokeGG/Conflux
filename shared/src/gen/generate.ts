@@ -6,7 +6,7 @@ import { World } from '../world.ts';
 import type { GameData, LightDef, RoomDef, RoomPiece, ThemeDef } from '../types.ts';
 import { boundaryEdges, CELL, makeFootprint, pickExits, type Edge, type Footprint } from './footprint.ts';
 import { envIndexFromPieces } from './pieces.ts';
-import { freeSpot, piece, placeLayer, placeWallDecor, type PlaceCtx } from './place.ts';
+import { freeSpot, inside, piece, placeLayer, placeWallDecor, type PlaceCtx } from './place.ts';
 import { isSolvable } from './reach.ts';
 
 export interface GeneratedRoom {
@@ -42,6 +42,36 @@ function structure(fp: Footprint, theme: ThemeDef, edges: Edge[], exits: Edge[],
   return out;
 }
 
+/** Straight-line distance in metres, up to 6, from a point to the nearest bit of ground that is not floor (a wall side, or the corner of a cut). */
+function wallClearance(fp: Footprint, x: number, z: number): number {
+  let best = 6;
+  for (let i = -2; i <= fp.cw + 1; i++) {
+    for (let j = -2; j <= fp.cd + 1; j++) {
+      if (fp.solid(i, j)) continue;
+      const dx = Math.max(fp.cx(i) - CELL / 2 - x, 0, x - (fp.cx(i) + CELL / 2));
+      const dz = Math.max(fp.cz(j) - CELL / 2 - z, 0, z - (fp.cz(j) + CELL / 2));
+      best = Math.min(best, Math.hypot(dx, dz));
+    }
+  }
+  return best;
+}
+
+/** The point of the floor on a 1 m grid with at least 3.5 m of floor all round it (or the roomiest point there is) that is farthest from the exits. */
+function chooseStart(fp: Footprint, doors: { x: number; z: number }[]): { x: number; z: number } {
+  const half = { x: (fp.cw * CELL) / 2, z: (fp.cd * CELL) / 2 };
+  const pts: { x: number; z: number; clear: number; far: number }[] = [];
+  for (let x = -half.x + 0.5; x < half.x; x += 1) {
+    for (let z = -half.z + 0.5; z < half.z; z += 1) {
+      if (!inside(fp, x, z, 0)) continue;
+      pts.push({ x, z, clear: wallClearance(fp, x, z), far: Math.min(...doors.map((d) => Math.hypot(d.x - x, d.z - z))) });
+    }
+  }
+  const room = Math.min(3.5, Math.max(...pts.map((p) => p.clear)));
+  const ok = pts.filter((p) => p.clear >= room);
+  const best = ok.reduce((b, p) => (p.far > b.far ? p : b), ok[0]);
+  return { x: best.x, z: best.z };
+}
+
 export function generateRoom(data: GameData, seed: number, depth: number, roomIndex: number, themeId?: string): GeneratedRoom {
   const rng = makeStreams(seed).map.fork(`gen/${depth}/${roomIndex}`);
   const candidates = Object.values(data.themes).filter((t) => t.minDepth <= depth);
@@ -56,9 +86,8 @@ export function generateRoom(data: GameData, seed: number, depth: number, roomIn
   const doorSpots = exits.map((e) => ({ x: e.x - e.nx * 1.2, z: e.z - e.nz * 1.2 }));
   const fixed = structure(fp, theme, edges, exits, () => rng.pick(theme.wall.gates), rng);
 
-  // the player starts on the floor cell farthest from the first exit
-  const far = fp.cells.reduce((best, [i, j]) => (Math.hypot(fp.cx(i) - doorSpots[0].x, fp.cz(j) - doorSpots[0].z) > Math.hypot(fp.cx(best[0]) - doorSpots[0].x, fp.cz(best[1]) - doorSpots[0].z) ? [i, j] : best), fp.cells[0]);
-  const start = { x: fp.cx(far[0]), z: fp.cz(far[1]) };
+  // the player starts well away from every wall (the camera sits four metres behind them) and as far from the exits as that allows
+  const start = chooseStart(fp, doorSpots);
 
   const ctx: PlaceCtx = { rng, theme, fp, taken: [{ ...start, r: 4, hard: true }, ...doorSpots.map((d) => ({ ...d, r: 3.2, hard: true }))], props: [] };
   const spots: { x: number; z: number }[] = [];

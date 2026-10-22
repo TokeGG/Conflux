@@ -120,3 +120,13 @@ test('the player never starts within 4 m of any exit, not only the first', () =>
     }
   }
 });
+
+test('the player starts well away from the walls (3 m), so the camera behind them is not jammed against one', () => {
+  for (const theme of THEMES) {
+    for (const seed of SEEDS) {
+      const room = get(theme, seed);
+      const p = room.spawns.player;
+      assert.ok(!buildWorld(room).blocked({ x: p.x, y: 0, z: p.z }, 3), `${theme} seed ${seed}: a wall within 3 m of the start`);
+    }
+  }
+});

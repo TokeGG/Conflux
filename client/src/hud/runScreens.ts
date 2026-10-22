@@ -10,6 +10,8 @@ export type ScreenName = 'none' | 'text' | 'start' | 'reward' | 'doors' | 'end';
 export class RunScreens {
   private root = document.createElement('div');
   private current: ScreenName = 'none';
+  /** Called from the click of every button that goes back to playing, so the game can take the mouse again. */
+  onResume: () => void = () => undefined;
 
   constructor() {
     this.root.id = 'runscreen';
@@ -47,7 +49,7 @@ export class RunScreens {
       el('h1', '', 'Conflux'),
       el('h2', '', 'Fire, water, earth and wind. Combine them.'),
       el('p', '', `${ledger.unlocked.length} of ${total} unlocks earned`),
-      el('div', 'row', button('go', 'Begin run', onBegin)),
+      el('div', 'row', button('go', 'Begin run', () => (this.onResume(), onBegin()))),
       ...(pages ? [el('div', 'row', button('card small', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), () => this.start(ledger, data, onBegin, pages))), button('card small', 'Credits', () => void pages.credits().then((lines) => this.text('Credits', lines.length ? lines : ['No credits yet.'], () => this.start(ledger, data, onBegin, pages)))))] : []),
       ...(pages ? [checkRow('invert-y', 'Invert vertical mouse look', pages.invertY, pages.onInvertY), checkRow('dev-tools', 'Developer tools (F2 opens the dev panel)', pages.dev, pages.onDev)] : []),
       el('p', 'hint', 'WASD move, mouse aim, left and right click cast, 1 2 3 4 swap element, Space jump, Shift dash, Q utility skill'),
@@ -57,7 +59,7 @@ export class RunScreens {
   rewards(offers: RewardOffer[], data: GameData, onPick: (i: number) => void): void {
     const cards = offers.map((o, i) => {
       const t = describeOffer(o, data);
-      return button('card', '', () => onPick(i), el('div', 'tag', t.tag), el('div', 'title', t.title), el('p', '', t.detail));
+      return button('card', '', () => (this.onResume(), onPick(i)), el('div', 'tag', t.tag), el('div', 'title', t.title), el('p', '', t.detail));
     });
     this.show('reward', el('h2', '', 'Room cleared. Choose a reward'), el('div', 'row', ...cards));
   }
@@ -67,7 +69,7 @@ export class RunScreens {
       const t = describeDoor(d, data);
       const kids = [el('div', 'tag', t.biome), el('div', 'title', `${t.reward} reward`)];
       if (t.badge) kids.push(el('span', 'badge', t.badge));
-      return button('card', '', () => onPick(i), ...kids);
+      return button('card', '', () => (this.onResume(), onPick(i)), ...kids);
     });
     this.show('doors', el('h2', '', `Room ${roomNumber} done. Choose a door`), el('div', 'row', ...cards));
   }
@@ -79,7 +81,7 @@ export class RunScreens {
       el('h1', '', s.headline),
       ...s.lines.map((l) => el('p', '', l)),
       ...achievementLines(earned, data).map((l) => el('p', 'earned', l)),
-      el('div', 'row', button('go', 'New run', onAgain)),
+      el('div', 'row', button('go', 'New run', () => (this.onResume(), onAgain()))),
     );
   }
 }

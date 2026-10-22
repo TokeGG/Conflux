@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.55",
+    "date": "2026-10-22",
+    "at": "2026-10-22T06:07:20Z",
+    "notes": [
+      "Picking a reward no longer frees your mouse from the game, and you now start rooms well away from the walls."
+    ]
+  },
+  {
     "version": "0.1.54",
     "date": "2026-10-22",
     "at": "2026-10-22T06:03:52Z",

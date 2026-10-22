@@ -74,3 +74,17 @@ test('the default keys: Space jumps, Shift dashes, Q is the utility skill, E int
   (c as any).keys.add('KeyE');
   assert.ok(c.poll().buttons & BTN.INTERACT);
 });
+
+test('requestLock asks the canvas for the mouse (and counts the ask), and does nothing when the canvas already has it', () => {
+  let asked = 0;
+  const canvas = { addEventListener() {}, requestPointerLock: () => void asked++ } as unknown as HTMLElement;
+  const c = new InputController(canvas);
+  c.requestLock();
+  c.requestLock();
+  assert.equal(asked, 2);
+  assert.equal(c.lockRequests, 2);
+  (globalThis as any).document.pointerLockElement = canvas;
+  c.requestLock();
+  assert.equal(asked, 2, 'already locked');
+  (globalThis as any).document.pointerLockElement = null;
+});
