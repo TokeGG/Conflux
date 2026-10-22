@@ -28,22 +28,22 @@ const base = (id: string, element: SkillDef['element'], extra: Partial<SkillDef>
   ...extra,
 });
 
-test('swapTo 2 changes the element to earth and starts the 0.4 s swap cooldown', () => {
+test('swapTo 2 changes the element to earth with no cooldown on swapping', () => {
   const sim = makeSim();
   run(sim, 1, input({ swapTo: 2 }));
   assert.equal(sim.snapshot().players[0].element, 'earth');
-  assert.ok(Math.abs(sim.player.swapReadyAt - 0.4) < 1e-9, `${sim.player.swapReadyAt}`);
+  assert.equal(sim.player.swapReadyAt, 0);
 });
 
-test('a second swap 0.3 s later is ignored, and one at 0.4 s works', () => {
+test('swapping works at any time: on consecutive ticks, with every skill cooling down and a cast in progress', () => {
   const sim = makeSim();
+  for (const id of Object.keys(sim.data.skills)) sim.player.cooldowns[id] = 99;
+  sim.player.castState = { skillId: 'fire.fireball', fired: false, until: 99, move: 1 } as never;
   run(sim, 1, input({ swapTo: 2 }));
-  run(sim, 18, idle());
   run(sim, 1, input({ swapTo: 1 }));
-  assert.equal(sim.player.element, 2);
-  run(sim, 5, idle());
-  run(sim, 1, input({ swapTo: 1 }));
-  assert.equal(sim.player.element, 1);
+  run(sim, 1, input({ swapTo: 3 }));
+  assert.equal(sim.player.element, 3);
+  assert.equal(sim.player.castState, null, 'a cast that has not left the caster is cancelled by the swap');
 });
 
 test('swapping to the element already held does nothing', () => {

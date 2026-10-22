@@ -96,7 +96,7 @@ test('the spec numbers are in the data files', () => {
   const d = defaultData();
   assert.deepEqual([d.player.health, d.player.moveSpeed], [100, 6]);
   assert.deepEqual([d.player.dodge.duration, d.player.dodge.invulnerable, d.player.dodge.cooldown], [0.4, 0.25, 1.2]);
-  assert.deepEqual([d.player.swap.cooldown, d.player.swap.bonusWindow, d.player.swap.bonusDamage], [0.4, 3, 1.25]);
+  assert.deepEqual([d.player.swap.cooldown, d.player.swap.bonusWindow, d.player.swap.bonusDamage], [0, 3, 1.25]);
   assert.deepEqual([d.player.cast.windupMove, d.player.cast.channelMove], [0.7, 0.5]);
   assert.deepEqual([d.statuses.burning.duration, d.statuses.soaked.duration, d.statuses.rocked.duration, d.statuses.gusted.duration], [5, 8, 8, 1.2]);
   assert.equal(d.statuses.soaked.speedMul, 0.85);

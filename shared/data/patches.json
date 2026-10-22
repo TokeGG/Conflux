@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.54",
+    "date": "2026-10-22",
+    "at": "2026-10-22T06:03:52Z",
+    "notes": [
+      "You can switch element at any moment now, mid-cast and while skills are cooling down."
+    ]
+  },
+  {
     "version": "0.1.53",
     "date": "2026-10-22",
     "at": "2026-10-22T05:58:17Z",

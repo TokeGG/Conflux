@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { castSkill } from '../src/sim/skills.ts';
 import { trySwap } from '../src/sim/swap.ts';
+import { defaultData } from '../src/files.ts';
 import { BTN, idle, input, makeSim, run } from './helpers.ts';
 
 test('the snapshot lists the held element\'s three skill slots with their cooldowns', () => {
@@ -23,8 +24,10 @@ test('the slots follow the element after a swap', () => {
   assert.deepEqual(sim.snapshot().players[0].slots.map((s) => s.skillId), ['water.water_bolt', 'water.tidal_stream', 'water.bubble_shield']);
 });
 
-test('the snapshot shows the swap cooldown and the swap-in bonus counting down', () => {
-  const sim = makeSim();
+test('the snapshot shows the swap cooldown (still a data setting) and the swap-in bonus counting down', () => {
+  const data = defaultData();
+  data.player.swap.cooldown = 0.4; // off by default, but the number still works when someone sets it
+  const sim = makeSim(1, { data });
   trySwap(sim, sim.player, 2);
   let p = sim.snapshot().players[0];
   assert.ok(Math.abs(p.swapRemaining - 0.4) < 1e-9);
