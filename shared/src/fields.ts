@@ -149,6 +149,8 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^enemies\..+\.guard\.(onFor|offFor|staggerOnWeak)$/, (m) => n({ onFor: 'Guard up for', offFor: 'Guard down for', staggerOnWeak: 'Stagger on weakness' }[m[1]]!, 's', 0, 60, 0.1)],
   [/^enemies\..+\.hurtboxes\.\d+\.r$/, () => n('Hurtbox radius', 'm', 0.05, 5, 0.05)],
   [/^enemies\..+\.hurtboxes\.\d+\.[ab]\.\d+$/, () => n('Hurtbox point', 'm', -20, 20, 0.05)],
+  [/^enemies\..+\.aura\.intensity$/, () => n('Aura light', '', 0, 30, 0.5)],
+  [/^enemies\..+\.aura\.radius$/, () => n('Aura reach', 'm', 1, 20, 0.5)],
   [/^enemies\..+\.phases\.\d+$/, () => n('Phase threshold', 'of health', 0, 1, 0.01)],
   [/^elites\.[a-z_]+\.params\.(\w+)$/, (m) => n(`Elite: ${m[1]}`, '', 0, 100, 0.1)],
   [/^attacks\..+\.summon\.count$/, () => n('Summoned enemies', '', 1, 20, 1)],

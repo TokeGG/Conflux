@@ -218,6 +218,10 @@ export interface EnemySnap {
   marks: MarkSnap[];
   /** The attack being wound up or carried out, for animation. */
   attack: string | null;
+  /** Where that attack is: 'windup' until it lands, 'active' while a charge runs; null with no attack. */
+  attackPhase?: 'windup' | 'active' | null;
+  /** How far through the windup (0 to 1, 1 at the hit moment), or through a charge's run, so the client can time the strike to the sim's. */
+  attackProgress?: number;
   elite: string | null;
   level: number;
 }

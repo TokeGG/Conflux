@@ -23,7 +23,9 @@ const TORCH = 0xffb060;
 export class RoomLights {
   readonly torch = new THREE.PointLight(TORCH, 18, 14, 1.6);
   private pool: THREE.PointLight[] = [];
-  /** Room lights in the pool: the cap counts the torch too, so eight lights in all. */
+  /** The boss's own light: one slot reserved out of the cap, dark when no boss is about. */
+  readonly aura = new THREE.PointLight(0xffffff, 0, 8, 1.6);
+  /** Room lights in the pool: the cap counts the torch and the boss aura too, so eight lights in all. */
   private readonly room: number;
   private lights: LightDef[] = [];
 
@@ -31,13 +33,15 @@ export class RoomLights {
     private scene: THREE.Scene,
     cap = 8,
   ) {
-    this.room = Math.max(0, cap - 1);
+    this.room = Math.max(0, cap - 2);
     for (let i = 0; i < this.room; i++) {
       const p = new THREE.PointLight(0xffffff, 0, 10, 1.6);
       this.pool.push(p);
       scene.add(p);
     }
     scene.add(this.torch);
+    this.aura.visible = false;
+    scene.add(this.aura);
     this.setRoom([]);
   }
 
@@ -48,6 +52,19 @@ export class RoomLights {
     const lit = this.lights.length > 0;
     for (const p of this.pool) (p.intensity = 0), (p.visible = lit);
     this.torch.visible = lit;
+  }
+
+  /** Lights the reserved slot on a boss (colour, brightness and reach come from its aura), or darkens it with null. */
+  setAura(a: { x: number; y: number; z: number; color: string; intensity: number; radius: number } | null): void {
+    this.aura.visible = !!a;
+    if (!a) {
+      this.aura.intensity = 0;
+      return;
+    }
+    this.aura.position.set(a.x, a.y, a.z);
+    this.aura.color.set(a.color);
+    this.aura.intensity = a.intensity;
+    this.aura.distance = a.radius;
   }
 
   update(time: number, player: Vec3 | null): void {

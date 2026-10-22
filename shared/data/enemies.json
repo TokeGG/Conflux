@@ -503,7 +503,12 @@
     "phases": [
       0.66,
       0.33
-    ]
+    ],
+    "aura": {
+      "color": "#7a2a8c",
+      "intensity": 5,
+      "radius": 8
+    }
   },
   "boss.reaper": {
     "name": "Pumpkin Reaper",
@@ -530,15 +535,15 @@
       {
         "a": [
           0,
-          0.8,
+          1.1,
           0
         ],
         "b": [
           0,
-          2.6,
+          3.5,
           0
         ],
-        "r": 0.9
+        "r": 1.2
       }
     ],
     "ai": "rusher",
@@ -550,7 +555,12 @@
     "phases": [
       0.66,
       0.33
-    ]
+    ],
+    "aura": {
+      "color": "#c8641a",
+      "intensity": 5,
+      "radius": 8
+    }
   },
   "enemy.skeleton": {
     "name": "Skeleton",

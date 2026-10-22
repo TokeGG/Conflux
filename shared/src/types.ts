@@ -195,6 +195,14 @@ export interface EnemyDef {
   attacks: string[];
   guard?: { reduction: number; onFor: number; offFor: number; staggerOnWeak: number };
   phases?: number[];
+  /** A boss's own glow: its colour, how bright its point light is and how far the light and the floor ring reach. */
+  aura?: AuraDef;
+}
+
+export interface AuraDef {
+  color: string;
+  intensity: number;
+  radius: number;
 }
 
 export interface AugmentOp {

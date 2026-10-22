@@ -53,7 +53,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number };
   }
 }
 
@@ -210,6 +210,7 @@ async function boot(): Promise<void> {
     snapshot: () => play.latest,
     events: () => play.log,
     enemyViews: () => play.enemyViews,
+    enemyPoses: () => play.enemyPoses(),
     damageShown: () => hud.damageShown,
     lockRequests: () => play.input.lockRequests,
     /** How many point lights are lit in the scene (test hook). */
@@ -445,6 +446,7 @@ async function boot(): Promise<void> {
   const frame = () => {
     const dt = clock.getDelta();
     play.update(dt);
+    roomLights.setAura(play.bossAura());
     roomLights.update(performance.now() / 1000, play.latest?.players[0].pos ?? null);
     fx.update(Math.min(dt, 0.1), game.camera);
     if (play.latest) debugDraw.update(play.latest, debugFlags);
