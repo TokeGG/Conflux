@@ -339,6 +339,9 @@ try {
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForSelector('#runscreen.open button.go', { timeout: 20000 });
     check(true, 'a normal visit opens the run start screen');
+    check(String(await page.evaluate(() => (window as any).__conflux.room)).startsWith('gen_'), 'the main menu opens on one of the generated dark rooms, not the old outdoor one');
+    await page.waitForTimeout(2500);
+    await page.screenshot({ path: join(shots, 'menu.png') });
     await page.click('#runscreen button.go');
     await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
     check(true, 'beginning the run puts the first room fight on screen');

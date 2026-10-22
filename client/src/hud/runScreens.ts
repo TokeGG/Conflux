@@ -44,15 +44,21 @@ export class RunScreens {
 
   start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]>; invertY: boolean; onInvertY: (on: boolean) => void; dev: boolean; onDev: (on: boolean) => void }): void {
     const total = Object.keys(data.unlocks).length;
+    const back = () => this.start(ledger, data, onBegin, pages);
+    const menu: HTMLElement[] = [button('go', 'Begin run', () => (this.onResume(), onBegin()))];
+    if (pages) {
+      menu.push(
+        button('plain', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), back)),
+        button('plain', 'Credits', () => void pages.credits().then((lines) => this.text('Credits', lines.length ? lines : ['No credits yet.'], back))),
+      );
+    }
     this.show(
       'start',
-      el('h1', '', 'Conflux'),
-      el('h2', '', 'Fire, water, earth and wind. Combine them.'),
-      el('p', '', `${ledger.unlocked.length} of ${total} unlocks earned`),
-      el('div', 'row', button('go', 'Begin run', () => (this.onResume(), onBegin()))),
-      ...(pages ? [el('div', 'row', button('card small', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), () => this.start(ledger, data, onBegin, pages))), button('card small', 'Credits', () => void pages.credits().then((lines) => this.text('Credits', lines.length ? lines : ['No credits yet.'], () => this.start(ledger, data, onBegin, pages)))))] : []),
-      ...(pages ? [checkRow('invert-y', 'Invert vertical mouse look', pages.invertY, pages.onInvertY), checkRow('dev-tools', 'Developer tools (F2 opens the dev panel)', pages.dev, pages.onDev)] : []),
-      el('p', 'hint', 'WASD move, mouse aim, left and right click cast, 1 2 3 4 swap element, Space jump, Shift dash, Q utility skill'),
+      el('div', 'title', 'CONFLUX'),
+      el('div', 'tagline', 'Fire, water, earth and wind. Combine them. Descend.'),
+      el('div', 'menu', ...menu),
+      el('div', 'options', ...(pages ? [checkRow('invert-y', 'Invert vertical mouse look', pages.invertY, pages.onInvertY), checkRow('dev-tools', 'Developer tools (F2 opens the dev panel)', pages.dev, pages.onDev)] : [])),
+      el('div', 'foot', `${ledger.unlocked.length} of ${total} unlocks earned   |   WASD move   mouse aim   click cast   1 2 3 4 element   Space jump   Shift dash   Q utility`),
     );
   }
 

@@ -1,18 +1,32 @@
-#runscreen { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #0a0e14cc; color: #fff; font: 15px/1.4 system-ui, sans-serif; z-index: 20; }
+/* The screens between rooms: dark stone, ember accents, a serif face. */
+#runscreen { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; color: #e8dcc4; z-index: 20;
+  font: 16px/1.45 "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  background: radial-gradient(ellipse at 50% 45%, #05060a55 0%, #05060aaa 55%, #05060af0 100%); }
 #runscreen.open { display: flex; }
-#runscreen .panel { max-width: 860px; width: calc(100% - 32px); text-align: center; }
-#runscreen h1 { margin: 0 0 4px; font-size: 34px; letter-spacing: 0.04em; }
-#runscreen h2 { margin: 0 0 16px; font-size: 20px; font-weight: 600; opacity: 0.85; }
-#runscreen p { margin: 4px 0; opacity: 0.8; }
-#runscreen .row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
-#runscreen button.card { flex: 1 1 200px; max-width: 260px; min-height: 120px; padding: 14px; border: 2px solid #ffffff55; border-radius: 10px; background: #1b2433; color: inherit; font: inherit; cursor: pointer; text-align: left; }
-#runscreen button.card:hover, #runscreen button.card:focus-visible { border-color: #ffd36b; background: #263248; outline: none; }
-#runscreen .card .title { font-size: 18px; font-weight: 700; }
-#runscreen .card .tag { font-size: 12px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-#runscreen .card .badge { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: 99px; background: #c0392b; font-size: 12px; font-weight: 700; }
-#runscreen button.go { padding: 12px 34px; font: 700 18px system-ui, sans-serif; border: 0; border-radius: 8px; background: #ffd36b; color: #1b1b1b; cursor: pointer; }
-#runscreen button.go:hover { background: #ffe08f; }
+#runscreen .panel { max-width: 900px; width: calc(100% - 32px); text-align: center; }
+#runscreen .title { font-size: clamp(48px, 9vw, 104px); letter-spacing: 0.32em; padding-left: 0.32em; font-weight: 700; color: #f3e6c6; text-shadow: 0 0 22px #ff8a2a99, 0 0 60px #ff5a1a55, 0 3px 0 #000; }
+#runscreen .tagline { margin: 6px 0 38px; font-size: 18px; letter-spacing: 0.18em; text-transform: uppercase; color: #b9a88c; }
+#runscreen .menu { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+#runscreen button.go { min-width: 280px; padding: 16px 40px; font: 700 20px "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: 0.2em; text-transform: uppercase; color: #1a0f05; border: 1px solid #ffd27a; border-radius: 3px; cursor: pointer;
+  background: linear-gradient(#ffc36a, #e8862a); box-shadow: 0 0 24px #ff8a2a66, inset 0 1px 0 #fff3; }
+#runscreen button.go:hover, #runscreen button.go:focus-visible { background: linear-gradient(#ffd890, #f59a3c); box-shadow: 0 0 36px #ff9a3caa; outline: none; }
+#runscreen button.plain { min-width: 280px; padding: 11px 32px; font: 600 15px "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: 0.18em; text-transform: uppercase; color: #d8cbb0; background: #11131acc; border: 1px solid #6b5a40; border-radius: 3px; cursor: pointer; }
+#runscreen button.plain:hover, #runscreen button.plain:focus-visible { color: #fff; border-color: #ffb45a; background: #1b1812; outline: none; }
+#runscreen .options { margin: 30px 0 0; display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; font-size: 14px; color: #a8997e; }
+#runscreen .options label { cursor: pointer; }
+#runscreen .options input { accent-color: #e8862a; margin-right: 6px; }
+#runscreen .foot { margin-top: 26px; font-size: 12px; letter-spacing: 0.08em; color: #7d7058; }
+#runscreen h1 { margin: 0 0 4px; font-size: 38px; letter-spacing: 0.1em; color: #f3e6c6; text-shadow: 0 0 18px #ff8a2a66; }
+#runscreen h2 { margin: 0 0 22px; font-size: 22px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #cdbd9c; }
+#runscreen p { margin: 4px 0; color: #b9ab90; }
+#runscreen .row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin: 22px 0; }
+#runscreen button.card { flex: 1 1 210px; max-width: 270px; min-height: 150px; padding: 18px 16px; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: 3px;
+  background: linear-gradient(#1a1a22ee, #0d0e14ee); border: 1px solid #5c4d38; box-shadow: 0 6px 24px #000a; transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s; }
+#runscreen button.card:hover, #runscreen button.card:focus-visible { transform: translateY(-4px); border-color: #ffb45a; box-shadow: 0 10px 30px #000c, 0 0 22px #ff8a2a55; outline: none; }
+#runscreen .card .title { font-size: 21px; font-weight: 700; letter-spacing: 0.04em; color: #f6ead0; text-shadow: none; padding: 0; }
+#runscreen .card .tag { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #ff9a4a; margin-bottom: 8px; }
+#runscreen .card p { color: #a89a80; font-size: 14px; }
+#runscreen .card .badge { display: inline-block; margin-top: 8px; padding: 1px 10px; border-radius: 2px; background: #8a1f1a; color: #ffe; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; }
 #runscreen .earned { color: #9be28f; }
-#runscreen button.card.small { flex: 0 1 150px; min-height: 0; text-align: center; font-weight: 600; }
-#runscreen .scroll { max-height: 60vh; overflow-y: auto; text-align: left; padding: 0 12px; }
-#runscreen .hint { font-size: 13px; opacity: 0.6; margin-top: 18px; }
+#runscreen .scroll { max-height: 60vh; overflow-y: auto; text-align: left; padding: 0 16px; border: 1px solid #3a3226; background: #0a0b10cc; border-radius: 3px; }
+#runscreen button.go + p, #runscreen .hint { font-size: 13px; color: #7d7058; }

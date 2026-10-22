@@ -11,6 +11,7 @@ import { Hud } from './hud/hud.ts';
 import { RoomLights } from './renderer/roomLights.ts';
 import { disposeCopies } from './renderer/skins.ts';
 import { RunScreens } from './hud/runScreens.ts';
+import { menuCamera } from './hud/menuCamera.ts';
 import { idleInput, type DevCommand, type Input, type SimEvent, type Snapshot } from '@conflux/shared';
 import { Game } from './game.ts';
 import { FxSystem } from './fx/sprites.ts';
@@ -69,6 +70,12 @@ async function boot(): Promise<void> {
   let room = (wanted && data.rooms[wanted]) || data.rooms.forest_clearing;
   if (themeParam && data.themes[themeParam]) {
     room = generateRoom(data, Number(params.get('seed')) || 1, 1, 0, themeParam).room;
+    data.rooms[room.id] = room;
+  } else if (runMode) {
+    // the main menu opens on one of the game's own dark rooms, not on the old outdoor one
+    const names = Object.keys(data.themes);
+    const pick = Date.now() % 100000;
+    room = generateRoom(data, pick, 1, 0, names[pick % names.length]).room;
     data.rooms[room.id] = room;
   }
   const game = createScene(room.lighting);
@@ -276,6 +283,8 @@ async function boot(): Promise<void> {
     };
     shown = director.phase;
     screens.hide();
+    play.cameraOverride = null;
+    hud.root.style.display = '';
     await loadPlan(director.run.current);
   };
 
@@ -288,6 +297,13 @@ async function boot(): Promise<void> {
       sync();
     });
     play.inputEnabled = false;
+    // behind the menu: the dark room, a slow orbit, no crosshair or bars
+    hud.root.style.display = 'none';
+    play.cameraOverride = (camera) => {
+      const c = menuCamera(performance.now() / 1000, room.size);
+      camera.position.set(c.pos.x, c.pos.y, c.pos.z);
+      camera.lookAt(c.look.x, c.look.y, c.look.z);
+    };
     const credits = async (): Promise<string[]> => {
       try {
         const res = await fetch(`${assetBase()}licenses.json`);
