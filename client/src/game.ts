@@ -60,6 +60,9 @@ export class Game {
   private cam: ThirdPersonCamera;
   private holder = new THREE.Group();
   private enemies = new Map<number, EnemyView>();
+  private souls = new Map<number, THREE.Mesh>();
+  private soulGeo = new THREE.IcosahedronGeometry(0.16);
+  private soulMat = new THREE.MeshBasicMaterial({ color: 0x9fe8ff });
   private enemyLoads = new Set<number>();
   private dying: EnemyView[] = [];
   private projectiles = new Map<number, { handle: FxHandle | null; stopped: boolean; pos: Vec3 }>();
@@ -94,6 +97,8 @@ export class Game {
     this.cam = new ThirdPersonCamera(this.world, () => this.d.data().camera);
     for (const view of [...this.enemies.values(), ...this.dying]) this.d.scene.remove(view.root);
     this.enemies.clear();
+    for (const m of this.souls.values()) this.d.scene.remove(m);
+    this.souls.clear();
     this.dying = [];
     this.enemyLoads.clear();
     this.lastEnemies.clear();
@@ -127,6 +132,28 @@ export class Game {
     }
     this.syncProjectiles(s);
     this.syncPersistentFx(s);
+    this.syncSouls(s);
+  }
+
+  /** Souls on the floor: a small bobbing light for each, bigger the more it is worth. */
+  private syncSouls(s: Snapshot): void {
+    const seen = new Set<number>();
+    for (const k of s.pickups) {
+      seen.add(k.id);
+      let m = this.souls.get(k.id);
+      if (!m) {
+        m = new THREE.Mesh(this.soulGeo, this.soulMat);
+        m.scale.setScalar(Math.min(2.2, 0.8 + Math.sqrt(k.value) * 0.18));
+        this.souls.set(k.id, m);
+        this.d.scene.add(m);
+      }
+      m.position.set(k.pos.x, k.pos.y + 0.5 + Math.sin(s.time * 3 + k.id) * 0.1, k.pos.z);
+    }
+    for (const [id, m] of this.souls) {
+      if (seen.has(id)) continue;
+      this.d.scene.remove(m);
+      this.souls.delete(id);
+    }
   }
 
   /** A hit on an enemy: flash it and float the number up. A weakness hit shows bigger. */

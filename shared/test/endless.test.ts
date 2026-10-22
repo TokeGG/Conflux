@@ -31,7 +31,7 @@ test('every gate of a room has a door choice and a planned next room with its ow
     const gates = s.current.def!.spawns.doors.length;
     const choices = ENDLESS.nextChoices(s);
     assert.equal(choices.length, gates);
-    for (const c of choices) assert.ok(c.room.def && c.room.enemies.length > 0 && c.room.index === s.roomIndex + 1);
+    for (const c of choices) assert.ok(c.room.def && (c.room.enemies.length > 0 || ['shop', 'shrine', 'rest'].includes(c.room.type)) && c.room.index === s.roomIndex + 1);
   }
   const ids = ENDLESS.nextChoices(ENDLESS.start(7, data)).map((c) => c.room.roomId);
   assert.equal(new Set(ids).size, ids.length, 'two gates lead to two different rooms');

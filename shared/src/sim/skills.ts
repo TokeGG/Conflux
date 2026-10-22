@@ -6,6 +6,7 @@ import type { Sim } from './sim.ts';
 import { enemyHurtboxes, type Bonus, type EnemyState, type PlayerState } from './state.ts';
 import { consumeSwapBonus } from './swap.ts';
 import { dealDamage } from './damage.ts';
+import { dropSouls } from './souls.ts';
 
 export interface CastResult {
   ok: boolean;
@@ -34,6 +35,7 @@ export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: st
   if (e.hp <= 0) {
     sim.emit('enemy_died', { id: e.id, defId: e.def.id, x: e.pos.x, y: e.pos.y, z: e.pos.z });
     sim.enemies = sim.enemies.filter((x) => x !== e);
+    dropSouls(sim, e);
   }
 }
 

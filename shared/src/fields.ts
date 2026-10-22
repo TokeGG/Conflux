@@ -119,6 +119,13 @@ const EXACT: Record<string, FieldInfo> = {
   'rewards.guaranteeSkillByRoom': n('A skill offer by room', '', 1, 20, 1),
   'rewards.scaling.hpPerRoom': n('Enemy health per room', '× per room', 0, 1, 0.01),
   'rewards.scaling.damagePerRoom': n('Enemy damage per room', '× per room', 0, 1, 0.01),
+  'rewards.economy.pickupRadius': n('Soul pickup radius', 'm', 0.5, 10, 0.1),
+  'rewards.economy.eliteSoulsMul': n('Elite souls', '×', 1, 10, 0.5),
+  'rewards.economy.depthScale': n('Price rise per floor', '× base', 0, 3, 0.05),
+  'rewards.economy.restHeal': n('Rest room heal', 'of max health', 0, 1, 0.05),
+  'rewards.economy.shrineTradeHp': n('Shrine trade: health', 'of max health', 0, 0.9, 0.05),
+  'rewards.economy.shrineTradeSouls': n('Shrine trade: souls', '', 0, 1000, 5),
+  'rewards.economy.interactReach': n('Reach to buy', 'm', 0.5, 10, 0.1),
   'rewards.rarity.early.until': n('Early rarity until room', '', 1, 20, 1),
 };
 
@@ -144,6 +151,7 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^enemies\..+\.hp$/, () => n('Health', 'hp', 1, 100000, 1)],
   [/^enemies\..+\.speed$/, () => n('Move speed', 'm/s', 0, 30, 0.1)],
   [/^enemies\..+\.cost$/, () => n('Encounter cost', '', 0, 50, 1)],
+  [/^enemies\..+\.souls$/, () => n('Souls dropped', '', 0, 500, 1)],
   [/^enemies\..+\.scale$/, () => n('Model scale', '×', 0.1, 10, 0.05)],
   [/^enemies\..+\.guard\.reduction$/, () => n('Guard damage reduction', '', 0, 1, 0.05)],
   [/^enemies\..+\.guard\.(onFor|offFor|staggerOnWeak)$/, (m) => n({ onFor: 'Guard up for', offFor: 'Guard down for', staggerOnWeak: 'Stagger on weakness' }[m[1]]!, 's', 0, 60, 0.1)],
@@ -156,6 +164,8 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^attacks\..+\.summon\.count$/, () => n('Summoned enemies', '', 1, 20, 1)],
   [/^attacks\..+\.summon\.cap$/, () => n('Most summoned alive', '', 1, 50, 1)],
   [/^attacks\..+\.(\w+)$/, (m) => ATTACK[m[1]]],
+  [/^rewards\.economy\.price\.(?:skill|augment|heal|element)$/, () => n('Base price', 'souls', 0, 5000, 5)],
+  [/^rewards\.economy\.rarityMul\.(?:common|rare|epic)$/, () => n('Price by rarity', '×', 0.1, 10, 0.1)],
   [/^rewards\.rarity\.(?:early|late)\.weights\.(?:common|rare|epic)$/, () => n('Rarity weight', '', 0, 100, 1)],
 ];
 

@@ -26,18 +26,35 @@ export function rarityWeights(roomIndex: number, cfg: RewardsCfg = defaultData()
 
 const keyOf = (o: RewardOffer) => `${o.kind}|${o.id ?? ''}|${o.rarity ?? ''}`;
 
-function drawRarity(state: RunState, data: GameData, rng: Rng): Rarity {
+export function drawRarity(state: RunState, data: GameData, rng: Rng): Rarity {
   const w = rarityWeights(state.roomIndex, data.rewards);
   return rng.weighted(RARITIES, (r) => w[r]);
 }
 
 /** Skills not owned, not offered before and not already in this set. */
-function skillPool(state: RunState, data: GameData, taken: Set<string>): string[] {
+export function skillPool(state: RunState, data: GameData, taken: Set<string>): string[] {
   const owned = new Set(state.skills.pool);
   const offered = new Set(state.offeredSkills);
   return Object.keys(data.skills)
     .filter((id) => !owned.has(id) && !offered.has(id) && !taken.has(id) && (!state.pool || state.pool.skills.has(id)))
     .sort();
+}
+
+/** Augments that can be used now: a skill augment needs the skill owned and a free socket. */
+export function augmentPool(state: RunState, data: GameData, taken: ReadonlySet<string> = new Set()): string[] {
+  return Object.keys(data.augments)
+    .filter((id) => {
+      if (taken.has(id) || (state.pool && !state.pool.augments.has(id))) return false;
+      const t = data.augments[id].target;
+      return !t.skill || (state.skills.pool.includes(t.skill) && canSocket(t.skill, state.augments));
+    })
+    .sort();
+}
+
+/** Elements off the bench that have a basic skill to play (none in the daily run, where the three are locked). */
+export function benchElements(state: RunState): Element[] {
+  if (state.daily) return [];
+  return ELEMENTS.filter((el) => !state.skills.equipped.includes(el) && state.skills.slots[el].basic);
 }
 
 /** Exactly three different offers. The door's kind leads; a skill is forced in when none has been offered by the guaranteed room. */
@@ -59,19 +76,12 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
     }
     if (kind === 'element') {
       // an element off the bench that has skills to play; one at most per set
-      if (state.daily) return null; // the day's three elements are locked
-      const bench = ELEMENTS.filter((el) => !state.skills.equipped.includes(el) && state.skills.slots[el].basic && !out.some((o) => o.kind === 'element' && o.element === el));
+      const bench = benchElements(state).filter((el) => !out.some((o) => o.kind === 'element' && o.element === el));
       return bench.length ? { kind, element: rng.pick(bench) } : null;
     }
     if (kind === 'augment') {
       // only augments that can be used: a skill augment needs the skill owned and a free socket
-      const ids = Object.keys(data.augments)
-        .filter((id) => {
-          if (state.pool && !state.pool.augments.has(id)) return false;
-          const t = data.augments[id].target;
-          return !t.skill || (state.skills.pool.includes(t.skill) && canSocket(t.skill, state.augments));
-        })
-        .sort();
+      const ids = augmentPool(state, data);
       if (ids.length === 0) return null;
       return { kind, id: rng.pick(ids), rarity: drawRarity(state, data, rng) };
     }

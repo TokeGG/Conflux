@@ -33,6 +33,12 @@ export class Hud {
   private crosshairCfg: CrosshairCfg = defaultCrosshair();
   private crosshairHot: boolean | null = null;
   private gateLabels: { el: HTMLElement; pos: Vec3 }[] = [];
+  private stallLabels: { el: HTMLElement; pos: Vec3; near: HTMLElement; ware: HTMLElement }[] = [];
+  private runInfo = div('runinfo');
+  private soulsText = div('souls');
+  private depthText = div('depth');
+  private prompt = div('prompt');
+  private toast = div('toast');
   private elementChips: HTMLDivElement[] = [];
   private slotBoxes: { box: HTMLDivElement; name: HTMLElement; cd: HTMLElement; text: HTMLElement; key: HTMLElement }[] = [];
   private bonus = div('bonus', 'Swap bonus: +25% and a sure status');
@@ -75,7 +81,8 @@ export class Hud {
     bottom.append(this.bonus, elements, slots);
     const hp = div('hp');
     hp.append(this.hpFill, this.hpText);
-    this.root.append(this.crosshair, bottom, hp);
+    this.runInfo.append(this.depthText, this.soulsText);
+    this.root.append(this.crosshair, bottom, hp, this.runInfo, this.prompt, this.toast);
     parent.append(this.root);
   }
 
@@ -98,6 +105,43 @@ export class Hud {
       this.root.append(root);
       return { el: root, pos: g.pos };
     });
+  }
+
+  /** The souls in hand and where the run stands (depth, and the room's place on its floor). */
+  setRun(souls: number, depth: number, room: number, rooms: number): void {
+    this.soulsText.textContent = `Souls ${souls}`;
+    this.depthText.textContent = `Depth ${depth} | Room ${room}/${rooms}`;
+  }
+
+  /** A line of words that fades (arriving on a new floor). */
+  announce(text: string): void {
+    this.toast.textContent = text;
+    this.toast.classList.remove('show');
+    void this.toast.offsetWidth;
+    this.toast.classList.add('show');
+  }
+
+  /** Labels over the wares of a quiet room (an empty list takes them down). */
+  setStalls(stalls: { pos: Vec3; title: string; price: string; state: 'ok' | 'poor' | 'sold' }[]): void {
+    this.stallLabels.forEach((s) => s.el.remove());
+    this.stallLabels = stalls.map((s) => {
+      const root = div(`stall ${s.state}`);
+      const near = div('near');
+      const ware = div('t', s.title);
+      root.append(ware, div('p', s.state === 'sold' ? 'Taken' : s.price), near);
+      this.root.append(root);
+      return { el: root, pos: s.pos, near, ware };
+    });
+  }
+
+  /** Marks the stall the player stands at (index) with the words to show; -1 for none. Also sets the bottom prompt. */
+  setNearStall(index: number, detail: string, prompt: string): void {
+    this.stallLabels.forEach((s, i) => {
+      s.el.classList.toggle('here', i === index);
+      s.near.textContent = i === index ? detail : '';
+    });
+    this.prompt.textContent = index >= 0 ? prompt : '';
+    this.prompt.classList.toggle('on', index >= 0 && prompt !== '');
   }
 
   /** Changes how the crosshair looks (from the dev panel or the saved setting). */
@@ -143,6 +187,7 @@ export class Hud {
     this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.drawCrosshair(aimTarget !== null);
     for (const g of this.gateLabels) this.place(g.el, g.pos.x, g.pos.y + 3.2, g.pos.z);
+    for (const g of this.stallLabels) this.place(g.el, g.pos.x, g.pos.y + 1.9, g.pos.z);
     this.updateTags(s, aimTarget, showAi);
     this.updateNumbers();
   }

@@ -54,7 +54,9 @@
       "id": "fx.water_splash",
       "at": "pos"
     },
-    "door_entered": null
+    "door_entered": null,
+    "soul_dropped": null,
+    "soul_collected": null
   },
   "zones": {
     "steam": "fx.steam_puff",

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, dailyFor, dayKey, type Daily, generateRoom, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
+import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, nearestStall, depthAt, floorRoomAt, ROOMS_PER_FLOOR, dailyFor, dayKey, type Daily, generateRoom, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyProfile, applyTextureFilters, createRenderer } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
@@ -9,7 +9,8 @@ import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
 import { dailyBestLine, loadDailyBest, saveDailyBest } from './dailyBest.ts';
-import { describeGate } from './hud/runFormat.ts';
+import { describeGate, wareText } from './hud/runFormat.ts';
+import { QuietView } from './renderer/quietView.ts';
 import { loadCrosshair, saveCrosshair } from './crosshair.ts';
 import { CrosshairPage } from './dev/pages/crosshair.ts';
 import { RoomLights } from './renderer/roomLights.ts';
@@ -53,7 +54,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[]; souls: number; depth: number; roomType: string; wares: number; stalls: { x: number; z: number }[] } | null; buyNearest(slot?: number): string; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number };
   }
 }
 
@@ -193,8 +194,10 @@ async function boot(): Promise<void> {
     },
     run: () =>
       director
-        ? { phase: director.phase, roomIndex: director.run.roomIndex, tuned: director.run.tuned, screen: screens.open, hp: director.run.hp, gates: director.run.current.def?.spawns.doors ?? [], counters: director.ledger.counters, unlocked: director.ledger.unlocked }
+        ? { phase: director.phase, roomIndex: director.run.roomIndex, tuned: director.run.tuned, screen: screens.open, hp: director.run.hp, gates: director.run.current.def?.spawns.doors ?? [], counters: director.ledger.counters, unlocked: director.ledger.unlocked, souls: director.run.souls, depth: depthAt(director.run.roomIndex), roomType: director.run.current.type, wares: director.run.quiet?.wares.length ?? 0, stalls: director.run.current.stalls ?? [] }
         : null,
+    /** Buys the ware at the stall the player stands at (test hook); returns the shop's answer. */
+    buyNearest: (slot) => tryBuyNearest(slot),
     /** Lets the browser smoke tests pose the player (the real controls arrive with the M1 integration). */
     pose: (state, castClip, castW, aimPitch) => (play.poseOverride = { state, castClip, castW, pitch: aimPitch }),
     /** Plays an effect beside the player (test hook). */
@@ -271,6 +274,76 @@ async function boot(): Promise<void> {
   let todays: Daily | null = null;
   const seedOf = () => Number(params.get('seed')) || Date.now() % 1_000_000;
 
+  const quietView = new QuietView(game.scene, loader);
+  let stallKey = '';
+  const playerPos = () => play.latest?.players[0].pos ?? null;
+
+  /** The stall the player stands at, or -1. */
+  const stallHere = (): number => {
+    const p = playerPos();
+    return director && p && director.phase === 'doors' && director.run.quiet ? nearestStall(director.run.current, p, layers.current().rewards.economy.interactReach) : -1;
+  };
+
+  /** Buys the ware at the nearest stall; an element asks which key it takes over first. Returns the shop's answer (for the smoke test). */
+  const tryBuyNearest = (slot?: number): string => {
+    const d = director;
+    const p = playerPos();
+    const i = stallHere();
+    if (!d || !p || i < 0) return 'no stall';
+    const ware = d.run.quiet!.wares[i];
+    if (ware.kind === 'element' && slot === undefined) {
+      if (ware.sold || d.run.souls < ware.price) return d.buy(i, 0, p).reason ?? 'no';
+      (bridge.command({ op: 'pause', on: true }), (play.inputEnabled = false));
+      screens.pickKey(
+        ware.offer!.element!,
+        d.run.skills.equipped,
+        (k) => (afterBuy(d.buy(i, k, p)), resumeAfterShop()),
+        resumeAfterShop,
+      );
+      return 'choosing';
+    }
+    const res = d.buy(i, slot, p);
+    afterBuy(res);
+    return res.ok ? 'ok' : (res.reason ?? 'no');
+  };
+  const resumeAfterShop = (): void => {
+    bridge.command({ op: 'pause', on: false });
+    play.inputEnabled = true;
+  };
+  const afterBuy = (res: { ok: boolean; reason?: string }): void => {
+    if (!res.ok) hud.announce(res.reason ?? 'Cannot buy that.');
+    else if (director) bridge.command({ op: 'runhp', hp: director.run.hp });
+    stallKey = '';
+  };
+  window.addEventListener('keydown', (e) => {
+    if (e.repeat || e.code !== play.input.bindings.interact || !play.inputEnabled) return;
+    tryBuyNearest();
+  });
+
+  /** Keeps the souls readout, the ware labels and the prompt in step with the run (every frame, cheap). */
+  const updateRunHud = (): void => {
+    if (!director) return;
+    const run = director.run;
+    hud.setRun(run.souls, depthAt(run.roomIndex), floorRoomAt(run.roomIndex), ROOMS_PER_FLOOR);
+    const data = layers.current();
+    const wares = run.quiet?.wares ?? [];
+    const key = `${run.current.roomId}|${wares.map((w) => `${+w.sold}${+(run.souls >= w.price)}`).join('')}`;
+    if (key !== stallKey) {
+      stallKey = key;
+      hud.setStalls(
+        wares.map((w, i) => {
+          const t = wareText(w, run.souls, data);
+          return { pos: run.current.stalls?.[i] ?? { x: 0, y: 0, z: 0 }, title: t.title, price: t.price, state: w.sold ? ('sold' as const) : t.afford ? ('ok' as const) : ('poor' as const) };
+        }),
+      );
+    }
+    const here = stallHere();
+    const w = here >= 0 ? wares[here] : null;
+    const t = w ? wareText(w, run.souls, data) : null;
+    hud.setNearStall(here, t ? `${t.tag}. ${t.detail}` : '', w && !w.sold ? `[E] ${w.price > 0 ? 'Buy' : 'Take'} ${t!.title} (${t!.price})` : '');
+    quietView.update(wares, performance.now() / 1000, playerPos());
+  };
+
   /** Scenes of the rooms behind the open gates, built ahead one at a time between frames. */
   const prebuilt = new Map<string, Awaited<ReturnType<typeof buildRoomScene>>>();
   const prebuild = async (plans: RoomPlan[]): Promise<void> => {
@@ -298,11 +371,13 @@ async function boot(): Promise<void> {
     game.setLighting(next.lighting);
     game.setGround(!next.look);
     room = next;
+    quietView.set(plan);
+    if (plan.index > 0 && plan.index % ROOMS_PER_FLOOR === 0) hud.announce(`Depth ${depthAt(plan.index)}`);
     roomLights.setRoom(next.lights ?? []);
     play.loadRoom(next);
     await swapped;
     // a reward waiting at the entrance keeps the game paused and the controls off until it is picked
-    play.inputEnabled = director!.phase === 'fighting';
+    play.inputEnabled = director!.phase !== 'reward';
   };
 
   const sync = (): void => {
@@ -372,6 +447,15 @@ async function boot(): Promise<void> {
     bridge.command({ op: 'pause', on: false });
     play.cameraOverride = null;
     hud.root.style.display = '';
+    const jump = params.get('jump'); // ?dev&jump=<room>:<gate>:<souls> stands in that room (a test and looking tool)
+    if (jump && dev) {
+      const [index, gate, souls] = jump.split(':').map(Number);
+      const plan = director.debugJump(index || 6, gate || 0, souls || 300);
+      shown = null;
+      await loadPlan(plan);
+      sync();
+      return;
+    }
     await loadPlan(director.run.current);
   };
 
@@ -382,6 +466,7 @@ async function boot(): Promise<void> {
       director.onEvents(events);
       director.onPlayerHp(snapshot.players[0].hp);
       sync();
+      updateRunHud();
     });
     const credits = async (): Promise<string[]> => {
       try {
@@ -396,6 +481,9 @@ async function boot(): Promise<void> {
       director = null;
       chip?.setVisible(true);
       hud.setGates([]);
+      hud.setStalls([]);
+      hud.setNearStall(-1, '', '');
+      quietView.clear();
       shown = null;
       play.inputEnabled = false;
       hud.root.style.display = 'none';

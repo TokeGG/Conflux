@@ -100,7 +100,7 @@ test('endless: clearing a room opens the gates at once, and the reward is offere
   d.onEvents([{ t: 0, type: 'room_cleared' }]);
   assert.equal(d.phase, 'doors', 'no reward screen before the gates');
   assert.equal(d.offers.length, 3, 'the rewards are ready');
-  const gate = Math.min(1, d.doors.length - 1);
+  const gate = 0; // gate 0 is always a fight (another gate may lead to a quiet room)
   const shown = d.doors[gate].room;
   d.onEvents([{ t: 1, type: 'door_entered', door: gate }]);
   assert.equal(d.phase, 'reward', 'in the new room, the reward of the one just cleared waits to be picked');

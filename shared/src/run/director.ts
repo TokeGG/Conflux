@@ -7,10 +7,14 @@ import { createRoomSim } from '../sim/roomSim.ts';
 import { spawnEnemy } from '../sim/state.ts';
 import { applyElite } from '../sim/elites.ts';
 import type { Sim } from '../sim/sim.ts';
-import { applyLoadout, swapIn, equipElement } from './loadout.ts';
-import { claimReward, offerRewards, recordOffers, type RewardOffer } from './rewards.ts';
+import { applyLoadout } from './loadout.ts';
+import { offerRewards, recordOffers, type RewardOffer } from './rewards.ts';
+import { stockQuiet, takeOffer, tryBuy, type BuyResult } from './shop.ts';
 import { ROOM_TO_ROOM, chooseDoor } from './roomToRoom.ts';
-import type { DoorChoice, RoomPlan, RunMode, RunState } from './run.ts';
+import { planRoomAt } from './endless.ts';
+import { depthAt } from './floors.ts';
+import { isQuiet, type DoorChoice, type RoomPlan, type RunMode, type RunState } from './run.ts';
+import type { Vec3 } from '../math.ts';
 import { recordEvent, recordRunEnd, unlockedPool, type UnlockLedger } from './unlocks.ts';
 
 export type RunPhase = 'fighting' | 'reward' | 'doors' | 'dead' | 'won';
@@ -23,6 +27,8 @@ export function createRunRoomSim(run: RoomEntry, data: GameData): Sim {
   const plan = run.current;
   const sim = createRoomSim(data, run.seed * 1009 + plan.index, plan.def ?? plan.roomId);
   sim.tuned = run.tuned;
+  // a quiet room has no enemies to clear: its gates are open from the first tick
+  if (isQuiet(plan.type)) sim.roomCleared = true;
   applyLoadout(sim, run.skills);
   sim.setAugments(run.augments);
   sim.player.hp = run.hp;
@@ -63,6 +69,12 @@ export class RunDirector {
 
   /** Feeds the events of a step. A cleared room moves on to the reward screen, or to victory after the boss. */
   onEvents(events: SimEvent[]): void {
+    // souls picked up count wherever the player stands
+    for (const e of events) {
+      if (e.type !== 'soul_collected') continue;
+      const value = Number(e.value) || 0;
+      this.run = { ...this.run, souls: this.run.souls + value, soulsEarned: this.run.soulsEarned + value };
+    }
     if (this.phase === 'doors') {
       // walking into a gate is choosing that door
       const gate = events.find((e) => e.type === 'door_entered');
@@ -113,19 +125,13 @@ export class RunDirector {
   pick(i: number, slot?: number): void {
     if (this.phase !== 'reward' || !this.offers[i]) return;
     const offer = this.offers[i];
-    if (offer.kind === 'element') {
-      if (slot === undefined || !offer.element || this.run.skills.equipped.includes(offer.element)) return;
-      this.run = { ...this.run, skills: equipElement(this.run.skills, slot, offer.element) };
-    }
-    this.run = claimReward(this.run, offer);
+    if (offer.kind === 'element' && (slot === undefined || !offer.element || this.run.skills.equipped.includes(offer.element))) return;
     // a skill found is put to use at once; the one it replaces stays owned
-    if (offer.kind === 'skill' && offer.id && this.run.skills.pool.includes(offer.id)) {
-      const s = this.run.data.skills[offer.id];
-      this.run = { ...this.run, skills: swapIn(this.run.skills, s.element, s.slot, offer.id, this.run.data) };
-    }
+    this.run = takeOffer(this.run, offer, slot) ?? this.run;
     this.offers = [];
     if (this.rewardAtEntrance) {
-      this.phase = 'fighting';
+      if (isQuiet(this.run.current.type)) this.startQuiet();
+      else this.phase = 'fighting';
       return;
     }
     this.doors = this.mode.nextChoices(this.run);
@@ -135,14 +141,42 @@ export class RunDirector {
   /** Walks through door `i` and returns the new room's plan. */
   enter(i: number): RoomPlan {
     if (this.phase !== 'doors' || !this.doors[i]) throw new Error('there is no door to enter');
-    this.run = chooseDoor(this.run, this.doors[i]);
+    this.run = { ...chooseDoor(this.run, this.doors[i]), quiet: null };
     this.doors = [];
     if (this.rewardAtEntrance && this.offers.length > 0) {
       this.phase = 'reward';
     } else {
       this.offers = [];
-      this.phase = 'fighting';
+      if (isQuiet(this.run.current.type)) this.startQuiet();
+      else this.phase = 'fighting';
     }
     return this.run.current;
+  }
+
+  /** Dev tool: stand in room `index`, entered by gate `gate` of the room before, holding `souls`. The run is marked tuned. */
+  debugJump(index: number, gate = 0, souls = 0): RoomPlan {
+    const before = planRoomAt(this.run.data, this.run.seed, depthAt(index - 1), index - 1);
+    this.run = { ...this.run, tuned: true, roomIndex: index - 1, current: before, souls };
+    this.offers = [];
+    this.doors = this.mode.nextChoices(this.run);
+    this.phase = 'doors';
+    return this.enter(Math.min(gate, this.doors.length - 1));
+  }
+
+  /** The player is in a quiet room: its wares are set out and the gates stand open. */
+  private startQuiet(): void {
+    const kind = this.run.current.type;
+    if (!isQuiet(kind)) return;
+    this.run = { ...this.run, quiet: stockQuiet(this.run, kind) };
+    this.doors = this.mode.nextChoices(this.run);
+    this.phase = 'doors';
+  }
+
+  /** Buys ware `i` of the quiet room (`near` is where the player stands; it must be beside the stall). */
+  buy(i: number, slot?: number, near?: Vec3): BuyResult {
+    if (this.phase !== 'doors') return { ok: false, reason: 'There is nothing to buy here.', run: this.run };
+    const res = tryBuy(this.run, i, slot, near);
+    this.run = res.run;
+    return res;
   }
 }

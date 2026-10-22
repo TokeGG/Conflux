@@ -1,5 +1,5 @@
 // The words on the run screens, kept apart from the DOM so they can be tested.
-import type { DoorChoice, GameData, RewardOffer, RunState } from '@conflux/shared';
+import { depthAt, type DoorChoice, type GameData, type RewardOffer, type RunState, type Ware } from '@conflux/shared';
 import { skillLabel } from './format.ts';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -82,8 +82,26 @@ export function describeDoor(d: DoorChoice, data: GameData): DoorText {
   };
 }
 
+export interface WareLine {
+  title: string;
+  tag: string;
+  detail: string;
+  price: string;
+  afford: boolean;
+}
+
+/** How a ware reads on its stall: what it is, what it does, what it costs, and whether `souls` cover it. */
+export function wareText(w: Ware, souls: number, data: GameData): WareLine {
+  const price = w.price > 0 ? `${w.price} souls` : 'Free';
+  const afford = !w.sold && souls >= w.price;
+  if (w.kind === 'trade') return { title: 'Blood for souls', tag: 'Shrine trade', detail: `Give ${w.hpCost} health, gain ${w.gain} souls.`, price, afford };
+  if (w.kind === 'rest') return { title: 'Rest', tag: 'Free', detail: `Restores ${Math.round((w.healFraction ?? 0) * 100)}% of your health.`, price, afford };
+  const t = describeOffer(w.offer!, data);
+  return { title: t.title, tag: w.kind === 'boon' ? `Boon: ${t.tag}` : t.tag, detail: t.detail, price, afford };
+}
+
 export interface GateText {
-  kind: 'fight' | 'elite' | 'boss';
+  kind: 'fight' | 'elite' | 'boss' | 'shop' | 'shrine' | 'rest';
   title: string;
   sub: string;
 }
@@ -93,14 +111,20 @@ const STYLE_NAME: Record<string, string> = { bonepit: 'Bone pit', cellar: 'Cella
 /** The label hung above a gate: where it leads and what you get for going there. */
 export function describeGate(d: DoorChoice, data: GameData): GateText {
   const style = STYLE_NAME[d.biome] ?? cap(d.biome);
-  const kind = d.room.type === 'boss' ? 'boss' : d.room.type === 'elite' ? 'elite' : 'fight';
+  const type = d.room.type;
+  const kind = type === 'combat' ? 'fight' : type;
+  const down = d.descends ? ` | Stairs down to depth ${depthAt(d.room.index)}` : '';
+  if (type === 'shop' || type === 'shrine' || type === 'rest') {
+    const sub = { shop: 'Spend your souls', shrine: 'A free boon, or blood for souls', rest: 'A free heal' }[type];
+    return { kind, title: `${cap(type)}: ${style}`, sub: sub + down };
+  }
   const reward = { skill: 'a skill', augment: 'an augment', heal: 'healing', element: 'an element' }[d.reward] ?? d.reward;
-  return { kind, title: kind === 'boss' ? `Boss: ${style}` : kind === 'elite' ? `Elite ${style}` : style, sub: `Reward: ${reward}` };
+  return { kind, title: kind === 'boss' ? `Boss: ${style}` : kind === 'elite' ? `Elite ${style}` : style, sub: `Reward: ${reward}${down}` };
 }
 
 export function endSummary(run: RunState, bestToday = 0): { headline: string; lines: string[] } {
   const rooms = run.history.length;
-  const lines = [`${rooms} ${rooms === 1 ? 'room' : 'rooms'} cleared`, `${run.skills.pool.length} skills, ${run.augments.length} augments`];
+  const lines = [`Reached depth ${depthAt(run.roomIndex)}`, `${run.soulsEarned} souls banked`, `${rooms} ${rooms === 1 ? 'room' : 'rooms'} cleared`, `${run.skills.pool.length} skills, ${run.augments.length} augments`];
   if (run.daily) lines.push('Daily run', rooms >= bestToday && rooms > 0 ? `New best today: ${rooms} ${rooms === 1 ? 'room' : 'rooms'}` : `Best today: ${bestToday} ${bestToday === 1 ? 'room' : 'rooms'}`);
   if (run.tuned) lines.push('This run used tuned numbers, so it does not count toward unlocks.');
   return { headline: run.status === 'victory' ? 'Victory' : 'You fell', lines };
