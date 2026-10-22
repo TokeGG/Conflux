@@ -117,6 +117,10 @@ export function buildProcGroup(pieces: readonly RoomPiece[], woodTex: THREE.Text
 export function disposeProc(root: THREE.Object3D): void {
   root.traverse((o) => {
     const m = o as THREE.InstancedMesh;
+    if ((o as THREE.Mesh).isMesh && !m.isInstancedMesh && (o as THREE.Mesh).geometry.userData.own) {
+      (o as THREE.Mesh).geometry.dispose(); // a merged patch of the room
+      return;
+    }
     if (!m.isInstancedMesh) return;
     if (m.geometry.userData.own) m.geometry.dispose();
     const mat = m.material as THREE.Material;

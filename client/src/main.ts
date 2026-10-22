@@ -43,7 +43,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number; renderInfo(): { calls: number; triangles: number; geometries: number; textures: number; parts: string[] } };
   }
 }
 
@@ -184,6 +184,14 @@ async function boot(): Promise<void> {
     events: () => play.log,
     enemyViews: () => play.enemyViews,
     damageShown: () => hud.damageShown,
+    /** What the last frame cost the renderer (test hook for the performance checks). */
+    renderInfo: () => {
+      const shown = (o: THREE.Object3D): boolean => {
+        for (let p: THREE.Object3D | null = o; p; p = p.parent) if (!p.visible) return false;
+        return true;
+      };
+      return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, parts: game.scene.children.map((c) => { let n = 0; c.traverse((o) => ((o as THREE.Mesh).isMesh && shown(o) ? n++ : 0)); return `${c.name || c.type}:${n}`; }).filter((s) => !s.endsWith(':0')) };
+    },
     lockRequests: () => play.input.lockRequests,
     /** How many point lights are lit in the scene (test hook). */
     lights: () => {

@@ -243,6 +243,8 @@ export interface RoomLook {
   floorTex: string;
   wallTex: string;
   tint: string;
+  /** How far the floor texture replaces the kit's own floor colour, 0 (just shades it, the default) to 1 (the texture's colours, tinted). */
+  floorPaint?: number;
 }
 
 export interface RoomDef {
@@ -309,7 +311,7 @@ export interface ThemeDef {
   cells: [number, number];
   cutChance: number;
   detailChance: number;
-  floor: { kit: string; tile: string; detail: string; tex: string[] };
+  floor: { kit: string; tile: string; detail: string; tex: string[]; paint?: number };
   wall: { kit: string; plain: string; detail: string; corner: string; gates: string[]; tex: string[] };
   tint: string;
   lighting: LightingPreset;

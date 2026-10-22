@@ -5,13 +5,14 @@ import type { RoomLook } from '@conflux/shared';
 import { disposeProc } from './procProps.ts';
 
 export interface Skin {
+  floorPaint: number;
   floorTex: string;
   wallTex: string;
   tint: THREE.Color;
 }
 
 export function skinFor(look: RoomLook | undefined): Skin | null {
-  return look ? { floorTex: look.floorTex, wallTex: look.wallTex, tint: new THREE.Color(look.tint) } : null;
+  return look ? { floorPaint: look.floorPaint ?? 0, floorTex: look.floorTex, wallTex: look.wallTex, tint: new THREE.Color(look.tint) } : null;
 }
 
 /** Gives every material under `root` its own copy (`copies` remembers which material became which) and multiplies its colour by the tint. */
@@ -35,23 +36,24 @@ export function tintMaterials(root: THREE.Object3D, tint: THREE.Color, copies: M
 }
 
 /** Lays a texture over the material in world space: `scale` repeats per metre, `strength` from 0 (none) to 1 (full). */
-export function addDetail(material: THREE.Material, texture: THREE.Texture, scale: number, strength: number): void {
+export function addDetail(material: THREE.Material, texture: THREE.Texture, scale: number, strength: number, paint = 0): void {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   material.onBeforeCompile = (shader) => {
     shader.uniforms.detailMap = { value: texture };
     shader.uniforms.detailScale = { value: scale };
     shader.uniforms.detailStrength = { value: strength };
+    shader.uniforms.detailPaint = { value: paint };
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWP;\nvarying vec3 vWN;')
       .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvWN = normalize(mat3(modelMatrix) * objectNormal);');
     shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vWP;\nvarying vec3 vWN;\nuniform sampler2D detailMap;\nuniform float detailScale;\nuniform float detailStrength;')
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWP;\nvarying vec3 vWN;\nuniform sampler2D detailMap;\nuniform float detailScale;\nuniform float detailStrength;\nuniform float detailPaint;')
       .replace(
         '#include <map_fragment>',
-        '#include <map_fragment>\n{ vec3 an = abs(normalize(vWN)); vec2 duv = an.y > 0.6 ? vWP.xz : (an.x > an.z ? vWP.zy : vWP.xy); vec3 d = texture2D(detailMap, duv * detailScale).rgb; diffuseColor.rgb *= mix(vec3(1.0), d * 1.7, detailStrength); float l = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)); diffuseColor.rgb = mix(vec3(l), diffuseColor.rgb, 0.55); }',
+        '#include <map_fragment>\n{ vec3 an = abs(normalize(vWN)); vec2 duv = an.y > 0.6 ? vWP.xz : (an.x > an.z ? vWP.zy : vWP.xy); vec3 d = texture2D(detailMap, duv * detailScale).rgb; diffuseColor.rgb *= mix(vec3(1.0), d * 1.7, detailStrength); float l = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)); diffuseColor.rgb = mix(vec3(l), diffuseColor.rgb, 0.55); diffuseColor.rgb = mix(diffuseColor.rgb, diffuse * d * 1.5, detailPaint); }',
       );
   };
-  material.customProgramCacheKey = () => `detail-${scale}-${strength}`;
+  material.customProgramCacheKey = () => `detail-${scale}-${strength}-${paint}`;
   material.needsUpdate = true;
 }
 

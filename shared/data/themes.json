@@ -1153,7 +1153,8 @@
     "tex.sbs128.grass.grass_01_128x128",
     "tex.sbs128.grass.grass_03_128x128",
     "tex.sbs128.grass.grass_05_128x128"
-   ]
+   ],
+   "paint": 1
   },
   "wall": {
    "kit": "dungeon",
@@ -1573,6 +1574,20 @@
   "pools": {
    "set": [
     {
+     "kit": "proc",
+     "id": "pew",
+     "scale": 1.2,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 1.6,
+     "turn": "quarter",
+     "row": 3,
+     "rowAxis": "z",
+     "gap": 0.55
+    },
+    {
      "kit": "graveyard",
      "id": "altar-stone",
      "scale": 2.4,
@@ -1599,28 +1614,14 @@
      "id": "pillar-large",
      "scale": 2.6,
      "count": [
-      4,
-      6
+      1,
+      2
      ],
      "clear": 1.8,
      "turn": "none"
     }
    ],
    "medium": [
-    {
-     "kit": "proc",
-     "id": "pew",
-     "scale": 1.2,
-     "count": [
-      3,
-      4
-     ],
-     "clear": 1.6,
-     "turn": "quarter",
-     "row": 3,
-     "rowAxis": "z",
-     "gap": 0.55
-    },
     {
      "kit": "proc",
      "id": "lectern",
@@ -1908,7 +1909,7 @@
   },
   "tint": "#6a8fb8",
   "lighting": {
-   "ambient": "#10283c",
+   "ambient": "#1a3a54",
    "light": "#4a8ac0",
    "intensity": 0.17,
    "fogColor": "#030a12",

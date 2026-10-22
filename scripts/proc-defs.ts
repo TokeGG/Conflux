@@ -16,8 +16,8 @@ function rng(seed: number): () => number {
 const r3 = (v: number) => Math.round(v * 1e3) / 1e3 + 0;
 const box = (x: number, y: number, z: number, w: number, h: number, d: number, color: string, wood: 0 | 1 = 0): ProcBox => [r3(x), r3(y), r3(z), r3(w), r3(h), r3(d), color, wood];
 
-const WOOD = '#6b4a2e';
-const WOOD_DARK = '#4a3320';
+const WOOD = '#9a7048';
+const WOOD_DARK = '#7a5638';
 const BOOKS = ['#6a1f24', '#2c4a63', '#3d5a34', '#6b5222', '#4a2a5c', '#7a3b22', '#25403f', '#8a7a55'];
 const BONE = ['#cdc5aa', '#bdb497', '#d8d1b8', '#aaa38a'];
 const IRON = '#3a3f47';

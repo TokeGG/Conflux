@@ -2,6 +2,7 @@
 import type * as THREE from 'three';
 import { decodeClip, type ClipFile } from './clips.ts';
 import { castClipFor, LOCO_STATES, locoClipName } from './locomotion.ts';
+import { mergeSkinnedMeshes } from './mergeSkinned.ts';
 import { CharacterRig } from './rig.ts';
 import type { AssetLoader } from '../assets/loader.ts';
 import type { GameData } from '@conflux/shared';
@@ -21,6 +22,7 @@ export async function loadPlayer(loader: AssetLoader, data: GameData): Promise<{
   const files = await Promise.all([...names].map((n) => (loader.has(`clip.${pick.clips}.${n}`) ? loader.loadJson<ClipFile>(`clip.${pick.clips}.${n}`) : null)));
   const decoded = files.filter((f): f is ClipFile => !!f).map(decodeClip);
   if (decoded.length === 0) throw new Error(`no animation clips for ${pick.clips}`);
+  mergeSkinnedMeshes(gltf.scene); // 126 primitives to a handful of draw calls
   const rig = new CharacterRig(gltf.scene, decoded[0].bones);
   for (const c of decoded) rig.addClip(c);
   return { scene: gltf.scene, rig, rigName: pick.clips };
