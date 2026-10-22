@@ -130,7 +130,7 @@ export class Hud {
     this.soulsChip.classList.add('on');
     this.depthChip.classList.add('on');
     this.soulsText.textContent = String(souls);
-    this.depthText.textContent = `${depth} \u00b7 room ${room}/${rooms}`;
+    this.depthText.textContent = `Depth ${depth} \u00b7 room ${room}/${rooms}`;
   }
 
   /** A line of words that fades (arriving on a new floor). */

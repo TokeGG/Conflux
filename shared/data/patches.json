@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.66",
+    "date": "2026-10-22",
+    "at": "2026-10-22T20:19:00Z",
+    "notes": [
+      "Ten elements with a reaction for every pair (lightning chains through soaked enemies, time, poison, light, dark, metal), a new look for the whole UI with the crosshair editor in the Esc settings, new procedural props (bookshelves, pews, cell bars, bone piles), a balance pass, and far fewer draw calls."
+    ]
+  },
+  {
     "version": "0.1.65",
     "date": "2026-10-22",
     "at": "2026-10-22T19:33:22Z",
