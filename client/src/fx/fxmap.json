@@ -32,6 +32,7 @@
       "ids": { "fire": "fx.ember_burst", "water": "fx.water_splash", "earth": "fx.stone_impact", "wind": "fx.dust_step" }
     },
     "dodge": { "id": "fx.dust_step", "at": "pos" },
-    "shield_pop": { "id": "fx.water_splash", "at": "pos" }
+    "shield_pop": { "id": "fx.water_splash", "at": "pos" },
+    "door_entered": null
   }
 }

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.47",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:36:00Z",
+    "notes": [
+      "Under the hood: sound and effect mapping knows about gates."
+    ]
+  },
+  {
     "version": "0.1.46",
     "date": "2026-10-22",
     "at": "2026-10-22T04:34:54Z",
