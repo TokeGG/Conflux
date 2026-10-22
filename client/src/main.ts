@@ -393,6 +393,8 @@ async function boot(): Promise<void> {
   const menu = new EscMenu({
     getSettings: () => settings,
     onSettings: (s) => ((settings = s), saveSettings(storage, s), applySettings()),
+    getCrosshair: () => crosshair,
+    onCrosshair: (c) => ((crosshair = c), saveCrosshair(storage, c), hud.setCrosshair(c)),
     getBindings: () => play.input.bindings,
     onBindings: (b) => ((play.input.bindings = b), saveBindings(storage, b)),
     onOpen: () => (document.exitPointerLock?.(), bridge.command({ op: 'pause', on: true }), (play.inputEnabled = false)),

@@ -81,3 +81,10 @@ export function crosshairSvg(c: CrosshairCfg, hot: boolean): string {
   parts.push(draw(0));
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${c.size}" height="${c.size}" viewBox="0 0 ${c.size} ${c.size}" overflow="visible">${parts.join('')}</svg>`;
 }
+
+/** The floors the preview is drawn on, so the crosshair is checked against dark, mid and bright ground. */
+export const PREVIEW_BACKDROPS: { name: string; colour: string }[] = [
+  { name: 'floor', colour: '#3a3f4c' },
+  { name: 'dark', colour: '#1a1d26' },
+  { name: 'bright', colour: '#c9c2a8' },
+];

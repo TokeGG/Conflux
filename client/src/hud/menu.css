@@ -1,21 +1,28 @@
-.escmenu { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 30; color: #e8dcc4; background: #05060acc;
-  font: 16px/1.45 "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; }
-.escmenu.open { display: flex; }
-.escmenu .panel { width: min(640px, calc(100% - 32px)); padding: 26px 30px; background: linear-gradient(#17171fee, #0b0c12f2); border: 1px solid #6b5a40; border-radius: 4px; box-shadow: 0 18px 60px #000c; }
-.escmenu .etitle { font-size: 28px; letter-spacing: 0.3em; text-transform: uppercase; text-align: center; color: #f3e6c6; text-shadow: 0 0 16px #ff8a2a66; margin-bottom: 18px; }
-.escmenu .etabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
-.escmenu .etab { padding: 8px 20px; font: 600 14px inherit; letter-spacing: 0.15em; text-transform: uppercase; color: #bfae90; background: #11131a; border: 1px solid #4a3f2e; border-radius: 3px; cursor: pointer; }
-.escmenu .etab.on, .escmenu .etab:hover { color: #fff; border-color: #ffb45a; background: #1b1812; }
-.escmenu .ebody { max-height: 52vh; overflow-y: auto; padding-right: 6px; }
+/* The Esc menu: the same stone and ember as the main menu. */
+.escmenu { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 30; color: var(--ink); background: radial-gradient(ellipse at 50% 45%, #05060a88, #05060aee); font: 15px/1.45 var(--font-body); }
+.escmenu.open { display: flex; animation: esc-in .18s ease-out; }
+@keyframes esc-in { from { opacity: 0; } to { opacity: 1; } }
+.escmenu .panel { width: min(680px, calc(100% - 24px)); max-height: calc(100% - 24px); display: flex; flex-direction: column; padding: 24px 28px; background: linear-gradient(#17171fee, #0b0c12f2); border: 1px solid var(--line-hi); border-radius: 3px; box-shadow: 0 18px 60px #000c, inset 0 1px 0 #ffffff12; }
+.escmenu .etitle { font: 700 26px var(--font-display); letter-spacing: .3em; padding-left: .3em; text-transform: uppercase; text-align: center; color: #f3e6c6; text-shadow: 0 0 16px #ff8a2a66; margin-bottom: 16px; }
+.escmenu .etabs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+.escmenu .etab { padding: 8px 18px; font: 600 12px var(--font-body); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-dim); background: var(--stone-1); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; transition: border-color .12s, color .12s; }
+.escmenu .etab.on, .escmenu .etab:hover { color: #fff; border-color: var(--ember); background: #1b1812; }
+.escmenu .ebody { flex: 1; min-height: 0; max-height: 52vh; overflow-y: auto; padding-right: 6px; }
 .escmenu .keyrow { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 7px 0; border-bottom: 1px solid #2a2418; }
-.escmenu .keyrow input[type=range] { flex: 1; accent-color: #e8862a; }
+.escmenu .keyrow input[type=range] { flex: 1; accent-color: var(--ember-lo); min-width: 0; }
 .escmenu .keyrow label { cursor: pointer; }
-.escmenu .keyrow input[type=checkbox] { accent-color: #e8862a; margin-right: 8px; }
-.escmenu .sval { min-width: 56px; text-align: right; color: #ffb45a; }
-.escmenu .keybtn { min-width: 110px; padding: 5px 14px; font: 700 14px inherit; color: #ffe2b0; background: #0d0e14; border: 1px solid #6b5a40; border-radius: 3px; cursor: pointer; }
-.escmenu .keybtn:hover, .escmenu .keybtn.listening { border-color: #ffb45a; color: #fff; background: #241c10; }
+.escmenu .keyrow input[type=checkbox] { accent-color: var(--ember-lo); margin-right: 8px; }
+.escmenu .sval { min-width: 56px; text-align: right; color: var(--ember); }
+.escmenu .keybtn { min-width: 110px; padding: 5px 14px; font: 700 13px var(--font-body); color: #ffe2b0; background: var(--stone-1); border: 1px solid var(--line-hi); border-radius: 2px; cursor: pointer; }
+.escmenu .keybtn:hover, .escmenu .keybtn.listening { border-color: var(--ember); color: #fff; background: #241c10; }
 .escmenu .enote { min-height: 22px; margin-top: 8px; color: #ff8a6a; font-size: 14px; }
-.escmenu .efoot { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
-.escmenu button.go { padding: 12px 34px; font: 700 16px inherit; letter-spacing: 0.18em; text-transform: uppercase; color: #1a0f05; border: 1px solid #ffd27a; border-radius: 3px; cursor: pointer; background: linear-gradient(#ffc36a, #e8862a); }
-.escmenu button.plain { padding: 10px 24px; font: 600 14px inherit; letter-spacing: 0.15em; text-transform: uppercase; color: #d8cbb0; background: #11131acc; border: 1px solid #6b5a40; border-radius: 3px; cursor: pointer; }
-.escmenu button.plain.small { margin-top: 10px; padding: 6px 16px; font-size: 12px; }
+.escmenu .efoot { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+.escmenu button.go { padding: 12px 34px; font: 700 15px var(--font-display); letter-spacing: .18em; text-transform: uppercase; color: #1a0f05; border: 1px solid var(--ember-hi); border-radius: 2px; cursor: pointer; background: linear-gradient(#ffc36a, var(--ember-lo)); }
+.escmenu button.go:hover { background: linear-gradient(#ffd890, #f59a3c); }
+.escmenu button.plain { padding: 10px 24px; font: 600 12px var(--font-body); letter-spacing: .15em; text-transform: uppercase; color: #d8cbb0; background: #11131acc; border: 1px solid var(--line-hi); border-radius: 2px; cursor: pointer; }
+.escmenu button.plain:hover { border-color: var(--ember); color: #fff; }
+.escmenu button.plain.small { margin-top: 10px; padding: 6px 16px; font-size: 11px; }
+.escmenu .xh-editor { color: var(--ink); }
+.escmenu .xh-editor select, .escmenu .xh-editor input.xh-num { background: var(--stone-1); color: var(--ink); border: 1px solid var(--line-hi); border-radius: 2px; padding: 4px 6px; font: inherit; }
+.escmenu .xh-editor button.xh-reset { padding: 6px 16px; font: 600 11px var(--font-body); letter-spacing: .15em; text-transform: uppercase; color: #d8cbb0; background: #11131acc; border: 1px solid var(--line-hi); border-radius: 2px; cursor: pointer; }
+@media (max-width: 520px) { .escmenu .panel { padding: 16px 14px; } .escmenu .etab { padding: 7px 10px; } .escmenu .keyrow { flex-wrap: wrap; } }
