@@ -46,14 +46,6 @@ test('mouse up looks up and mouse down looks down', () => {
   assert.ok(c.pitch < 0);
 });
 
-test('invertY flips the vertical look and nothing else', () => {
-  const c = make();
-  c.invertY = true;
-  c.look(10, -10);
-  assert.ok(c.pitch < 0, 'mouse up now looks down');
-  assert.ok(dot({ x: Math.sin(c.yaw), z: Math.cos(c.yaw) }, screenRight(0)) > 0, 'but the horizontal look is unchanged');
-});
-
 test('the pitch stays within its limit', () => {
   const c = make();
   c.look(0, -100000);

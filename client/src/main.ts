@@ -19,7 +19,7 @@ import { Game } from './game.ts';
 import { FxSystem } from './fx/sprites.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
-import { devEnabled, setDevFlag } from './dev/access.ts';
+import { devEnabled } from './dev/access.ts';
 import { DevState } from './dev/devstate.ts';
 import { DevPanel } from './dev/panel.ts';
 import { PerfPage } from './dev/perf.ts';
@@ -102,7 +102,6 @@ async function boot(): Promise<void> {
 
   const roomLights = new RoomLights(game.scene, 8);
   roomLights.setRoom(room.lights ?? []);
-  play.input.invertY = settings.invertY;
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     game.resize(window.innerWidth, window.innerHeight);
@@ -314,15 +313,14 @@ async function boot(): Promise<void> {
         return [];
       }
     };
-    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits, dev, onDev: (on) => (setDevFlag(storage, on), location.reload()), invertY: settings.invertY, onInvertY: (on) => ((settings = { ...settings, invertY: on }), (play.input.invertY = on), saveSettings(storage, settings)) });
+    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits });
   }
 
   // ---- the Esc menu: settings and keys, applied at once and saved ----
   play.input.bindings = loadBindings(storage);
   const applySettings = (): void => {
     play.input.sensitivity = 0.0022 * settings.sensitivity;
-    play.input.invertY = settings.invertY;
-    game.camera.fov = settings.fov;
+      game.camera.fov = settings.fov;
     game.camera.updateProjectionMatrix();
     applyProfile(renderer, profileFromSettings(settings));
   };

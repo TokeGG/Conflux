@@ -411,14 +411,7 @@ try {
   {
     const { page, errors } = await open(browser, server.url);
     await page.waitForSelector('#runscreen.open button.go', { timeout: 60000 });
-    check((await page.locator('#invert-y').count()) === 1, 'the start page offers Invert Y');
-    check((await page.locator('#dev-tools').count()) === 1, 'the start page offers Developer tools');
-    await page.check('#dev-tools');
-    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
-    await page.waitForSelector('#runscreen.open button.go', { timeout: 60000 });
-    await page.keyboard.press('F2');
-    check((await page.locator('#devpanel').count()) === 1, 'ticking Developer tools turns the dev panel on, and F2 opens it');
-    await page.keyboard.press('F2');
+    check((await page.locator('#invert-y, #dev-tools').count()) === 0, 'the start page has no invert or developer options');
     await page.click('#runscreen button:text-is("Patch notes")');
     await page.waitForSelector('#runscreen .scroll');
     const notes: string = await page.locator('#runscreen .scroll').innerText();

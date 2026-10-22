@@ -155,7 +155,6 @@ export class EscMenu {
     body.append(
       this.slider('Mouse speed', 0.25, 4, 0.05, s().sensitivity, (v) => `${v.toFixed(2)}x`, (v) => this.d.onSettings({ ...s(), sensitivity: v })),
       this.slider('Field of view', 40, 100, 1, s().fov, (v) => `${v}`, (v) => this.d.onSettings({ ...s(), fov: v })),
-      this.check('Invert vertical mouse look', s().invertY, (v) => this.d.onSettings({ ...s(), invertY: v })),
     );
   }
 

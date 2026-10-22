@@ -42,7 +42,7 @@ export class RunScreens {
     this.show('text', el('h2', '', title), el('div', 'scroll', ...lines.map((l) => el('p', '', l))), el('div', 'row', button('go', 'Back', onBack)));
   }
 
-  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]>; invertY: boolean; onInvertY: (on: boolean) => void; dev: boolean; onDev: (on: boolean) => void }): void {
+  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]> }): void {
     const total = Object.keys(data.unlocks).length;
     const back = () => this.start(ledger, data, onBegin, pages);
     const menu: HTMLElement[] = [button('go', 'Begin run', () => (this.onResume(), onBegin()))];
@@ -57,7 +57,6 @@ export class RunScreens {
       el('div', 'title', 'CONFLUX'),
       el('div', 'tagline', 'Fire, water, earth and wind. Combine them. Descend.'),
       el('div', 'menu', ...menu),
-      el('div', 'options', ...(pages ? [checkRow('invert-y', 'Invert vertical mouse look', pages.invertY, pages.onInvertY), checkRow('dev-tools', 'Developer tools (F2 opens the dev panel)', pages.dev, pages.onDev)] : [])),
       el('div', 'foot', `${ledger.unlocked.length} of ${total} unlocks earned   |   WASD move   mouse aim   click cast   1 2 3 4 element   Space jump   Shift dash   Q utility`),
     );
   }
@@ -107,15 +106,4 @@ function button(cls: string, text: string, onClick: () => void, ...kids: HTMLEle
   b.append(...kids);
   b.addEventListener('click', onClick);
   return b;
-}
-
-function checkRow(id: string, text: string, on: boolean, onChange: (on: boolean) => void): HTMLElement {
-  const box = document.createElement('input');
-  box.type = 'checkbox';
-  box.id = id;
-  box.checked = on;
-  box.addEventListener('change', () => onChange(box.checked));
-  const label = document.createElement('label');
-  label.append(box, ` ${text}`);
-  return el('p', '', label);
 }

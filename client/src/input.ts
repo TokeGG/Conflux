@@ -26,8 +26,6 @@ function typingInAField(t: EventTarget | null): boolean {
 export class InputController {
   bindings = defaultBindings();
   sensitivity = 0.0022;
-  /** When true, moving the mouse up looks down. */
-  invertY = false;
   yaw = 0;
   pitch = 0;
   private keys = new Set<string>();
@@ -71,7 +69,7 @@ export class InputController {
     if (document.pointerLockElement !== this.target && !this.unlocked) return;
     // yaw measures from +z toward +x, which is to the LEFT of a camera looking along +z, so a mouse move to the right lowers it
     this.yaw -= dx * this.sensitivity;
-    this.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, this.pitch + (this.invertY ? dy : -dy) * this.sensitivity));
+    this.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, this.pitch - dy * this.sensitivity));
   }
 
   /** Lets tests and the benchmark turn the camera without pointer lock. */

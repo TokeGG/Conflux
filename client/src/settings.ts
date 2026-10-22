@@ -8,8 +8,6 @@ export interface Settings {
   effects: { sprites: boolean; particles: boolean; shaders: boolean };
   /** 0 means no limit. */
   maxEnemies: number;
-  /** Moving the mouse up looks down. */
-  invertY: boolean;
   /** Mouse speed as a multiple of the default (0.25 to 4). */
   sensitivity: number;
   /** Vertical field of view in degrees (40 to 100). */
@@ -18,7 +16,7 @@ export interface Settings {
 
 const KEY = 'conflux.settings';
 
-export const defaultSettings = (): Settings => ({ renderScale: CHUNKY.renderScale, antialias: CHUNKY.antialias, shadows: CHUNKY.shadows, effects: { ...CHUNKY.effects }, maxEnemies: 0, invertY: false, sensitivity: 1, fov: 55 });
+export const defaultSettings = (): Settings => ({ renderScale: CHUNKY.renderScale, antialias: CHUNKY.antialias, shadows: CHUNKY.shadows, effects: { ...CHUNKY.effects }, maxEnemies: 0, sensitivity: 1, fov: 55 });
 
 const bool = (v: unknown, d: boolean) => (typeof v === 'boolean' ? v : d);
 
@@ -39,7 +37,6 @@ export function loadSettings(storage: { getItem(k: string): string | null } | nu
     shadows: bool(raw.shadows, d.shadows),
     effects: { sprites: bool(fx.sprites, d.effects.sprites), particles: bool(fx.particles, d.effects.particles), shaders: bool(fx.shaders, d.effects.shaders) },
     maxEnemies: Number.isInteger(raw.maxEnemies) && raw.maxEnemies >= 0 ? raw.maxEnemies : 0,
-    invertY: bool(raw.invertY, d.invertY),
     sensitivity: typeof raw.sensitivity === 'number' && Number.isFinite(raw.sensitivity) ? Math.min(4, Math.max(0.25, raw.sensitivity)) : d.sensitivity,
     fov: typeof raw.fov === 'number' && Number.isFinite(raw.fov) ? Math.min(100, Math.max(40, raw.fov)) : d.fov,
   };

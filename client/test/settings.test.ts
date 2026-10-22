@@ -49,12 +49,6 @@ test('profileFromSettings applies the settings on top of the chunky profile', as
   assert.equal(p.spriteFilter, CHUNKY.spriteFilter);
 });
 
-test('invertY defaults to off, loads when saved, and ignores a value that is not a boolean', () => {
-  assert.equal(defaultSettings().invertY, false);
-  assert.equal(loadSettings({ getItem: () => JSON.stringify({ invertY: true }) }).invertY, true);
-  assert.equal(loadSettings({ getItem: () => JSON.stringify({ invertY: 'yes' }) }).invertY, false);
-});
-
 test('mouse sensitivity and field of view default sensibly, load when saved, and are kept inside their ranges', () => {
   const d = defaultSettings();
   assert.equal(d.sensitivity, 1);
