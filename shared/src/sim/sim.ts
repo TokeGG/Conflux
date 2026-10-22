@@ -1,4 +1,5 @@
 // The simulation: a fixed 60 Hz tick over plain data. It takes inputs and returns events; it never touches graphics.
+import type { Vec3 } from '../math.ts';
 import { World } from '../world.ts';
 import { makeStreams, type Streams } from '../rng.ts';
 import { ELEMENTS, SLOTS, type Element, type GameData, type Input, type ReactionDef, type SimEvent, type Slot, type SkillDef } from '../types.ts';
@@ -18,6 +19,8 @@ import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, Stat
 import type { StatusMap } from '../types.ts';
 
 export const TICK = 1 / 60;
+/** How close to a gate's inside point the player must come to walk through it. */
+const DOOR_REACH = 1.3;
 
 /** The first skill (in the data file's order) of each element and slot; the loadout system replaces this per run. */
 function defaultLoadout(data: GameData): Record<Element, Record<Slot, string>> {
@@ -41,6 +44,9 @@ export class Sim {
   /** How many enemies have ever been spawned, and whether the room has been announced as cleared. */
   spawned = 0;
   roomCleared = false;
+  /** The gates of the room (inside points). Walking into one after the room is cleared emits `door_entered`. */
+  doors: Vec3[] = [];
+  private inDoor = -1;
   /** Dev switches. None of them is part of the hash; a run that used one is marked tuned. */
   god = false;
   noCooldowns = false;
@@ -141,6 +147,7 @@ export class Sim {
       stepPlayer(this, this.player, inputs[0], TICK);
     }
     stepAI(this, TICK);
+    this.stepDoors();
     stepElites(this);
     stepAttacks(this);
     stepProjectiles(this, TICK);
@@ -150,6 +157,13 @@ export class Sim {
     this.events = [];
     this.tick++;
     return out;
+  }
+
+  /** A gate is entered when the player comes into it after the room is cleared; standing in one when the room clears does not count. */
+  private stepDoors(): void {
+    const near = this.doors.findIndex((d) => Math.hypot(d.x - this.player.pos.x, d.z - this.player.pos.z) < DOOR_REACH);
+    if (this.roomCleared && near >= 0 && this.inDoor < 0) this.emit('door_entered', { door: near });
+    this.inDoor = near;
   }
 
   snapshot(): Snapshot {

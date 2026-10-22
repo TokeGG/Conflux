@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.46",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:34:54Z",
+    "notes": [
+      "Under the hood: the simulation notices when you walk into a gate of a cleared room."
+    ]
+  },
+  {
     "version": "0.1.45",
     "date": "2026-10-22",
     "at": "2026-10-22T04:33:30Z",
