@@ -21,7 +21,8 @@ export function planRoomAt(data: GameData, seed: number, depth: number, index: n
   const def = data.themes[theme];
   const rng = makeStreams(seed).encounter.fork(`room/${index}/${gate}`);
   const budget = budgetFor(index);
-  const pool = { id: theme, enemyPool: Object.keys(def.mobs).sort() };
+  // no single enemy may cost more than half the budget (at least 4), so early rooms are crowds of small things and the big ones come later
+  const pool = { id: theme, enemyPool: Object.keys(def.mobs).filter((m) => data.enemies[m] && data.enemies[m].cost <= Math.max(4, budget * 0.5)).sort() };
   const enemies = encounterFor(budget, pool, data.enemies, rng, room.spawns.enemies, def.mobs);
   const elite = isElite(index);
   if (elite) {

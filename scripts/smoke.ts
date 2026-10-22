@@ -406,6 +406,20 @@ try {
     check(errors.length === 0, `the menu pages have no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 9. generated rooms: each theme loads, is lit by at most the torch and eight room lights, and renders without console errors
+  for (const theme of ['crypt', 'hall', 'cave']) {
+    const { page, errors } = await open(browser, `${server.url}?dev&theme=${theme}&seed=3`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 120000 });
+    await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 30000 });
+    await page.waitForTimeout(1500);
+    const lit: number = await page.evaluate(() => (window as any).__conflux.lights());
+    check(lit >= 4 && lit <= 9, `the ${theme} room is lit by the torch and ${lit - 1} room lights (at most 8)`);
+    const colours: number = await page.evaluate(() => (window as any).__conflux.distinctColours());
+    check(colours > 150, `the ${theme} room draws more than 150 distinct colours (${colours})`);
+    await page.screenshot({ path: join(shots, `smoke-theme-${theme}.png`) });
+    check(errors.length === 0, `the ${theme} room renders without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
 } finally {
   await browser.close();
   server.close();

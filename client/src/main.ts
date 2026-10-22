@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
+import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, generateRoom, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyProfile, applyTextureFilters, createRenderer } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
@@ -35,7 +35,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
   }
 }
 
@@ -62,9 +62,16 @@ async function boot(): Promise<void> {
   const wanted = new URL(location.href).searchParams.get('room');
   const params = new URL(location.href).searchParams;
   // a normal visit plays a run; ?room=<id> or ?sandbox opens the single room with the dev tools
-  const runMode = !wanted && !params.has('sandbox');
+  // ?theme=<crypt|hall|cave>&seed=<n> opens one generated room by itself (to look at a style)
+  const themeParam = params.get('theme');
+  const runMode = !wanted && !themeParam && !params.has('sandbox');
   let room = (wanted && data.rooms[wanted]) || data.rooms.forest_clearing;
+  if (themeParam && data.themes[themeParam]) {
+    room = generateRoom(data, Number(params.get('seed')) || 1, 1, 0, themeParam).room;
+    data.rooms[room.id] = room;
+  }
   const game = createScene(room.lighting);
+  game.setGround(!room.look);
 
   const loader = new AssetLoader(await fetchManifest(), DEFAULT_PROFILE);
   for (const [key, glb] of customModels) loader.addCustomModel(key, glb);
@@ -161,6 +168,23 @@ async function boot(): Promise<void> {
     events: () => play.log,
     enemyViews: () => play.enemyViews,
     damageShown: () => hud.damageShown,
+    /** How many point lights are lit in the scene (test hook). */
+    lights: () => {
+      let n = 0;
+      game.scene.traverse((o) => ((o as THREE.PointLight).isPointLight && o.visible && (o as THREE.PointLight).intensity > 0 ? n++ : 0));
+      return n;
+    },
+    /** Floods the scene with light so a screenshot shows the layout (test hook). */
+    lamp(on) {
+      const old = game.scene.getObjectByName('screenshot-lamp');
+      if (old) game.scene.remove(old);
+      if (on) {
+        const l = new THREE.AmbientLight(0xaab4ff, 1.6);
+        l.name = 'screenshot-lamp';
+        game.scene.add(l);
+        game.scene.fog = new THREE.Fog(0x05060a, 90, 200);
+      }
+    },
     /** Puts the camera at one point looking at another (test hook for screenshots). */
     lookFrom(px, py, pz, lx, ly, lz) {
       play.cameraOverride = (camera) => {

@@ -75,3 +75,8 @@ test('planRoomAt is a pure function of its inputs', () => {
   assert.deepEqual(planRoomAt(data, 9, 1, 4), planRoomAt(data, 9, 1, 4));
   assert.equal(planRoomAt(data, 9, 1, 4).def!.id, planRoomAt(data, 9, 1, 4).roomId);
 });
+
+test('no single enemy costs more than half the budget (at least 4): the big ones come in later rooms', () => {
+  for (const s of walk(21, 25)) for (const e of s.current.enemies) assert.ok(data.enemies[e.enemyId].cost <= Math.max(4, s.current.budget * 0.5), `${e.enemyId} in room ${s.current.index}`);
+  assert.ok(!walk(21, 1)[0].current.enemies.some((e) => e.enemyId === 'enemy.bone_giant'));
+});

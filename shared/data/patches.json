@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.51",
+    "date": "2026-10-22",
+    "at": "2026-10-22T05:04:13Z",
+    "notes": [
+      "Look at any generated style with ?theme=crypt (or hall, cave) and ?seed=; rooms are built the same way in every browser; early rooms are never one huge enemy."
+    ]
+  },
+  {
     "version": "0.1.50",
     "date": "2026-10-22",
     "at": "2026-10-22T04:54:20Z",

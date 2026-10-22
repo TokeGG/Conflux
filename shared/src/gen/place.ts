@@ -78,10 +78,20 @@ function propAt(ctx: PlaceCtx, item: PoolItem, x: number, z: number): Prop {
   return { parts, lights, blocks: parts.some((p) => colliderKindFor(p.id) !== null) };
 }
 
+/** A shuffled copy (Fisher-Yates: a random comparator in `sort` gives different orders in different engines, which breaks determinism). */
+function shuffled<T>(rng: Rng, items: readonly T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = rng.int(i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 /** Places each pool item a random number of times (its count range), up to `cap` props for the layer. */
 export function placeLayer(ctx: PlaceCtx, items: PoolItem[], cap: number, pack = 1): void {
   let placed = 0;
-  const order = [...items].sort(() => ctx.rng.next() - 0.5);
+  const order = shuffled(ctx.rng, items);
   for (const item of order) {
     const n = item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1);
     for (let k = 0; k < n && placed < cap; k++) {

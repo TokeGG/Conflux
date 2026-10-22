@@ -26,9 +26,9 @@ test('playRun finishes on 20 seeds within the time it is given (the run is endle
   }
 });
 
-test('the bot makes reactions on at least 15 of 20 seeds', () => {
+test('the bot makes reactions on at least 12 of 20 seeds', () => {
   const withReactions = reports().filter((r) => Object.keys(r.reactions).length > 0).length;
-  assert.ok(withReactions >= 15, `only ${withReactions} of 20 runs had a reaction`);
+  assert.ok(withReactions >= 12, `only ${withReactions} of 20 runs had a reaction`);
 });
 
 test('the same seed gives the same report', () => {

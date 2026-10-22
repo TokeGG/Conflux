@@ -46,7 +46,7 @@ export function addDetail(material: THREE.Material, texture: THREE.Texture, scal
       .replace('#include <common>', '#include <common>\nvarying vec3 vWP;\nvarying vec3 vWN;\nuniform sampler2D detailMap;\nuniform float detailScale;\nuniform float detailStrength;')
       .replace(
         '#include <map_fragment>',
-        '#include <map_fragment>\n{ vec3 an = abs(normalize(vWN)); vec2 duv = an.y > 0.6 ? vWP.xz : (an.x > an.z ? vWP.zy : vWP.xy); vec3 d = texture2D(detailMap, duv * detailScale).rgb; diffuseColor.rgb *= mix(vec3(1.0), d * 1.7, detailStrength); }',
+        '#include <map_fragment>\n{ vec3 an = abs(normalize(vWN)); vec2 duv = an.y > 0.6 ? vWP.xz : (an.x > an.z ? vWP.zy : vWP.xy); vec3 d = texture2D(detailMap, duv * detailScale).rgb; diffuseColor.rgb *= mix(vec3(1.0), d * 1.7, detailStrength); float l = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)); diffuseColor.rgb = mix(vec3(l), diffuseColor.rgb, 0.55); }',
       );
   };
   material.customProgramCacheKey = () => `detail-${scale}-${strength}`;
