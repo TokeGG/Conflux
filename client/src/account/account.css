@@ -1,0 +1,12 @@
+/* The account chip and sign-in dialog: same dark stone and ember look as the main menu. */
+#accountchip { position: fixed; top: 12px; right: 14px; z-index: 25; padding: 7px 16px; font: 600 14px "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: 0.1em; color: #d8cbb0; background: #11131acc; border: 1px solid #6b5a40; border-radius: 3px; cursor: pointer; }
+#accountchip:hover, #accountchip:focus-visible { color: #fff; border-color: #ffb45a; outline: none; }
+#acctdialog { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: #05060acc; color: #e8dcc4; font: 16px/1.45 "Palatino Linotype", Palatino, Georgia, serif; }
+#acctdialog .acct-box { width: min(380px, calc(100% - 32px)); display: flex; flex-direction: column; gap: 10px; padding: 24px; text-align: center; background: linear-gradient(#1a1a22f2, #0d0e14f2); border: 1px solid #5c4d38; box-shadow: 0 6px 30px #000c; }
+#acctdialog h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: 0.12em; text-transform: uppercase; color: #cdbd9c; }
+#acctdialog p { margin: 0; color: #b9ab90; font-size: 14px; }
+#acctdialog input { padding: 9px 10px; font: inherit; color: #f3e6c6; background: #0a0b10; border: 1px solid #6b5a40; border-radius: 3px; }
+#acctdialog input[hidden] { display: none; }
+#acctdialog button.go { padding: 11px; font: 700 16px "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: 0.16em; text-transform: uppercase; color: #1a0f05; border: 1px solid #ffd27a; border-radius: 3px; cursor: pointer; background: linear-gradient(#ffc36a, #e8862a); }
+#acctdialog button.plain { padding: 9px; font: 600 14px "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: 0.1em; color: #d8cbb0; background: #11131acc; border: 1px solid #6b5a40; border-radius: 3px; cursor: pointer; }
+#acctdialog .acct-msg { min-height: 1.3em; color: #ff9a8a; }

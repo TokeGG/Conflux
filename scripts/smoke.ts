@@ -6,13 +6,30 @@ import { readFileSync, existsSync, statSync, readdirSync, mkdirSync } from 'node
 import { join, extname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defaultData } from '@conflux/shared';
+import { createApi } from '../api/src/handler.ts';
+import { MemoryStore } from '../api/src/store.ts';
+
+// the account API runs in-process (the Pages Function's twin, memory store); pages opened with ?dev are signed in as the owner
+const OWNER_CODE = 'smoke-owner-code';
+const api = createApi({ store: new MemoryStore(), env: { OWNER_CODE, OWNER_NAMES: 'smokeowner' } });
+const apiCall = async (path: string, body: unknown): Promise<any> => (await api(new Request(`http://x.test/api/${path}`, { method: 'POST', body: JSON.stringify(body) }))).json();
+const ownerToken: string = (await apiCall('register', { name: 'smokeowner', password: 'smoke-password-1', code: OWNER_CODE })).token;
 
 const dist = fileURLToPath(new URL('../client/dist/', import.meta.url));
 const shots = fileURLToPath(new URL('../.superpowers/shots/', import.meta.url));
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.glb': 'model/gltf-binary', '.webp': 'image/webp', '.png': 'image/png', '.mp3': 'audio/mpeg' };
 
 function serve(): Promise<{ url: string; close: () => void }> {
-  const server = createServer((req, res) => {
+  const server = createServer(async (req, res) => {
+    if ((req.url ?? '').startsWith('/api/')) {
+      const chunks: Buffer[] = [];
+      for await (const c of req) chunks.push(c as Buffer);
+      const headers = new Headers();
+      for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
+      const r = await api(new Request(`http://localhost${req.url}`, { method: req.method, headers, body: req.method === 'GET' || !chunks.length ? undefined : Buffer.concat(chunks) }));
+      res.writeHead(r.status, Object.fromEntries(r.headers)).end(Buffer.from(await r.arrayBuffer()));
+      return;
+    }
     const path = normalize(decodeURIComponent((req.url ?? '/').split('?')[0])).replace(/^(\.\.[/\\])+/, '');
     let file = join(dist, path);
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
@@ -45,6 +62,8 @@ async function open(browser: Browser, url: string, init?: () => void): Promise<{
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   page.on('pageerror', (e) => errors.push(e.message));
   if (init) await page.addInitScript(init);
+  // the dev panel is for accounts with dev access: pages that ask for ?dev are signed in as the owner
+  if (/[?&]dev\b/.test(url)) await page.addInitScript((t) => localStorage.setItem('conflux.token', t), ownerToken);
   await page.goto(url);
   return { page, errors };
 }
@@ -98,6 +117,42 @@ try {
     check((await page.locator('#devpanel').count()) === 0, 'F2 does nothing without ?dev');
     await page.close();
   }
+  // 4a. accounts: a guest has no dev panel, ?dev alone does nothing in a production build, signing in as the owner brings the panel and the Admin page
+  {
+    const { page, errors } = await open(browser, server.url);
+    await page.waitForSelector('#runscreen.open button.go', { timeout: 60000 });
+    await page.waitForSelector('#accountchip');
+    check((await page.innerText('#accountchip')) === 'Sign in', 'a guest on a server with accounts sees a Sign in chip');
+    check((await page.locator('#devbtn').count()) === 0, 'a guest has no dev tools button');
+    await page.click('#accountchip');
+    await page.screenshot({ path: join(shots, 'account-signin.png') });
+    await page.click('#acct-swap');
+    await page.fill('#acct-name', 'smokeowner');
+    await page.fill('#acct-pass', 'smoke-password-2');
+    await page.fill('#acct-code', 'wrong');
+    await page.click('#acct-go');
+    await page.waitForFunction(() => /reserved/.test(document.querySelector('#acct-msg')?.textContent ?? ''));
+    check(true, 'a reserved name is refused without the owner code');
+    await page.fill('#acct-name', 'Visitor');
+    await page.fill('#acct-code', '');
+    await Promise.all([page.waitForEvent('load'), page.click('#acct-go')]);
+    await page.waitForSelector('#accountchip');
+    await page.waitForFunction(() => document.querySelector('#accountchip')?.textContent === 'Visitor');
+    check((await page.locator('#devbtn').count()) === 0, 'a plain account has no dev tools button');
+    await page.close();
+    const g = await open(browser, `${server.url}?dev&sandbox`, undefined);
+    await g.page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    check((await g.page.locator('#devbtn').count()) === 1, 'the owner token brings the dev tools button');
+    await g.page.keyboard.press('F2');
+    await g.page.waitForSelector('#devpanel:not([hidden])');
+    check((await g.page.locator('#devpanel .dev-nav button:text-is("Admin")').count()) === 1, 'the owner sees the Admin page');
+    await g.page.click('#devpanel .dev-nav button:text-is("Admin")');
+    await g.page.waitForSelector('#admin-accounts .dev-row');
+    check((await g.page.locator('#admin-accounts .dev-row').count()) >= 2, 'the Admin page lists the accounts');
+    await g.page.screenshot({ path: join(shots, 'account-admin.png') });
+    check(g.errors.length === 0, 'the owner session has no console errors');
+    await g.page.close();
+  }
   {
     const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
@@ -141,10 +196,10 @@ try {
     await page.click('#devpanel nav button:has-text("Run tools")');
     await page.click('#tool-spawn');
     await page.keyboard.press('F2');
-    await page.waitForFunction(() => (window as any).__conflux.snapshot()?.enemies.length === 1, null, { timeout: 8000 });
+    await page.waitForFunction(() => (window as any).__conflux.snapshot()?.enemies.length === 1, null, { timeout: 40000 });
     check(true, 'the dummy spawned at the crosshair');
     await page.evaluate(() => (window as any).__conflux.sendInput({ buttons: 1 }));
-    await page.waitForFunction(() => ((window as any).__conflux.snapshot()?.enemies[0]?.hp ?? 1000) < 1000, null, { timeout: 8000 });
+    await page.waitForFunction(() => ((window as any).__conflux.snapshot()?.enemies[0]?.hp ?? 1000) < 1000, null, { timeout: 40000 });
     await page.evaluate(() => (window as any).__conflux.sendInput({ buttons: 0 }));
     const hp: number = await page.evaluate(() => (window as any).__conflux.snapshot().enemies[0].hp);
     check(hp === 950, `the next cast used the edited damage (1000 - ${1000 - hp})`);

@@ -1,5 +1,5 @@
-// Who gets the dev panel: the owner and devs. For now that means `?dev` in the address (remembered in this browser, so the panel is
-// there next time without it; `?dev=0` forgets it) or the Developer tools box on the start page; later the server decides.
+// Local development only: `?dev` in the address (remembered in this browser; `?dev=0` forgets it) opens the dev panel when running under Vite.
+// A production build ignores it: the panel there comes from an account with dev access (client/src/account/logic.ts).
 export interface FlagStorage {
   getItem(key: string): string | null;
   setItem?(key: string, value: string): void;
