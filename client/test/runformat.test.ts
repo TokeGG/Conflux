@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { defaultData, ROOM_TO_ROOM, ENDLESS, emptyLedger } from '@conflux/shared';
-import { describeDoor, describeGate, describeOffer, elementCombos, endSummary, achievementLines } from '../src/hud/runFormat.ts';
+import { wareText, describeDoor, describeGate, describeOffer, elementCombos, endSummary, achievementLines } from '../src/hud/runFormat.ts';
 
 const data = defaultData();
 
@@ -86,4 +86,32 @@ test('the end of a daily run says it was the daily and how it compares with the 
   assert.ok(s.lines.some((l) => /best.*5/i.test(l)));
   const record = endSummary(run, 3);
   assert.ok(record.lines.some((l) => /new best/i.test(l)));
+});
+
+test('every gate sign says which kind of room is behind it', () => {
+  const run = ENDLESS.start(1, data);
+  const base = ENDLESS.nextChoices(run)[0];
+  for (const type of ['combat', 'elite', 'boss', 'shop', 'shrine', 'rest'] as const) {
+    const t = describeGate({ ...base, room: { ...base.room, type } }, data);
+    assert.equal(t.kind, type === 'combat' ? 'fight' : type);
+    assert.ok(t.title.length > 0 && t.sub.length > 0);
+  }
+  assert.match(describeGate({ ...base, room: { ...base.room, type: 'shop' } }, data).title, /shop/i);
+  assert.match(describeGate({ ...base, descends: true, room: { ...base.room, index: 8 } }, data).sub, /depth 2/i);
+});
+
+test('the death screen shows depth reached, souls banked, rooms cleared and the daily comparison', () => {
+  const run = { ...ENDLESS.start(1, data), roomIndex: 9, history: ['a', 'b', 'c'], soulsEarned: 120, status: 'defeat' as const };
+  const lines = endSummary(run).lines.join(' | ');
+  assert.match(lines, /depth 2/i);
+  assert.match(lines, /120 souls/i);
+  assert.match(lines, /3 rooms cleared/);
+});
+
+test('a ware reads as its goods, its price and whether it can be afforded', () => {
+  const t = wareText({ kind: 'augment', offer: { kind: 'augment', id: 'aug.explosive_fireball', rarity: 'rare' }, price: 80, sold: false }, 50, data);
+  assert.match(t.price, /80/);
+  assert.equal(t.afford, false);
+  assert.equal(wareText({ kind: 'rest', price: 0, sold: false, healFraction: 0.6 }, 0, data).price, 'Free');
+  assert.match(wareText({ kind: 'trade', price: 0, sold: false, hpCost: 30, gain: 45 }, 0, data).detail, /45/);
 });

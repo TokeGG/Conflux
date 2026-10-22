@@ -22,5 +22,25 @@
   "scaling": {
     "hpPerRoom": 0.1,
     "damagePerRoom": 0.06
+  },
+  "economy": {
+    "pickupRadius": 2.4,
+    "eliteSoulsMul": 2,
+    "price": {
+      "skill": 70,
+      "augment": 50,
+      "heal": 30,
+      "element": 140
+    },
+    "rarityMul": {
+      "common": 1,
+      "rare": 1.6,
+      "epic": 2.6
+    },
+    "depthScale": 0.3,
+    "restHeal": 0.6,
+    "shrineTradeHp": 0.3,
+    "shrineTradeSouls": 45,
+    "interactReach": 2.4
   }
 }

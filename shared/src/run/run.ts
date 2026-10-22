@@ -2,9 +2,15 @@
 import type { Daily } from './daily.ts';
 import type { GameData, Rarity, RoomDef } from '../types.ts';
 import type { Vec3 } from '../math.ts';
+import type { QuietRoom } from './shop.ts';
 
 export type RewardKind = 'skill' | 'augment' | 'heal' | 'element';
-export type RoomType = 'combat' | 'elite' | 'boss';
+export type RoomType = 'combat' | 'elite' | 'boss' | 'shop' | 'shrine' | 'rest';
+
+/** The rooms with no enemies, where the gates are open at once. */
+export const QUIET_ROOMS = ['shop', 'shrine', 'rest'] as const;
+export type QuietKind = (typeof QUIET_ROOMS)[number];
+export const isQuiet = (t: RoomType): t is QuietKind => (QUIET_ROOMS as readonly string[]).includes(t);
 
 export type { SkillLoadout } from './loadout.ts';
 import type { SkillLoadout } from './loadout.ts';
@@ -27,6 +33,12 @@ export interface RoomPlan {
   enemies: { enemyId: string; at: Vec3; elite?: string }[];
   /** A generated room carries its own definition (it is not in the data files). */
   def?: RoomDef;
+  /** A shop's keeper stands here. */
+  keeper?: Vec3;
+  /** Where the wares of a quiet room lie, in the order of the wares: walk up and interact to take one. */
+  stalls?: Vec3[];
+  /** The last room of a floor: its gates lead down the stairs to the next depth. */
+  stairs?: boolean;
 }
 
 export interface DoorChoice {
@@ -34,6 +46,8 @@ export interface DoorChoice {
   /** What clearing that room offers, shown on the door before it is picked. */
   reward: RewardKind;
   biome: string;
+  /** True when walking through this gate takes the stairs down to the next depth. */
+  descends?: boolean;
 }
 
 export interface RunState {
@@ -50,6 +64,11 @@ export interface RunState {
   offeredSkills: string[];
   /** Health carried between rooms. */
   hp: number;
+  /** Souls in hand (spent in shops) and the total picked up in the run. They start at 0 with every run. */
+  souls: number;
+  soulsEarned: number;
+  /** What the quiet room the player stands in offers (null in a fight room). */
+  quiet: QuietRoom | null;
   /** The kind of reward on the door the current room was entered by. */
   reward: RewardKind;
   /** True when the run used the dev panel's tuning, so it never counts toward unlocks. */

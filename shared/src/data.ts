@@ -164,6 +164,15 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     }
   }
 
+  const eco = d.rewards.economy;
+  if (!eco) err('rewards.economy is missing');
+  else {
+    for (const k of ['skill', 'augment', 'heal', 'element'] as const) if (!(eco.price[k] >= 0)) err(`rewards.economy.price.${k} must be 0 or more`);
+    for (const r of ['common', 'rare', 'epic'] as const) if (!(eco.rarityMul[r] > 0)) err(`rewards.economy.rarityMul.${r} must be above 0`);
+    if (!(eco.pickupRadius > 0) || !(eco.interactReach > 0)) err('rewards.economy needs a pickupRadius and an interactReach above 0');
+    if (!(eco.depthScale >= 0) || !(eco.eliteSoulsMul >= 1)) err('rewards.economy needs a depthScale of 0 or more and an eliteSoulsMul of 1 or more');
+  }
+  for (const [key, e] of Object.entries(d.enemies)) if (e.souls !== undefined && !(e.souls >= 0)) err(`enemy ${key}: souls must be 0 or more`);
   if (!(d.rewards.offers > 0)) err('rewards.offers must be above 0');
   if (!(d.rewards.scaling.hpPerRoom >= 0) || !(d.rewards.scaling.damagePerRoom >= 0)) err('rewards.scaling needs hpPerRoom and damagePerRoom of 0 or more');
   return errors;

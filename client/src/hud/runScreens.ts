@@ -86,6 +86,12 @@ export class RunScreens {
     choose();
   }
 
+  /** Which of the three keys a bought element takes over (or back out). */
+  pickKey(element: string, equipped: string[], onPick: (slot: number) => void, onCancel: () => void): void {
+    const keys = equipped.map((name, slot) => button('card', '', () => (this.hide(), this.onResume(), onPick(slot)), el('div', 'tag', `Key ${slot + 1}`), el('div', 'title', `Replace ${name[0].toUpperCase()}${name.slice(1)}`), el('p', '', `${name} goes to the bench with its skills and augments.`)));
+    this.show('reward', el('h2', '', `Which element does ${element} replace?`), el('div', 'row', ...keys), el('div', 'row', button('plain', 'Back', () => (this.hide(), this.onResume(), onCancel()))));
+  }
+
   doors(doors: DoorChoice[], data: GameData, roomNumber: number, onPick: (i: number) => void): void {
     const cards = doors.map((d, i) => {
       const t = describeDoor(d, data);

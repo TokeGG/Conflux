@@ -444,6 +444,34 @@ try {
     check(errors.length === 0, `the ${theme} room renders without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
+  // 10. a shop room (?dev&jump=<room>:<gate>:<souls>): wares, souls, a purchase, the gate signs, the depth counter
+  {
+    const { page, errors } = await open(browser, `${server.url}?dev&seed=1&jump=6:0:400`);
+    await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
+    await page.waitForSelector('#runscreen.open button.go', { timeout: 20000 });
+    await page.click('#runscreen button.go');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.roomType === 'shop' && (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 90000 });
+    await page.waitForFunction(() => (window as any).__conflux.tick > 5, null, { timeout: 30000 });
+    await page.waitForSelector('#hud .stall', { timeout: 30000 });
+    const run = await page.evaluate(() => (window as any).__conflux.run());
+    check(run.wares >= 3 && run.wares <= 4, `a shop room stocks ${run.wares} wares`);
+    check(run.souls === 400 && run.depth === 1, `the run holds ${run.souls} souls on depth ${run.depth}`);
+    check((await page.locator('#hud .souls').innerText()).includes('400'), 'the souls counter shows the souls in hand');
+    check((await page.locator('#hud .depth').innerText()).includes('Depth 1'), 'the depth counter shows the depth');
+    check((await page.locator('#hud .gate.rest, #hud .gate.shop, #hud .gate.shrine, #hud .gate.fight, #hud .gate.elite').count()) >= 1, 'the gate signs name the room behind each gate');
+    check((await page.locator('#hud .stall').count()) === run.wares, 'every ware has a label over its stall');
+    // stand at the augment stall (the third ware in a shop with an element, a skill, an augment and a heal) and buy
+    await page.evaluate((s) => (window as any).__conflux.command({ op: 'teleport', x: s.x + 0.4, z: s.z }), run.stalls[2]);
+    await page.evaluate((s) => (window as any).__conflux.lookFrom(s.x + 2.5, 2.6, s.z + 4, s.x - 1, 1.2, s.z - 2), run.stalls[2]);
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: join(shots, 'shop.png') });
+    check((await page.locator('#hud .prompt.on').innerText()).includes('[E]'), 'standing at a stall shows the interact prompt with the price');
+    const answer: string = await page.evaluate(() => (window as any).__conflux.buyNearest());
+    const after = await page.evaluate(() => (window as any).__conflux.run());
+    check(answer === 'ok' && after.souls < 400, `buying at a stall works (${answer}, ${after.souls} souls left)`);
+    check(errors.length === 0, `the shop room has no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
+    await page.close();
+  }
 } finally {
   await browser.close();
   server.close();

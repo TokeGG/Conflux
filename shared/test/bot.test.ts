@@ -71,3 +71,28 @@ test('playRun gets past the first room on at least 15 of 20 seeds', () => {
   const past = reports().filter((r) => r.rooms >= 2).length;
   assert.ok(past >= 15, `only ${past} of 20 runs cleared two rooms`);
 });
+
+test('in a shop the bot walks to the best ware it can afford, buys it, and leaves by a gate', async () => {
+  const { RunDirector } = await import('../src/run/director.ts');
+  const { planRoomAt } = await import('../src/run/endless.ts');
+  const { emptyLedger } = await import('../src/run/unlocks.ts');
+  const { botShop } = await import('../src/bot.ts');
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const d = new RunDirector(data, seed, emptyLedger(), false, ENDLESS);
+    d.run = { ...d.run, roomIndex: 6, current: planRoomAt(data, seed, 1, 6, 0), souls: 400, soulsEarned: 400, hp: 50 };
+    d.onEnter = () => undefined;
+    // arrive as the director does after the reward at the entrance
+    (d as unknown as { startQuiet(): void }).startQuiet();
+    assert.equal(d.phase, 'doors');
+    const sim = createRunRoomSim(d.run, data);
+    let bought = 0;
+    for (let t = 0; t < 60 * 60 && d.phase === 'doors'; t++) {
+      const input = botShop(d, sim, () => bought++) ?? botInput(sim);
+      d.onEvents(sim.step([input]));
+    }
+    assert.ok(bought >= 1, `seed ${seed}: bought something`);
+    assert.ok(d.run.souls < 400, `seed ${seed}: spent souls`);
+    assert.equal(d.phase, 'fighting', `seed ${seed}: left through a gate into the next room`);
+    assert.equal(d.run.roomIndex, 7);
+  }
+});

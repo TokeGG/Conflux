@@ -29,6 +29,22 @@
 #hud .dmg { position: absolute; transform: translate(-50%, -100%); font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px #000; }
 #hud .dmg.weak { font-size: 24px; color: #ffd54a; }
 
+/* souls, depth, wares */
+#hud .runinfo { position: absolute; top: 12px; right: 16px; text-align: right; text-shadow: 0 1px 3px #000; }
+#hud .runinfo .souls { color: #9fe8ff; font-size: 18px; }
+#hud .runinfo .depth { font-size: 13px; opacity: .85; }
+#hud .prompt { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); padding: 4px 12px; background: #000a; border: 1px solid #fff4; border-radius: 6px; opacity: 0; transition: opacity .15s; }
+#hud .prompt.on { opacity: 1; }
+#hud .toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); font-size: 28px; letter-spacing: .15em; opacity: 0; text-shadow: 0 2px 6px #000; pointer-events: none; }
+#hud .toast.show { animation: toast 3.2s ease-out; }
+@keyframes toast { 0% { opacity: 0; } 15% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+#hud .stall { position: absolute; transform: translate(-50%, -100%); text-align: center; padding: 3px 8px; background: #000a; border: 1px solid #9fe8ff66; border-radius: 6px; white-space: nowrap; font-size: 12px; pointer-events: none; }
+#hud .stall .p { color: #9fe8ff; }
+#hud .stall.poor .p { color: #ff8a7a; }
+#hud .stall.poor, #hud .stall.sold { opacity: .55; }
+#hud .stall.here { opacity: 1; border-color: #fff; }
+#hud .stall .near { max-width: 220px; white-space: normal; font-size: 11px; opacity: .9; }
+#hud .gate.shop, #hud .gate.shrine, #hud .gate.rest { border-color: #9fe8ff; color: #d8f6ff; }
 /* labels over the open gates */
 #hud .gate { position: absolute; transform: translate(-50%, -100%); text-align: center; padding: 4px 10px; background: #0009; border: 1px solid #fff4; border-radius: 6px; white-space: nowrap; }
 #hud .gate .t { font-size: 14px; }

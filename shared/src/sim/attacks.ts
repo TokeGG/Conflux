@@ -107,7 +107,7 @@ function land(sim: Sim, e: EnemyState, a: AttackDef): void {
           const ang = (k / spec.count) * Math.PI * 2;
           const x = e.pos.x + Math.cos(ang) * a.range;
           const z = e.pos.z + Math.sin(ang) * a.range;
-          spawnEnemy(sim, spec.enemy, { x, y: sim.world.groundAt(x, z), z }, e.level);
+          spawnEnemy(sim, spec.enemy, { x, y: sim.world.groundAt(x, z), z }, e.level).summoned = true;
         }
       }
       e.attack = null;

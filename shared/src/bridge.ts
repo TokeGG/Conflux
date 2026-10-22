@@ -72,6 +72,9 @@ export class SimRunner {
     } else if (cmd.op === 'bot') {
       this.bot = typeof cmd.on === 'boolean' ? cmd.on : !this.bot;
       if (this.bot) this.sim.tuned = true;
+    } else if (cmd.op === 'runhp') {
+      // the run (not a dev tool) changed the player's health between rooms, e.g. a heal bought in a shop
+      if (typeof cmd.hp === 'number' && Number.isFinite(cmd.hp)) this.sim.player.hp = Math.max(0, cmd.hp);
     } else if (cmd.op === 'timescale') {
       if (typeof cmd.scale === 'number' && Number.isFinite(cmd.scale)) this.timeScale = Math.min(MAX_TIME_SCALE, Math.max(MIN_TIME_SCALE, cmd.scale));
     } else if (this.handler) {

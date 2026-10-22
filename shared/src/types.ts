@@ -189,6 +189,8 @@ export interface EnemyDef {
   hp: number;
   speed: number;
   cost: number;
+  /** Souls it drops when it dies (elites drop more); the cost-based default when absent. */
+  souls?: number;
   hurtboxes: HurtCapsuleDef[];
   ai: AiArchetype;
   attacks: string[];
@@ -329,6 +331,27 @@ export interface RewardsCfg {
   guaranteeSkillByRoom: number;
   /** How much stronger every enemy gets per room entered: health and damage are multiplied by 1 + this x the room number. */
   scaling: { hpPerRoom: number; damagePerRoom: number };
+  /** Souls, prices and the quiet rooms. */
+  economy: EconomyCfg;
+}
+
+export interface EconomyCfg {
+  /** A soul within this many metres of the player is picked up. */
+  pickupRadius: number;
+  /** Elites drop this many times the souls. */
+  eliteSoulsMul: number;
+  /** The price of a ware at depth 1 and common rarity, by kind. */
+  price: { skill: number; augment: number; heal: number; element: number };
+  rarityMul: Record<Rarity, number>;
+  /** Each floor below the first adds this share of the base price. */
+  depthScale: number;
+  /** The share of the health a rest room restores. */
+  restHeal: number;
+  /** A shrine trades this share of the player's health for souls. */
+  shrineTradeHp: number;
+  shrineTradeSouls: number;
+  /** How close the player must stand to a ware to buy it. */
+  interactReach: number;
 }
 
 export interface GameData {

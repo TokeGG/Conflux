@@ -16,6 +16,7 @@ import { stepAI } from './ai.ts';
 import { stepElites } from './elites.ts';
 import { stepAttacks } from './attacks.ts';
 import { stepProjectiles, stepZones } from './projectiles.ts';
+import { stepPickups, type Pickup } from './souls.ts';
 import { MARK_IDS, type EnemyState, type PlayerState, Projectile, Snapshot, StatusSnap, Zone } from './state.ts';
 import type { StatusMap } from '../types.ts';
 
@@ -63,6 +64,8 @@ export class Sim {
   enemies: EnemyState[] = [];
   projectiles: Projectile[] = [];
   zones: Zone[] = [];
+  /** Souls on the floor. */
+  pickups: Pickup[] = [];
   private events: SimEvent[] = [];
   private nextId = 1;
 
@@ -161,6 +164,7 @@ export class Sim {
     stepAttacks(this);
     stepProjectiles(this, TICK);
     stepZones(this);
+    stepPickups(this);
     for (const c of [this.player, ...this.enemies]) tickStatuses(this, c, TICK);
     const out = this.events;
     this.events = [];
@@ -218,12 +222,13 @@ export class Sim {
       })),
       projectiles: this.projectiles.map((q) => ({ id: q.id, pos: { ...q.pos }, skillId: q.skillId })),
       zones: this.zones.map((z) => ({ id: z.id, kind: z.kind, pos: { ...z.pos }, radius: z.radius, remaining: Math.max(0, z.until - now) })),
+      pickups: this.pickups.map((k) => ({ id: k.id, pos: { ...k.pos }, value: k.value })),
       tuned: this.tuned,
     };
   }
 
   hash(): string {
     const s = this.streams;
-    return stateHash({ tick: this.tick, rng: [s.map.state(), s.encounter.state(), s.reward.state(), s.combat.state()], player: this.player, enemies: this.enemies, projectiles: this.projectiles, zones: this.zones, augments: this.augments });
+    return stateHash({ tick: this.tick, rng: [s.map.state(), s.encounter.state(), s.reward.state(), s.combat.state()], player: this.player, enemies: this.enemies, projectiles: this.projectiles, zones: this.zones, pickups: this.pickups, augments: this.augments });
   }
 }

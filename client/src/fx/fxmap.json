@@ -33,6 +33,8 @@
     },
     "dodge": { "id": "fx.dust_step", "at": "pos" },
     "shield_pop": { "id": "fx.water_splash", "at": "pos" },
-    "door_entered": null
+    "door_entered": null,
+    "soul_dropped": null,
+    "soul_collected": null
   }
 }

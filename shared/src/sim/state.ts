@@ -89,6 +89,8 @@ export interface EnemyState {
   attack: ActiveAttack | null;
   /** The elite modifier this enemy carries, if any. */
   elite: string | null;
+  /** Made by another enemy's summon: it drops no souls. */
+  summoned?: boolean;
   /** When the current AI state ends (recovering, surfacing, diving). */
   aiUntil: number;
   /** The room number it was made in: the depth scaling of its health and damage. */
@@ -218,6 +220,12 @@ export interface EnemySnap {
   level: number;
 }
 
+export interface PickupSnap {
+  id: number;
+  pos: Vec3;
+  value: number;
+}
+
 export interface ProjectileSnap {
   id: number;
   pos: Vec3;
@@ -239,6 +247,8 @@ export interface Snapshot {
   enemies: EnemySnap[];
   projectiles: ProjectileSnap[];
   zones: ZoneSnap[];
+  /** Souls lying on the floor. */
+  pickups: PickupSnap[];
   /** True once a dev command has changed this simulation, so the run never counts toward unlocks. */
   tuned: boolean;
 }

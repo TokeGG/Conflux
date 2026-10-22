@@ -7,6 +7,8 @@ import { ENDLESS } from './run/endless.ts';
 import { emptyLedger } from './run/unlocks.ts';
 import type { DoorChoice, RunState } from './run/run.ts';
 import type { RewardOffer } from './run/rewards.ts';
+import { tryBuy } from './run/shop.ts';
+import { depthAt } from './run/floors.ts';
 import type { GameData } from './types.ts';
 import type { EnemyState } from './sim/state.ts';
 
@@ -73,8 +75,8 @@ function danger(sim: Sim): { x: number; z: number } | null {
   return null;
 }
 
-/** The waypoints from the player to the nearest gate, a breadth-first search over a 1 m grid; made once per room, when it is cleared. */
-const gatePaths = new WeakMap<Sim, { path: { x: number; z: number }[]; at: number }>();
+/** The waypoints from the player to a goal (a gate, a stall), a breadth-first search over a 1 m grid; made once per goal. */
+const gatePaths = new WeakMap<Sim, { goal: string; path: { x: number; z: number }[]; at: number }>();
 
 function findPath(sim: Sim, goal: { x: number; z: number }): { x: number; z: number }[] {
   const R = Math.max(0.3, sim.data.player.radius);
@@ -106,13 +108,13 @@ function findPath(sim: Sim, goal: { x: number; z: number }): { x: number; z: num
   return path.reverse();
 }
 
-/** A cleared room: walk to the nearest gate by a route round the props. */
-function leaveRoom(sim: Sim, input: Input): Input {
+/** Walk to a point by a route round the props. */
+export function walkTo(sim: Sim, input: Input, goal: { x: number; z: number } | undefined): Input {
   const p = sim.player.pos;
+  const key = goal ? `${goal.x},${goal.z}` : '';
   let plan = gatePaths.get(sim);
-  if (!plan) {
-    const gate = [...sim.doors].sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
-    plan = { path: gate ? [...findPath(sim, gate), { x: gate.x, z: gate.z }] : [], at: 0 };
+  if (!plan || plan.goal !== key) {
+    plan = { goal: key, path: goal ? [...findPath(sim, goal), { x: goal.x, z: goal.z }] : [], at: 0 };
     gatePaths.set(sim, plan);
   }
   while (plan.at < plan.path.length - 1 && Math.hypot(plan.path[plan.at].x - p.x, plan.path[plan.at].z - p.z) < 0.7) plan.at++;
@@ -121,6 +123,15 @@ function leaveRoom(sim: Sim, input: Input): Input {
   input.aimYaw = Math.atan2(wp.x - p.x, wp.z - p.z);
   input.moveZ = 1;
   return input;
+}
+
+/** A cleared room: walk to the nearest gate. */
+function leaveRoom(sim: Sim, input: Input): Input {
+  const p = sim.player.pos;
+  // the gate it chose first stays the goal while it walks, so it does not dither between two
+  const chosen = sim.doors.find((d) => `${d.x},${d.z}` === gatePaths.get(sim)?.goal);
+  const gate = chosen ?? [...sim.doors].sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
+  return walkTo(sim, input, gate);
 }
 
 export function botInput(sim: Sim): Input {
@@ -219,10 +230,17 @@ export interface RunReport {
   skillUse: Record<string, number>;
   augmentUse: Record<string, number>;
   reactions: Record<string, number>;
+  /** Souls picked up, and wares bought with them. */
+  souls: number;
+  bought: number;
+  /** The depth reached (1 on the first floor). */
+  depth: number;
 }
 
 /** A room the bot cannot clear in this long counts as a loss, so a stuck fight cannot hang a report. */
 const ROOM_LIMIT = 180;
+/** A bot that cannot finish its shopping in this many seconds leaves anyway. */
+const SHOP_LIMIT = 45;
 
 /** The reward to take: a heal when hurt, then a skill, then an augment, then a heal. */
 export function botPickReward(run: RunState, offers: RewardOffer[]): number {
@@ -244,16 +262,53 @@ export function botPickDoor(run: RunState, doors: DoorChoice[]): number {
   return 0;
 }
 
+/** Ranks what a bot wants from a quiet room: healing when hurt, then a skill, an augment, a boon, a rest. Never an element (it keeps its trio) or a trade. */
+const WANT = ['skill', 'augment', 'boon', 'rest', 'heal'];
+
+/** The ware to buy next in the room the run stands in: the best the bot can afford and use, or -1 when it is done shopping. */
+export function botWareChoice(run: RunState): number {
+  const room = run.quiet;
+  if (!room) return -1;
+  const hurt = run.hp < run.data.player.health * 0.6;
+  let best = -1;
+  let bestRank = Infinity;
+  room.wares.forEach((w, i) => {
+    if (w.sold || w.kind === 'element' || w.kind === 'trade' || !tryBuy(run, i).ok) return;
+    const heals = w.kind === 'heal' || w.kind === 'rest' || w.offer?.kind === 'heal';
+    const rank = heals && hurt ? -1 : WANT.indexOf(w.kind) + (heals ? 10 : 0);
+    if (rank < bestRank) (best = i), (bestRank = rank);
+  });
+  return best;
+}
+
+/**
+ * One tick of shopping in a quiet room: walks toward the best ware the bot can afford and, within reach of its stall, buys it.
+ * Returns the input to send, or null when the bot is done shopping and should leave by a gate.
+ */
+export function botShop(d: RunDirector, sim: Sim, onBuy?: () => void): Input | null {
+  const want = botWareChoice(d.run);
+  if (want < 0) return null;
+  const stall = d.run.current.stalls![want];
+  const base = { ...idleInput(), camOrigin: { x: sim.player.pos.x, y: sim.player.pos.y + 1.6, z: sim.player.pos.z } };
+  if (dist(stall, sim.player.pos) > d.run.data.rewards.economy.interactReach * 0.7) return walkTo(sim, base, stall);
+  if (d.buy(want, undefined, sim.player.pos).ok) {
+    onBuy?.();
+    sim.player.hp = d.run.hp;
+  }
+  return base;
+}
+
 const bump = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
 
 /** Plays an endless run with the scripted bot until it dies or `maxSeconds` of simulated time pass, and reports what happened. Deterministic for a seed. */
 export function playRun(data: GameData, seed: number, maxSeconds: number): RunReport {
   const d = new RunDirector(data, seed, emptyLedger(), false, ENDLESS);
-  const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {} };
+  const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {}, souls: 0, bought: 0, depth: 1 };
   let sim: Sim | null = null;
   d.onEnter = () => (sim = null);
   let ticks = 0;
   let roomTicks = 0;
+  let shopTicks = 0;
   const limit = Math.floor(maxSeconds / TICK);
   while (d.phase !== 'dead' && ticks < limit) {
     if (d.phase === 'reward') {
@@ -261,7 +316,10 @@ export function playRun(data: GameData, seed: number, maxSeconds: number): RunRe
       continue;
     }
     sim ??= createRunRoomSim(d.run, data);
-    const events = sim.step([botInput(sim)]);
+    // in a quiet room: walk to the best ware it can afford and buy it, then leave by a gate
+    const input = d.phase === 'doors' && shopTicks < SHOP_LIMIT / TICK ? botShop(d, sim, () => report.bought++) : null;
+    if (input) shopTicks++;
+    const events = sim.step([input ?? botInput(sim)]);
     ticks++;
     roomTicks++;
     for (const e of events) {
@@ -270,12 +328,14 @@ export function playRun(data: GameData, seed: number, maxSeconds: number): RunRe
     }
     d.onPlayerHp(sim.player.hp);
     d.onEvents(events);
-    if (!sim) roomTicks = 0;
+    if (!sim) (roomTicks = 0), (shopTicks = 0);
     // a room the bot cannot clear (or leave) in this long counts as a loss, so a stuck fight cannot hang a report
     else if (roomTicks * TICK > ROOM_LIMIT) d.onPlayerHp(0);
   }
   for (const a of d.run.augments) bump(report.augmentUse, a.id);
   report.rooms = d.run.history.length;
+  report.souls = d.run.soulsEarned;
+  report.depth = depthAt(d.run.roomIndex);
   report.seconds = ticks * TICK;
   return report;
 }
