@@ -1,5 +1,6 @@
 // The editable catalogue: which values of the game data the dev panel may change, with plain-words labels, units and bounds.
 // A value that is not matched here cannot be patched.
+import { CAST_ARCHETYPES } from './types.ts';
 
 export interface FieldInfo {
   label: string;
@@ -7,11 +8,18 @@ export interface FieldInfo {
   min: number;
   max: number;
   step: number;
-  /** Omitted for numbers. */
-  kind?: 'boolean';
+  /** Omitted for numbers. 'text' is a short name (a clip): max is its longest length, min 0 allows it to be empty. */
+  kind?: 'boolean' | 'text';
+  /** For text: the only values allowed. */
+  oneOf?: readonly string[];
+  /** True when the data file may not have the value at all (an optional setting): a patch then creates it, and `fallback` is what the game uses without it. */
+  optional?: boolean;
+  fallback?: number;
 }
 
 const n = (label: string, unit: string, min: number, max: number, step: number): FieldInfo => ({ label, unit, min, max, step });
+const text = (label: string, max = 80, allowEmpty = false): FieldInfo => ({ label, unit: '', min: allowEmpty ? 0 : 1, max, step: 1, kind: 'text' });
+const optional = (info: FieldInfo, fallback: number): FieldInfo => ({ ...info, optional: true, fallback });
 const yesNo = (label: string): FieldInfo => ({ label, unit: '', min: 0, max: 1, step: 1, kind: 'boolean' });
 
 const SHAPE: Record<string, FieldInfo> = {
@@ -94,6 +102,15 @@ const EXACT: Record<string, FieldInfo> = {
   'player.swap.bonusDamage': n('Swap-in bonus damage', '×', 1, 3, 0.05),
   'player.cast.windupMove': n('Move speed while winding up', '×', 0, 1, 0.05),
   'player.cast.channelMove': n('Move speed while channelling', '×', 0, 1, 0.05),
+  'camera.distance': n('Camera distance', 'm', 0.5, 15, 0.1),
+  'camera.shoulder': n('Camera shoulder offset', 'm', -3, 3, 0.05),
+  'camera.height': n('Camera pivot height', 'm', 0, 4, 0.05),
+  'camera.collisionRadius': n('Camera wall clearance', 'm', 0.05, 1, 0.05),
+  'camera.fov': n('Field of view', '°', 30, 110, 1),
+  'camera.pitchMin': n('Look down limit', 'rad', -1.55, 0, 0.05),
+  'camera.pitchMax': n('Look up limit', 'rad', 0, 1.55, 0.05),
+  'camera.followRate': n('Camera smoothing (0 = rigid)', 'per s', 0, 60, 0.5),
+  'camera.mouseSensitivity': n('Mouse sensitivity', 'rad per pixel', 0.0003, 0.01, 0.0001),
   'elements.multipliers.weak': n('Damage to a weakness', '×', 1, 5, 0.05),
   'elements.multipliers.resist': n('Damage to a resistance', '×', 0, 1, 0.05),
   reactionCooldown: n('Reaction cooldown per enemy', 's', 0, 10, 0.05),
@@ -111,6 +128,15 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^skills\..+\.damage$/, () => n('Damage', 'hp', 0, 1000, 1)],
   [/^skills\..+\.statusChance$/, () => n('Status chance', '', 0, 1, 0.05)],
   [/^skills\..+\.cooldown$/, () => n('Cooldown', 's', 0, 60, 0.05)],
+  [/^animation\.rigs\.\w+\.states\.\w+$/, () => text('Clip for this state')],
+  [/^animation\.rigs\.\w+\.cast\.\w+$/, () => text('Clip for this cast archetype')],
+  [/^animation\.rigs\.\w+\.transition$/, () => n('Blend between moves', 's', 0, 1, 0.01)],
+  [/^animation\.rigs\.\w+\.castBlendRate$/, () => n('Upper-body cast blend speed', 'per s', 1, 60, 0.5)],
+  [/^skills\..+\.cast\.clip$/, () => text('Cast clip (empty: the archetype\'s)', 80, true)],
+  [/^skills\..+\.cast\.archetype$/, () => ({ ...text('Cast archetype'), oneOf: CAST_ARCHETYPES })],
+  [/^skills\..+\.cast\.blend$/, () => optional(n('Upper-body blend', '0 to 1', 0, 1, 0.05), 1)],
+  [/^skills\..+\.cast\.fireAt$/, () => optional(n('Fires at (share of the clip, 0 = play at normal speed)', 'of clip', 0, 1, 0.01), 0)],
+  [/^enemies\..+\.rig\.clips\.\w+(?:\.\d+)?$/, () => text('Clip for this mob state')],
   [/^skills\..+\.cast\.windup$/, () => n('Windup', 's', 0, 5, 0.01)],
   [/^skills\..+\.cast\.move$/, () => n('Move speed while casting', '×', 0, 1, 0.05)],
   [/^skills\..+\.shape\.(\w+)$/, (m) => SHAPE[m[1]]],

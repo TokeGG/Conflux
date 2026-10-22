@@ -31,6 +31,12 @@ import { AdminPage, TuningPage } from './dev/pages/accountPages.ts';
 import { DevState } from './dev/devstate.ts';
 import { DevPanel } from './dev/panel.ts';
 import { PerfPage } from './dev/perf.ts';
+import { cameraPage } from './dev/pages/camera.ts';
+import { AnimationPage } from './dev/pages/animation.ts';
+import { SkillAnimPage } from './dev/pages/skillAnim.ts';
+import { TuningPage } from './dev/pages/tuning.ts';
+import { registerAnimTuning } from './anim/registerTuning.ts';
+import { tuning } from './anim/tuning.ts';
 import { Benchmark } from './dev/benchmark.ts';
 import { AnimViewerPage } from './dev/animViewer.ts';
 import { DebugDraw } from './dev/debugDraw.ts';
@@ -73,7 +79,11 @@ async function boot(): Promise<void> {
     layers.setCustom(saved.map(({ mob }) => ({ id: mob.id, enemy: mob.enemy, pools: mob.pools })));
     for (const { mob, glb } of saved) customModels.push([mob.glbKey, glb]);
   }
-  if (dev) devState.loadSession();
+  if (dev) {
+    devState.loadSession();
+    registerAnimTuning();
+    tuning.loadSession(storage);
+  }
   const data = layers.current();
   const renderer = createRenderer(profile);
   document.body.append(renderer.domElement);
@@ -102,7 +112,7 @@ async function boot(): Promise<void> {
   for (const [key, glb] of customModels) loader.addCustomModel(key, glb);
   let roomGroup = await buildRoomScene(room, loader);
   game.scene.add(roomGroup);
-  const { scene: player, rig } = await loadPlayer(loader, data);
+  const { scene: player, rig } = await loadPlayer(loader, data, { allClips: dev });
 
   const fx = new FxSystem(game.scene, loader, profile.spriteFilter);
   const bridge = new WorkerBridge(1, data, room.id);
@@ -133,12 +143,16 @@ async function boot(): Promise<void> {
     const base = () => layers.base;
     const refresh = () => panel.refresh();
     panel.registerPage(playerPage(devState, base, refresh));
+    panel.registerPage(cameraPage(devState, base, refresh));
     panel.registerPage(skillsPage(devState, base, refresh));
     panel.registerPage(statusesPage(devState, base, refresh));
     panel.registerPage(reactionsPage(devState, base, refresh));
     panel.registerPage(enemiesPage(devState, base, refresh));
     panel.registerPage(new ModelsPage({ store, layers, loader, bridge, data: () => layers.current(), sendData, refresh }));
     panel.registerPage(new ToolsPage(bridge, () => layers.current(), debugFlags));
+    panel.registerPage(new AnimationPage({ loader, state: devState, base, changed: refresh }));
+    panel.registerPage(new SkillAnimPage({ loader, state: devState, base, changed: refresh }));
+    panel.registerPage(new TuningPage(storage));
     panel.registerPage(new AnimViewerPage(loader));
     panel.registerPage(new CrosshairPage(() => crosshair, (c) => ((crosshair = c), saveCrosshair(storage, c), hud.setCrosshair(c))));
     perf = new PerfPage({
@@ -400,9 +414,8 @@ async function boot(): Promise<void> {
   // ---- the Esc menu: settings and keys, applied at once and saved ----
   play.input.bindings = loadBindings(storage);
   const applySettings = (): void => {
-    play.input.sensitivity = 0.0022 * settings.sensitivity;
-      game.camera.fov = settings.fov;
-    game.camera.updateProjectionMatrix();
+    play.sensitivityScale = settings.sensitivity;
+    play.fovSetting = settings.fov;
     applyProfile(renderer, profileFromSettings(settings));
   };
   applySettings();

@@ -53,13 +53,33 @@ export function resolvePath(data: unknown, path: string): Resolved | null {
   return parent ? { parent, key, value: cur, canonical } : null;
 }
 
+/** Like resolvePath, but an optional setting the data does not have yet resolves to its parent object with an undefined value. */
+function resolveForPatch(data: unknown, path: string): Resolved | null {
+  const found = resolvePath(data, path);
+  if (found) return found;
+  if (!fieldFor(path)?.optional) return null;
+  const cut = path.lastIndexOf('.');
+  const parent = cut > 0 ? resolvePath(data, path.slice(0, cut)) : null;
+  if (!parent || !parent.value || typeof parent.value !== 'object' || Array.isArray(parent.value)) return null;
+  const key = path.slice(cut + 1);
+  return { parent: parent.value as Resolved['parent'], key, value: undefined, canonical: [...parent.canonical, key] };
+}
+
 /** Null when the patch is acceptable, otherwise the reason it is refused. */
 export function validatePatch(data: GameData, p: DataPatch): string | null {
-  const target = resolvePath(data, p.path);
+  const target = resolveForPatch(data, p.path);
   if (!target) return `unknown path ${p.path}`;
   const field = fieldFor(p.path);
   if (!field) return `${p.path} is not editable`;
   if (field.kind === 'boolean') return typeof p.value === 'boolean' ? null : `${p.path} must be yes or no (a boolean)`;
+  if (field.kind === 'text') {
+    if (typeof p.value !== 'string') return `${p.path} must be text (a name)`;
+    if (p.value.length > field.max) return `${p.path} is too long (${field.max} characters at most)`;
+    if (p.value.length < field.min) return `${p.path} cannot be empty`;
+    if (!/^[A-Za-z0-9_.-]*$/.test(p.value)) return `${p.path} may only have letters, digits, _ . and -`;
+    if (field.oneOf && !field.oneOf.includes(p.value)) return `${p.path} must be one of: ${field.oneOf.join(', ')}`;
+    return null;
+  }
   if (typeof p.value !== 'number') return `${p.path} must be a number`;
   if (!Number.isFinite(p.value)) return `${p.path} must be a finite number`;
   if (p.value < field.min || p.value > field.max) return `${p.path} must be between ${field.min} and ${field.max}${field.unit ? ` ${field.unit}` : ''}`;
@@ -73,8 +93,8 @@ export function applyPatches(data: GameData, patches: readonly DataPatch[]): { d
   for (const p of patches) {
     const err = validatePatch(out, p);
     if (err) throw new Error(`invalid patch ${p.path}: ${err}`);
-    const t = resolvePath(out, p.path)!;
-    undo.unshift({ path: p.path, value: t.value as DataPatch['value'] });
+    const t = resolveForPatch(out, p.path)!;
+    undo.unshift({ path: p.path, value: (t.value ?? fieldFor(p.path)?.fallback ?? 0) as DataPatch['value'] });
     t.parent[t.key] = p.value;
   }
   return { data: out, undo };

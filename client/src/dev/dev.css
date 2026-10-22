@@ -62,3 +62,23 @@ body.dev-dragging iframe, body.dev-dragging canvas { pointer-events: none; }
 #devpanel .dev-xh-preview { display: flex; flex-wrap: wrap; gap: 8px; flex-basis: 100%; }
 #devpanel .dev-xh-cell { display: flex; gap: 24px; align-items: center; justify-content: center; width: 200px; height: 120px; border-radius: 6px; border: 1px solid #2b303d; }
 #devpanel .dev-xh-cell span { display: block; line-height: 0; }
+
+/* the animation stage and the pages that use it */
+#devpanel .dev-stage { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; background: #20242c; margin-bottom: 6px; }
+#devpanel .dev-stage .dev-stage-canvas { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border-radius: 0; cursor: grab; touch-action: none; }
+#devpanel .dev-two { display: grid; grid-template-columns: minmax(280px, 520px) minmax(300px, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 900px) { #devpanel .dev-two { grid-template-columns: 1fr; } }
+#devpanel .dev-stagebox { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 0; }
+#devpanel .dev-cliprow, #devpanel .dev-castrow, #devpanel .dev-tunerow { grid-template-columns: 170px minmax(120px, 1fr) auto auto 28px minmax(0, 1fr); }
+#devpanel .dev-cliprow select { min-width: 0; max-width: 100%; }
+#devpanel .dev-castrow select, #devpanel .dev-castrow input[type=number] { max-width: 100%; }
+#devpanel .dev-castnum { display: flex; gap: 6px; align-items: center; }
+#devpanel .dev-castnum input[type=range] { flex: 1; min-width: 70px; }
+#devpanel .dev-on { background: #3a2a66; color: #fff; }
+#devpanel .dev-viewbtn { padding: 2px 8px; }
+#devpanel select { font: inherit; color: inherit; background: #222839; border: 1px solid #3a4258; border-radius: 4px; padding: 3px 6px; }
+#devpanel .dev-castrow, #devpanel .dev-tunerow, #devpanel .dev-cliprow { display: flex; flex-wrap: wrap; }
+#devpanel .dev-castrow > label, #devpanel .dev-tunerow > label, #devpanel .dev-cliprow > label { flex: 0 0 160px; }
+#devpanel .dev-castrow > select, #devpanel .dev-cliprow > select { flex: 1 1 180px; }
+#devpanel .dev-castnum { flex: 1 1 220px; }
+#devpanel .dev-stage { max-height: 50vh; }

@@ -22,14 +22,15 @@ export function pickLocomotion(velocity: Vec3, facing: number, speed: number, do
   return `${speed >= RUN_AT ? 'run' : 'walk'}_${dir}` as LocoState;
 }
 
-/** The baked clip behind a locomotion state. */
-export function locoClipName(s: LocoState): string {
+/** The baked clip behind a locomotion state: the rig's mapping from animation.json when it has one, else the built-in names. */
+export function locoClipName(s: LocoState, states?: Record<string, string>): string {
+  if (states?.[s]) return states[s];
   return s.startsWith('dodge_') ? `bow_standing_${s === 'dodge_back' ? 'dodge_backward' : s}` : `loco_standing_${s}`;
 }
 
 /** The upper-body clip for a cast archetype (a skill's own clip name overrides this). */
-export function castClipFor(archetype: string): string {
-  const clip = (castMap as Record<string, string>)[archetype];
+export function castClipFor(archetype: string, cast?: Record<string, string>): string {
+  const clip = cast?.[archetype] || (castMap as Record<string, string>)[archetype];
   if (!clip) throw new Error(`no cast clip for archetype "${archetype}"`);
   return clip;
 }

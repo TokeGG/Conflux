@@ -148,7 +148,8 @@ export interface SkillDef {
   applies: StatusId | null;
   /** Chance (0 to 1) a hit applies the status; a swap-in bonus makes it certain. Missing means always. */
   statusChance?: number;
-  cast: { archetype: CastArchetype; windup: number; clip: string; move: number };
+  /** `blend` (0 to 1, default 1) is how much of the upper body takes the cast clip; `fireAt` (0 to 1 of the clip, 0 or missing = off) is where in the clip the skill leaves the hand: the client plays the clip at the speed that puts that moment on `windup`. */
+  cast: { archetype: CastArchetype; windup: number; clip: string; move: number; blend?: number; fireAt?: number };
   fx: Record<string, string>;
   tags: string[];
 }
@@ -331,8 +332,41 @@ export interface RewardsCfg {
   scaling: { hpPerRoom: number; damagePerRoom: number };
 }
 
+/** The over-the-shoulder camera and the mouse: all of it is read every frame, so the dev panel changes it live. */
+export interface CameraCfg {
+  distance: number;
+  shoulder: number;
+  height: number;
+  /** How close the lens may get to a wall, as the radius of the sphere swept back from the character. */
+  collisionRadius: number;
+  /** Field of view in degrees; the player's own setting moves it up or down from 55. */
+  fov: number;
+  pitchMin: number;
+  pitchMax: number;
+  /** How fast the camera catches up with where it wants to be, per second; 0 is rigid. */
+  followRate: number;
+  /** Radians of turn per pixel of mouse movement, before the player's own sensitivity setting. */
+  mouseSensitivity: number;
+}
+
+/** The clips a character rig plays: one per locomotion state, one per cast archetype, and the blend times. */
+export interface RigAnimation {
+  states: Record<string, string>;
+  cast: Record<string, string>;
+  /** Seconds to blend from one locomotion clip into the next. */
+  transition: number;
+  /** How fast the upper body takes up (and lets go of) a cast clip, per second. */
+  castBlendRate: number;
+}
+
+export interface AnimationCfg {
+  rigs: Record<string, RigAnimation>;
+}
+
 export interface GameData {
   player: PlayerCfg;
+  camera: CameraCfg;
+  animation: AnimationCfg;
   elements: ElementsCfg;
   statuses: Record<StatusId, StatusDef>;
   reactionCooldown: number;

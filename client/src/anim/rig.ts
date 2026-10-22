@@ -14,7 +14,13 @@ const PITCH_SHARE: Record<string, number> = {
   Bip01_Neck_055: 0.3,
 };
 const MAX_PITCH = (35 * Math.PI) / 180;
-const BLEND_SECONDS = 0.15;
+const DEFAULT_BLEND = 0.15;
+
+/** The part of a rig's animation data the rig itself needs (the data's RigAnimation). */
+export interface RigMapping {
+  states: Record<string, string>;
+  transition: number;
+}
 
 export class CharacterRig {
   private nodes: (THREE.Object3D | undefined)[];
@@ -36,6 +42,11 @@ export class CharacterRig {
   private fromHips = new Float32Array(3);
   private haveFrom = false;
   private preview: { clip: string; time: number | null } | null = null;
+  private mapping: RigMapping | null = null;
+  private blendSeconds = DEFAULT_BLEND;
+  private castSpeed = 1;
+  /** Which baked rig this is (set by the loader): the key into animation.json's rigs. */
+  name = '';
 
   constructor(
     readonly root: THREE.Object3D,
@@ -61,6 +72,46 @@ export class CharacterRig {
     return this.clips.has(name);
   }
 
+  clipNames(): string[] {
+    return [...this.clips.keys()].sort();
+  }
+
+  /** Seconds a baked clip lasts, or 0 when the rig has no such clip. */
+  clipDuration(name: string): number {
+    return this.clips.get(name)?.duration ?? 0;
+  }
+
+  /** Takes which clip plays for each locomotion state from the data (it is read every frame, so an edit shows on the next one). */
+  setMapping(m: RigMapping | null): void {
+    this.mapping = m;
+    this.blendSeconds = m && m.transition >= 0 ? Math.max(1e-3, m.transition) : DEFAULT_BLEND;
+  }
+
+  /** The clip the legs are playing now (the state's clip from the mapping, or the previewed one). */
+  activeLocoClip(): string {
+    return this.preview?.clip ?? locoClipName(this.state, this.mapping?.states);
+  }
+
+  /** How fast the cast clip plays (1 is its own speed): the game sets it so the clip's release lands on the skill's windup. */
+  setCastSpeed(s: number): void {
+    this.castSpeed = Math.max(0.05, Math.min(8, s));
+  }
+
+  /** Starts the leg clip again from its first frame (the previews use it to replay a clip). */
+  restartLoco(): void {
+    this.locoTime = 0;
+  }
+
+  /** Starts the cast clip again from its first frame. */
+  restartCast(): void {
+    this.castTime = 0;
+  }
+
+  /** How far into the cast clip the rig is, in seconds of the clip. */
+  castClipTime(): number {
+    return this.castTime;
+  }
+
   /** Plays any named clip on the legs instead of the locomotion state (the model viewer). A time pins the pose to that moment; null goes back to the state. */
   showClip(clip: string | null, time: number | null = null): void {
     this.preview = clip ? { clip, time } : null;
@@ -73,7 +124,7 @@ export class CharacterRig {
       this.fromPose.set(this.out);
       this.fromHips.set(this.hips);
       this.haveFrom = true;
-      this.blendLeft = BLEND_SECONDS;
+      this.blendLeft = this.blendSeconds;
       this.state = state;
       this.locoTime = 0;
     }
@@ -86,7 +137,7 @@ export class CharacterRig {
   }
 
   update(dt: number): void {
-    const locoClip = this.clips.get(this.preview?.clip ?? locoClipName(this.state));
+    const locoClip = this.clips.get(this.activeLocoClip());
     if (locoClip) {
       if (this.preview?.time != null) this.locoTime = this.preview.time;
       else this.locoTime += dt;
@@ -97,14 +148,14 @@ export class CharacterRig {
     }
     if (this.blendLeft > 0 && this.haveFrom) {
       this.blendLeft = Math.max(0, this.blendLeft - dt);
-      const t = 1 - this.blendLeft / BLEND_SECONDS;
+      const t = 1 - this.blendLeft / this.blendSeconds;
       for (let b = 0; b < this.n; b++) slerpInto(this.fromPose, b * 4, this.loco, b * 4, t, this.loco, b * 4);
       for (let k = 0; k < 3; k++) this.hips[k] = this.fromHips[k] * (1 - t) + this.hips[k] * t;
     }
     const castClip = this.castClip ? this.clips.get(this.castClip) : undefined;
     let weight = this.castW;
     if (castClip && weight > 0) {
-      this.castTime += dt;
+      this.castTime += dt * this.castSpeed;
       sampleClip(castClip, this.castTime, this.cast);
     } else {
       weight = 0;

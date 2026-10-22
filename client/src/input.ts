@@ -16,7 +16,7 @@ export interface Bindings {
 
 export const defaultBindings = (): Bindings => ({ forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD', utility: 'KeyQ', dodge: 'ShiftLeft', jump: 'Space', interact: 'KeyE', cycle: 'KeyR', elements: ['Digit1', 'Digit2', 'Digit3'] });
 
-const PITCH_LIMIT = 1.3;
+const PITCH_LIMIT = 1.3; // the default look limits; the camera data (camera.json) replaces them
 
 /** Keys typed into a dev panel box are not game controls. */
 function typingInAField(t: EventTarget | null): boolean {
@@ -26,6 +26,8 @@ function typingInAField(t: EventTarget | null): boolean {
 export class InputController {
   bindings = defaultBindings();
   sensitivity = 0.0022;
+  pitchMin = -PITCH_LIMIT;
+  pitchMax = PITCH_LIMIT;
   yaw = 0;
   pitch = 0;
   private keys = new Set<string>();
@@ -69,7 +71,7 @@ export class InputController {
     if (document.pointerLockElement !== this.target && !this.unlocked) return;
     // yaw measures from +z toward +x, which is to the LEFT of a camera looking along +z, so a mouse move to the right lowers it
     this.yaw -= dx * this.sensitivity;
-    this.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, this.pitch - dy * this.sensitivity));
+    this.pitch = Math.max(this.pitchMin, Math.min(this.pitchMax, this.pitch - dy * this.sensitivity));
   }
 
   /** Lets tests and the benchmark turn the camera without pointer lock. */

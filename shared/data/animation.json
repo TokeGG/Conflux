@@ -1,0 +1,62 @@
+{
+  "rigs": {
+    "wizardpack": {
+      "states": {
+        "idle": "loco_standing_idle",
+        "walk_forward": "loco_standing_walk_forward",
+        "walk_back": "loco_standing_walk_back",
+        "walk_left": "loco_standing_walk_left",
+        "walk_right": "loco_standing_walk_right",
+        "run_forward": "loco_standing_run_forward",
+        "run_back": "loco_standing_run_back",
+        "run_left": "loco_standing_run_left",
+        "run_right": "loco_standing_run_right",
+        "sprint_forward": "loco_standing_sprint_forward",
+        "jump": "loco_standing_jump",
+        "dodge_forward": "bow_standing_dodge_forward",
+        "dodge_back": "bow_standing_dodge_backward",
+        "dodge_left": "bow_standing_dodge_left",
+        "dodge_right": "bow_standing_dodge_right"
+      },
+      "cast": {
+        "throw": "cast_1h_magic_attack_02",
+        "sweep": "cast_2h_magic_attack_01",
+        "push": "cast_two_hand_spell_casting",
+        "slam": "cast_2h_magic_attack_01",
+        "channel": "cast_magic_spell_casting",
+        "self": "cast_1h_cast_spell_01"
+      },
+      "transition": 0.15,
+      "castBlendRate": 15
+    },
+    "oldwizard": {
+      "states": {
+        "idle": "loco_standing_idle",
+        "walk_forward": "loco_standing_walk_forward",
+        "walk_back": "loco_standing_walk_back",
+        "walk_left": "loco_standing_walk_left",
+        "walk_right": "loco_standing_walk_right",
+        "run_forward": "loco_standing_run_forward",
+        "run_back": "loco_standing_run_back",
+        "run_left": "loco_standing_run_left",
+        "run_right": "loco_standing_run_right",
+        "sprint_forward": "loco_standing_sprint_forward",
+        "jump": "loco_standing_jump",
+        "dodge_forward": "bow_standing_dodge_forward",
+        "dodge_back": "bow_standing_dodge_backward",
+        "dodge_left": "bow_standing_dodge_left",
+        "dodge_right": "bow_standing_dodge_right"
+      },
+      "cast": {
+        "throw": "cast_1h_magic_attack_02",
+        "sweep": "cast_2h_magic_attack_01",
+        "push": "cast_two_hand_spell_casting",
+        "slam": "cast_2h_magic_attack_01",
+        "channel": "cast_magic_spell_casting",
+        "self": "cast_1h_cast_spell_01"
+      },
+      "transition": 0.15,
+      "castBlendRate": 15
+    }
+  }
+}
