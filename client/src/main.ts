@@ -12,6 +12,8 @@ import { RoomLights } from './renderer/roomLights.ts';
 import { disposeCopies } from './renderer/skins.ts';
 import { RunScreens } from './hud/runScreens.ts';
 import { menuCamera } from './hud/menuCamera.ts';
+import { EscMenu } from './hud/menu.ts';
+import { loadBindings, saveBindings } from './keybinds.ts';
 import { idleInput, type DevCommand, type Input, type SimEvent, type Snapshot } from '@conflux/shared';
 import { Game } from './game.ts';
 import { FxSystem } from './fx/sprites.ts';
@@ -37,7 +39,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[] } | null; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
   }
 }
 
@@ -314,6 +316,38 @@ async function boot(): Promise<void> {
     };
     screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits, dev, onDev: (on) => (setDevFlag(storage, on), location.reload()), invertY: settings.invertY, onInvertY: (on) => ((settings = { ...settings, invertY: on }), (play.input.invertY = on), saveSettings(storage, settings)) });
   }
+
+  // ---- the Esc menu: settings and keys, applied at once and saved ----
+  play.input.bindings = loadBindings(storage);
+  const applySettings = (): void => {
+    play.input.sensitivity = 0.0022 * settings.sensitivity;
+    play.input.invertY = settings.invertY;
+    game.camera.fov = settings.fov;
+    game.camera.updateProjectionMatrix();
+    applyProfile(renderer, profileFromSettings(settings));
+  };
+  applySettings();
+  const menu = new EscMenu({
+    getSettings: () => settings,
+    onSettings: (s) => ((settings = s), saveSettings(storage, s), applySettings()),
+    getBindings: () => play.input.bindings,
+    onBindings: (b) => ((play.input.bindings = b), saveBindings(storage, b)),
+    onOpen: () => (document.exitPointerLock?.(), bridge.command({ op: 'pause', on: true }), (play.inputEnabled = false)),
+    onResume: () => (bridge.command({ op: 'pause', on: false }), (play.inputEnabled = true), play.input.requestLock()),
+    onQuit: () => location.reload(),
+  });
+  /** The menu opens during play, not over the main menu, the reward screens or the end of a run. */
+  const menuAllowed = (): boolean => screens.open === 'none' && (!runMode || (director !== null && director.phase !== 'dead' && director.phase !== 'won'));
+  // losing the mouse (the browser takes it back on Esc) or pressing Esc when it is not locked opens the menu
+  document.addEventListener('pointerlockchange', () => {
+    if (!document.pointerLockElement && menuAllowed() && !menu.isOpen) menu.open();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'Escape' || e.repeat) return;
+    if (menu.isOpen) menu.resume();
+    else if (menuAllowed()) menu.open();
+  });
+  window.__conflux!.menuOpen = () => menu.isOpen;
 
   const clock = new THREE.Clock();
   const frame = () => {

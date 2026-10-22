@@ -345,6 +345,18 @@ try {
     await page.click('#runscreen button.go');
     await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
     check(true, 'beginning the run puts the first room fight on screen');
+    await page.keyboard.press('Escape');
+    await page.waitForSelector('#escmenu.open', { timeout: 10000 });
+    check((await page.locator('#escmenu .keybtn').count()) === 13, 'Esc opens the menu with all 13 keys listed');
+    await page.screenshot({ path: join(shots, 'esc-menu.png') });
+    await page.click('#escmenu .keybtn >> nth=4');
+    await page.keyboard.press('KeyX');
+    check((await page.locator('#escmenu .keybtn >> nth=4').innerText()) === 'X', 'clicking a key and pressing another rebinds it');
+    await page.click('#escmenu .etab:has-text("Game")');
+    check((await page.locator('#escmenu input[type=range]').count()) === 2, 'the Game tab has mouse speed and field of view');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(() => !(window as any).__conflux.menuOpen(), null, { timeout: 5000 });
+    check(true, 'Esc closes the menu again');
     await page.evaluate(() => (window as any).__conflux.command({ op: 'killAll' }));
     await page.waitForSelector('#runscreen.open button.card', { timeout: 60000 });
     const offers: number = await page.locator('#runscreen button.card').count();

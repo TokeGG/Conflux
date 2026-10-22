@@ -54,3 +54,15 @@ test('invertY defaults to off, loads when saved, and ignores a value that is not
   assert.equal(loadSettings({ getItem: () => JSON.stringify({ invertY: true }) }).invertY, true);
   assert.equal(loadSettings({ getItem: () => JSON.stringify({ invertY: 'yes' }) }).invertY, false);
 });
+
+test('mouse sensitivity and field of view default sensibly, load when saved, and are kept inside their ranges', () => {
+  const d = defaultSettings();
+  assert.equal(d.sensitivity, 1);
+  assert.equal(d.fov, 55);
+  const l = loadSettings({ getItem: () => JSON.stringify({ sensitivity: 2.5, fov: 80 }) });
+  assert.deepEqual([l.sensitivity, l.fov], [2.5, 80]);
+  const wild = loadSettings({ getItem: () => JSON.stringify({ sensitivity: 99, fov: 5 }) });
+  assert.deepEqual([wild.sensitivity, wild.fov], [4, 40]);
+  const junk = loadSettings({ getItem: () => JSON.stringify({ sensitivity: 'fast', fov: null }) });
+  assert.deepEqual([junk.sensitivity, junk.fov], [1, 55]);
+});
