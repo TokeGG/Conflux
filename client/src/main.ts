@@ -9,6 +9,7 @@ import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
 import { RoomLights } from './renderer/roomLights.ts';
+import { disposeCopies } from './renderer/skins.ts';
 import { RunScreens } from './hud/runScreens.ts';
 import { idleInput, type DevCommand, type Input, type SimEvent, type Snapshot } from '@conflux/shared';
 import { Game } from './game.ts';
@@ -230,6 +231,7 @@ async function boot(): Promise<void> {
     const next = plan.def ?? layers.current().rooms[plan.roomId];
     const group = await buildRoomScene(next, loader);
     game.scene.remove(roomGroup);
+    disposeCopies(roomGroup);
     roomGroup = group;
     game.scene.add(roomGroup);
     game.setLighting(next.lighting);

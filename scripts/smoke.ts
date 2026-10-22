@@ -413,7 +413,7 @@ try {
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 30000 });
     await page.waitForTimeout(1500);
     const lit: number = await page.evaluate(() => (window as any).__conflux.lights());
-    check(lit >= 4 && lit <= 9, `the ${theme} room is lit by the torch and ${lit - 1} room lights (at most 8)`);
+    check(lit >= 4 && lit <= 8, `the ${theme} room is lit by the torch and ${lit - 1} room lights (eight lights in all)`);
     const colours: number = await page.evaluate(() => (window as any).__conflux.distinctColours());
     check(colours > 150, `the ${theme} room draws more than 150 distinct colours (${colours})`);
     await page.screenshot({ path: join(shots, `smoke-theme-${theme}.png`) });

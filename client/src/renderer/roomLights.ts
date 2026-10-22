@@ -23,13 +23,16 @@ const TORCH = 0xffb060;
 export class RoomLights {
   readonly torch = new THREE.PointLight(TORCH, 18, 14, 1.6);
   private pool: THREE.PointLight[] = [];
+  /** Room lights in the pool: the cap counts the torch too, so eight lights in all. */
+  private readonly room: number;
   private lights: LightDef[] = [];
 
   constructor(
     private scene: THREE.Scene,
-    private cap = 8,
+    cap = 8,
   ) {
-    for (let i = 0; i < cap; i++) {
+    this.room = Math.max(0, cap - 1);
+    for (let i = 0; i < this.room; i++) {
       const p = new THREE.PointLight(0xffffff, 0, 10, 1.6);
       this.pool.push(p);
       scene.add(p);
@@ -51,7 +54,7 @@ export class RoomLights {
     const from = player ?? { x: 0, y: 0, z: 0 };
     if (player) this.torch.position.set(player.x, 2.4, player.z - 0.6);
     this.torch.intensity = flicker(18, time, 0.7);
-    const near = pickLights(this.lights, from, this.cap);
+    const near = pickLights(this.lights, from, this.room);
     this.pool.forEach((p, i) => {
       const l = near[i];
       if (!l) {

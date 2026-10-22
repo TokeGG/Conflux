@@ -111,3 +111,12 @@ test('depth gates themes: a theme with minDepth above the depth is never drawn',
   gated.themes.cave.minDepth = 5;
   for (const seed of SEEDS.slice(0, 80)) assert.notEqual(generateRoom(gated, seed, 2, 0).theme, 'cave');
 });
+
+test('the player never starts within 4 m of any exit, not only the first', () => {
+  for (const theme of THEMES) {
+    for (const seed of SEEDS) {
+      const room = get(theme, seed);
+      for (const d of room.spawns.doors) assert.ok(Math.hypot(d.x - room.spawns.player.x, d.z - room.spawns.player.z) >= 4, `${theme} seed ${seed}`);
+    }
+  }
+});

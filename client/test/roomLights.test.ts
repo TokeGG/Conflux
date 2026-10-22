@@ -32,8 +32,8 @@ test('the live lights never exceed the cap, the torch is always there and follow
   lights.setRoom(twenty);
   lights.update(1, { x: 30, y: 0, z: 0 });
   const point = scene.children.filter((c): c is THREE.PointLight => c instanceof THREE.PointLight);
-  assert.equal(point.length, 9, 'eight room lights and the torch');
-  assert.ok(point.filter((p) => p.intensity > 0).length <= 9);
+  assert.equal(point.length, 8, 'seven room lights and the torch: eight in all');
+  assert.ok(point.filter((p) => p.intensity > 0).length <= 8);
   assert.equal(lights.torch.position.x, 30);
   assert.ok(lights.torch.visible && point.every((p) => p.visible), 'a lit room uses the whole pool and the torch');
   lights.setRoom([]);

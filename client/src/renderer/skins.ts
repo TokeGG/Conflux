@@ -22,6 +22,7 @@ export function tintMaterials(root: THREE.Object3D, tint: THREE.Color, copies: M
       let c = copies.get(m);
       if (!c) {
         c = m.clone();
+        c.userData.roomCopy = true;
         (c as THREE.MeshStandardMaterial).color?.multiply(tint);
         if ((c as THREE.MeshStandardMaterial).metalness !== undefined) (c as THREE.MeshStandardMaterial).metalness = Math.min((c as THREE.MeshStandardMaterial).metalness, 0.1);
         copies.set(m, c);
@@ -51,4 +52,13 @@ export function addDetail(material: THREE.Material, texture: THREE.Texture, scal
   };
   material.customProgramCacheKey = () => `detail-${scale}-${strength}`;
   material.needsUpdate = true;
+}
+
+/** Frees the material copies a room made (the shared ones, and the geometry, belong to the loader's cache). */
+export function disposeCopies(root: THREE.Object3D): void {
+  root.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.material) return;
+    for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) if (m.userData.roomCopy) m.dispose();
+  });
 }

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.52",
+    "date": "2026-10-22",
+    "at": "2026-10-22T05:11:46Z",
+    "notes": [
+      "Under the hood: the torch counts toward the light limit and rooms free their textures when you leave them."
+    ]
+  },
+  {
     "version": "0.1.51",
     "date": "2026-10-22",
     "at": "2026-10-22T05:04:13Z",
