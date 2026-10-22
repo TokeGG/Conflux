@@ -28,3 +28,10 @@
 #hud .tag .ai { font-size: 10px; opacity: .85; }
 #hud .dmg { position: absolute; transform: translate(-50%, -100%); font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px #000; }
 #hud .dmg.weak { font-size: 24px; color: #ffd54a; }
+
+/* labels over the open gates */
+#hud .gate { position: absolute; transform: translate(-50%, -100%); text-align: center; padding: 4px 10px; background: #0009; border: 1px solid #fff4; border-radius: 6px; white-space: nowrap; }
+#hud .gate .t { font-size: 14px; }
+#hud .gate .s { font-size: 11px; opacity: .8; }
+#hud .gate.elite { border-color: #ffb040; color: #ffd890; }
+#hud .gate.boss { border-color: #ff5a4a; color: #ffb0a0; }

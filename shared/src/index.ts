@@ -35,6 +35,7 @@ export * from './run/rewards.ts';
 export * from './run/augments.ts';
 export * from './run/unlocks.ts';
 export * from './run/endless.ts';
+export * from './run/daily.ts';
 export * from './gen/generate.ts';
 export * from './gen/reach.ts';
 export * from './run/director.ts';

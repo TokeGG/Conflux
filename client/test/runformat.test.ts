@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defaultData, ROOM_TO_ROOM, emptyLedger } from '@conflux/shared';
-import { describeDoor, describeOffer, elementCombos, endSummary, achievementLines } from '../src/hud/runFormat.ts';
+import { defaultData, ROOM_TO_ROOM, ENDLESS, emptyLedger } from '@conflux/shared';
+import { describeDoor, describeGate, describeOffer, elementCombos, endSummary, achievementLines } from '../src/hud/runFormat.ts';
 
 const data = defaultData();
 
@@ -63,4 +63,27 @@ test('elementCombos lists the reaction of a benched element with each element yo
 test('elementCombos skips an element that has no reaction with it', () => {
   const lines = elementCombos('fire', ['fire', 'water', 'earth'], data);
   assert.deepEqual(lines.map((l) => l.with), ['water', 'earth']);
+});
+
+test('a gate label names the room style, what waits there and the reward, and flags elite and boss rooms', async () => {
+  const { ENDLESS, planRoomAt } = await import('@conflux/shared');
+  const room = planRoomAt(data, 5, 1, 4);
+  const t = describeGate({ room, reward: 'heal', biome: room.biome }, data);
+  assert.equal(t.kind, 'boss');
+  assert.match(t.title, /boss/i);
+  assert.match(t.sub, /heal/i);
+  const plain = planRoomAt(data, 5, 1, 1);
+  const p = describeGate({ room: plain, reward: 'skill', biome: plain.biome }, data);
+  assert.equal(p.kind, 'fight');
+  assert.ok(p.title.length > 0 && /skill/i.test(p.sub));
+  assert.ok(ENDLESS);
+});
+
+test('the end of a daily run says it was the daily and how it compares with the best of the day', () => {
+  const run = { ...ENDLESS.start(1, data), daily: true, history: ['a', 'b', 'c'] };
+  const s = endSummary(run, 5);
+  assert.ok(s.lines.some((l) => /daily/i.test(l)));
+  assert.ok(s.lines.some((l) => /best.*5/i.test(l)));
+  const record = endSummary(run, 3);
+  assert.ok(record.lines.some((l) => /new best/i.test(l)));
 });

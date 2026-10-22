@@ -157,6 +157,7 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     for (const pool of ['set', 'medium', 'small', 'wall'] as const) if (!t.pools[pool]?.length) bad(`its ${pool} pool is empty`);
     for (const p of Object.values(t.pools).flat()) if (!(p.scale > 0) || !(p.count[1] >= p.count[0]) || p.count[0] < 0) bad(`${p.kit}/${p.id} has a bad scale or count`);
     if (!Object.keys(t.mobs).length) bad('it needs mobs');
+    for (const b of t.boss ?? []) if (!d.enemies[b]) bad(`boss "${b}" does not exist`);
     for (const [m, w] of Object.entries(t.mobs)) {
       if (!d.enemies[m]) bad(`mob "${m}" does not exist`);
       if (!(w > 0)) bad(`mob "${m}" needs a weight above 0`);

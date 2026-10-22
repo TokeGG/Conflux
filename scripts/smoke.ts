@@ -420,11 +420,18 @@ try {
     await page.click('#runscreen button:text-is("Credits")');
     await page.waitForFunction(() => /by .*CC-BY/.test(document.querySelector('#runscreen .scroll')?.textContent ?? ''), null, { timeout: 20000 });
     check(true, 'the credits list the CC-BY assets with their authors');
+    await page.click('#runscreen button:text-is("Back")');
+    const daily: string = await page.locator('#runscreen button.daily').innerText();
+    check(/daily run/i.test(daily) && /today: \w+, \w+, \w+/i.test(daily), `the menu offers the daily run with its three elements (${daily.replace(/\n/g, ' | ')})`);
+    await page.click('#runscreen button.daily');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
+    const held: string[] = await page.evaluate(() => (window as any).__conflux.snapshot().players[0].equipped);
+    check(held.length === 3 && new Set(held).size === 3, `the daily run starts holding three elements (${held.join(', ')})`);
     check(errors.length === 0, `the menu pages have no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }
   // 9. generated rooms: each theme loads, is lit by at most the torch and eight room lights, and renders without console errors
-  for (const theme of ['crypt', 'hall', 'cave']) {
+  for (const theme of ['crypt', 'hall', 'cave', 'cellar', 'grove', 'library', 'chapel']) {
     const { page, errors } = await open(browser, `${server.url}?dev&theme=${theme}&seed=3`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 120000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 30000 });

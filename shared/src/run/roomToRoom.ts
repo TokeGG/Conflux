@@ -92,6 +92,7 @@ export const ROOM_TO_ROOM: RunMode = {
       augments: [],
       tuned,
       pool,
+      daily: false,
       status: 'running',
       data,
     };

@@ -75,9 +75,14 @@ function chooseStart(fp: Footprint, doors: { x: number; z: number }[]): { x: num
   return { x: best.x, z: best.z };
 }
 
-export function generateRoom(data: GameData, seed: number, depth: number, roomIndex: number, themeId?: string): GeneratedRoom {
+/**
+ * A room from the seed. `themeId` forces a style; otherwise one is drawn from the styles open at this depth, leaving out the boss
+ * arena and, when there are others to choose from, the styles in `avoid` (the room before, the other gates).
+ */
+export function generateRoom(data: GameData, seed: number, depth: number, roomIndex: number, themeId?: string, avoid: readonly string[] = []): GeneratedRoom {
   const rng = makeStreams(seed).map.fork(`gen/${depth}/${roomIndex}`);
-  const candidates = Object.values(data.themes).filter((t) => t.minDepth <= depth);
+  const open = Object.values(data.themes).filter((t) => t.minDepth <= depth && !t.boss);
+  const candidates = open.filter((t) => !avoid.includes(t.id)).length > 0 ? open.filter((t) => !avoid.includes(t.id)) : open;
   const theme = themeId ? data.themes[themeId] : rng.weighted(candidates, (t) => t.weight);
   if (!theme) throw new Error(`unknown theme ${themeId}`);
   const floorTex = rng.pick(theme.floor.tex);

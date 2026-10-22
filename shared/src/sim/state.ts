@@ -96,6 +96,9 @@ export interface EnemyState {
   maxHp: number;
   /** What its attacks' damage is multiplied by (1 at level 0). */
   damageMul: number;
+  /** The last look for a clear line to the player: until when it stands, and what it found. */
+  losUntil: number;
+  losClear: boolean;
 }
 
 /** An attack in progress: telegraphed, then landing at hitAt. */
@@ -254,6 +257,8 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3, level = 0): EnemySta
     maxHp,
     level,
     damageMul: 1 + damagePerRoom * level,
+    losUntil: 0,
+    losClear: true,
     statuses: {},
     marks: {},
     aiState: 'idle',

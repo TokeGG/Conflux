@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.62",
+    "date": "2026-10-22",
+    "at": "2026-10-22T17:14:40Z",
+    "notes": [
+      "Twelve room styles now (cellar, prison, grove, bone pit, chapel, library, ember cavern, flooded cave, and a boss arena), a different one behind each gate with a sign over it saying where it leads and what you get. A boss closes every fifth room. Enemies find their way round rocks and walls, and mobs move more fluidly (they lean, bob, wind up, flinch and pop in). New daily run on the main menu: three elements chosen by the day, locked for the whole run, to see how far you get."
+    ]
+  },
+  {
     "version": "0.1.61",
     "date": "2026-10-22",
     "at": "2026-10-22T16:42:34Z",

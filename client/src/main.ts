@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, generateRoom, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
+import { defaultData, DEFAULT_PROFILE, DataLayers, PATCHES, genCredits, type LicenseEntry, RunDirector, ENDLESS, dailyFor, dayKey, type Daily, generateRoom, loadLedger, saveLedger, type RoomPlan, type RunPhase } from '@conflux/shared';
 import { detectCapabilities, fatalMessage, showFatal } from './capabilities.ts';
 import { applyProfile, applyTextureFilters, createRenderer } from './renderer/profile.ts';
 import { createScene, fitHeight } from './renderer/scene.ts';
@@ -8,6 +8,8 @@ import { AssetLoader, assetBase, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
+import { dailyBestLine, loadDailyBest, saveDailyBest } from './dailyBest.ts';
+import { describeGate } from './hud/runFormat.ts';
 import { loadCrosshair, saveCrosshair } from './crosshair.ts';
 import { CrosshairPage } from './dev/pages/crosshair.ts';
 import { RoomLights } from './renderer/roomLights.ts';
@@ -237,6 +239,7 @@ async function boot(): Promise<void> {
   let director: RunDirector | null = null;
   let shown: RunPhase | null = null;
   let showMenu: () => void = () => undefined;
+  let todays: Daily | null = null;
   const seedOf = () => Number(params.get('seed')) || Date.now() % 1_000_000;
 
   /** Scenes of the rooms behind the open gates, built ahead one at a time between frames. */
@@ -290,10 +293,19 @@ async function boot(): Promise<void> {
     }
     else if (d.phase === 'doors') {
       // endless: the gates are walked through, so no screen; the player steps up to one and the next room loads
-      if (d.run.mode === 'endless') (screens.hide(), (play.inputEnabled = true), void prebuild(d.doors.map((c) => c.room)));
+      if (d.run.mode === 'endless') {
+        screens.hide();
+        play.inputEnabled = true;
+        void prebuild(d.doors.map((c) => c.room));
+        hud.setGates(d.doors.map((c, i) => ({ pos: d.run.current.def?.spawns.doors[i] ?? { x: 0, y: 0, z: 0 }, ...describeGate(c, data) })));
+      }
       else screens.doors(d.doors, data, d.run.roomIndex + 1, (i) => void enterDoor(i));
     }
-    else if (d.phase === 'dead' || d.phase === 'won') screens.end(d.run, d.earned, data, () => (bridge.command({ op: 'pause', on: true }), showMenu()));
+    else if (d.phase === 'dead' || d.phase === 'won') {
+      // a daily run records how far it got; the end screen compares it with the best of the day
+      const bestToday = todays && d.run.daily ? saveDailyBest(storage, todays.day, d.run.history.length) : 0;
+      screens.end(d.run, d.earned, data, () => (bridge.command({ op: 'pause', on: true }), showMenu()), bestToday);
+    }
   };
 
   /** After a reward at the entrance: the room starts again with what was picked (new skills, augments, health) and the game runs. */
@@ -309,17 +321,20 @@ async function boot(): Promise<void> {
 
   const enterDoor = async (i: number): Promise<void> => {
     const plan = director!.enter(i);
+    hud.setGates([]);
     shown = director!.phase;
     screens.hide();
     await loadPlan(plan);
   };
 
-  const beginRun = async (): Promise<void> => {
+  const beginRun = async (daily?: Daily): Promise<void> => {
     const ledger = director?.ledger ?? loadLedger(storage);
-    director = new RunDirector(layers.current(), seedOf(), ledger, layers.isModified(), ENDLESS);
+    director = new RunDirector(layers.current(), daily ? daily.seed : seedOf(), ledger, layers.isModified(), ENDLESS, daily ? { daily } : undefined);
+    todays = daily ?? null;
     director.onEnter = (plan) => {
       // the reward of the room just left (if any) appears as soon as the new room is in place
       shown = null;
+      hud.setGates([]);
       void loadPlan(plan).then(sync);
     };
     shown = director.phase;
@@ -349,6 +364,7 @@ async function boot(): Promise<void> {
     /** The main menu: the dark room behind it, a slow orbit, no crosshair or bars. A run ends here, whether it was won or lost. */
     showMenu = () => {
       director = null;
+      hud.setGates([]);
       shown = null;
       play.inputEnabled = false;
       hud.root.style.display = 'none';
@@ -358,7 +374,9 @@ async function boot(): Promise<void> {
         camera.lookAt(c.look.x, c.look.y, c.look.z);
       };
       document.exitPointerLock?.();
-      screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits });
+      const today = dailyFor(dayKey(new Date()), layers.current());
+      const names = today.elements.map((e) => e[0].toUpperCase() + e.slice(1)).join(', ');
+      screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits }, { label: `Today: ${names}`, best: dailyBestLine(loadDailyBest(storage, today.day)), onBegin: () => void beginRun(today) });
     };
     showMenu();
   }

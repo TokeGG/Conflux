@@ -39,6 +39,32 @@ function walk(sim: Sim, e: EnemyState, heading: number, speed: number, dt: numbe
 
 const headingTo = (dx: number, dz: number) => Math.atan2(dx, dz);
 
+/** Ticks a look for a clear line stands before the enemy looks again. */
+const LOS_TICKS = 6 / 60;
+
+/**
+ * The direction to walk to reach the player: straight at them when nothing is in the way, otherwise round the obstacles by the
+ * room's route grid. Returns (dx, dz) scaled to length 1.
+ */
+function routeTo(sim: Sim, e: EnemyState): { x: number; z: number } {
+  const { dx, dz, d } = toPlayer(sim, e);
+  const direct = { x: dx / (d || 1), z: dz / (d || 1) };
+  if (d < 2.5) return direct;
+  if (sim.time >= e.losUntil) {
+    const r = bodyRadius(e);
+    const from = { x: e.pos.x, y: e.pos.y + 0.9, z: e.pos.z };
+    e.losClear = sim.world.sweepSphere(from, { x: sim.player.pos.x, y: from.y, z: sim.player.pos.z }, r) === null;
+    e.losUntil = sim.time + LOS_TICKS;
+  }
+  if (e.losClear) return direct;
+  const next = sim.nav.step(e.pos.x, e.pos.z, sim.player.pos.x, sim.player.pos.z);
+  if (!next) return direct;
+  const nx = next.x - e.pos.x;
+  const nz = next.z - e.pos.z;
+  const nd = Math.hypot(nx, nz);
+  return nd < 1e-6 ? direct : { x: nx / nd, z: nz / nd };
+}
+
 function face(sim: Sim, e: EnemyState): void {
   const { dx, dz } = toPlayer(sim, e);
   e.facing = headingTo(dx, dz);
@@ -75,8 +101,9 @@ function rush(sim: Sim, e: EnemyState, dt: number, separate: boolean): void {
     return;
   }
   if (d <= reach) return;
-  let hx = dx / (d || 1);
-  let hz = dz / (d || 1);
+  const route = routeTo(sim, e);
+  let hx = route.x;
+  let hz = route.z;
   if (separate) {
     for (const o of sim.enemies) {
       if (o === e) continue;
@@ -99,7 +126,10 @@ function hold(sim: Sim, e: EnemyState, near: number, far: number, dt: number, st
   const { dx, dz, d } = toPlayer(sim, e);
   face(sim, e);
   const to = headingTo(dx, dz);
-  if (d > far) walk(sim, e, to, speedOf(sim, e), dt);
+  if (d > far) {
+    const route = routeTo(sim, e);
+    walk(sim, e, headingTo(route.x, route.z), speedOf(sim, e), dt);
+  }
   else if (d < near) walk(sim, e, to + Math.PI, speedOf(sim, e), dt);
   else walk(sim, e, to + (e.id % 2 ? 1 : -1) * Math.PI / 2, speedOf(sim, e) * strafe, dt);
 }

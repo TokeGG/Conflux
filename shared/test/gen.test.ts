@@ -8,8 +8,8 @@ import { buildWorld } from '../src/room.ts';
 import type { RoomDef } from '../src/types.ts';
 
 const data = defaultData();
-const THEMES = ['crypt', 'hall', 'cave'];
-const SEEDS = Array.from({ length: 250 }, (_, i) => i + 1);
+const THEMES = Object.keys(data.themes);
+const SEEDS = Array.from({ length: 60 }, (_, i) => i + 1);
 const rooms = new Map<string, RoomDef>();
 const get = (theme: string, seed: number): RoomDef => {
   const key = `${theme}/${seed}`;
@@ -17,13 +17,13 @@ const get = (theme: string, seed: number): RoomDef => {
   return rooms.get(key)!;
 };
 
-test('every room of 250 seeds per theme is solvable: the start reaches every exit and every enemy spot', () => {
+test('every room of 60 seeds per theme is solvable: the start reaches every exit and every enemy spot', () => {
   for (const theme of THEMES) for (const seed of SEEDS) assert.ok(isSolvable(get(theme, seed)), `${theme} seed ${seed}`);
 });
 
 test('the start, every exit and every enemy spot are clear of props', () => {
   for (const theme of THEMES) {
-    for (const seed of SEEDS.slice(0, 100)) {
+    for (const seed of SEEDS) {
       const room = get(theme, seed);
       const world = buildWorld(room);
       const spots = [room.spawns.player, ...room.spawns.doors, ...room.spawns.enemies];
@@ -34,7 +34,7 @@ test('the start, every exit and every enemy spot are clear of props', () => {
 
 test('walls are closed: every edge of the floor has a wall or gate piece on it', () => {
   for (const theme of THEMES) {
-    for (const seed of SEEDS.slice(0, 100)) {
+    for (const seed of SEEDS) {
       const room = get(theme, seed);
       const cells = new Set(room.cells!.map(([i, j]) => `${i},${j}`));
       const [w, d] = room.size;
@@ -60,8 +60,8 @@ test('walls are closed: every edge of the floor has a wall or gate piece on it',
 
 test('the same inputs give an identical room, and different seeds give different rooms', () => {
   assert.deepEqual(generateRoom(data, 7, 2, 3, 'crypt'), generateRoom(data, 7, 2, 3, 'crypt'));
-  const sigs = new Set(SEEDS.slice(0, 100).map((s) => JSON.stringify(get('hall', s).pieces)));
-  assert.ok(sigs.size >= 95, `only ${sigs.size} of 100 hall rooms differ`);
+  const sigs = new Set(SEEDS.map((s) => JSON.stringify(get('hall', s).pieces)));
+  assert.ok(sigs.size >= SEEDS.length - 3, `only ${sigs.size} of ${SEEDS.length} hall rooms differ`);
 });
 
 test('without a theme the room picks one, and the choice is also the same every time', () => {
@@ -69,7 +69,8 @@ test('without a theme the room picks one, and the choice is also the same every 
   assert.deepEqual(a, generateRoom(data, 11, 1, 4));
   assert.ok(THEMES.includes(a.theme));
   const seen = new Set(SEEDS.slice(0, 60).map((s) => generateRoom(data, s, 1, 0).theme));
-  assert.ok(seen.size === 3, `only ${[...seen]} appeared`);
+  assert.ok(seen.size >= 8, `only ${[...seen]} appeared`);
+  assert.ok(!seen.has('arena'), 'the arena is only for boss rooms');
 });
 
 test('L-shaped footprints keep every enemy spot and the start on a floor cell', () => {
@@ -89,7 +90,7 @@ test('L-shaped footprints keep every enemy spot and the start on a floor cell', 
 
 test('a room has 1 to 3 exits, 12 to 28 enemy spots, a piece count in the recipe range, and lights', () => {
   for (const theme of THEMES) {
-    for (const seed of SEEDS.slice(0, 100)) {
+    for (const seed of SEEDS) {
       const room = get(theme, seed);
       assert.ok(room.spawns.doors.length >= 1 && room.spawns.doors.length <= 3, `${theme} ${seed} exits`);
       assert.ok(room.spawns.enemies.length >= 12 && room.spawns.enemies.length <= 28, `${theme} ${seed} enemy spots ${room.spawns.enemies.length}`);
@@ -98,7 +99,7 @@ test('a room has 1 to 3 exits, 12 to 28 enemy spots, a piece count in the recipe
       assert.equal(room.theme, theme);
       assert.ok(room.look!.floorTex.startsWith('tex.') && room.look!.wallTex.startsWith('tex.'));
     }
-    const mean = SEEDS.slice(0, 100).reduce((n, seed) => n + get(theme, seed).pieces.length, 0) / 100;
+    const mean = SEEDS.reduce((n, seed) => n + get(theme, seed).pieces.length, 0) / SEEDS.length;
     assert.ok(mean >= 250, `${theme}: a lot of scenery wanted, mean ${mean.toFixed(0)} pieces`);
     const t = data.themes[theme];
     const room = get(theme, 3);

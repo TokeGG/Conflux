@@ -1,5 +1,6 @@
 // Runs the flow of one run on top of the simulation: fight a room, pick a reward, pick a door, enter the next room, until the
 // player dies or the boss falls. It is plain data in and out, so the client's screens and the balance bot drive the same code.
+import type { Daily } from './daily.ts';
 import { makeStreams } from '../rng.ts';
 import type { GameData, SimEvent } from '../types.ts';
 import { createRoomSim } from '../sim/roomSim.ts';
@@ -49,10 +50,10 @@ export class RunDirector {
     return this.mode.id === 'endless';
   }
 
-  constructor(data: GameData, seed: number, ledger: UnlockLedger, tuned = false, mode: RunMode = ROOM_TO_ROOM) {
+  constructor(data: GameData, seed: number, ledger: UnlockLedger, tuned = false, mode: RunMode = ROOM_TO_ROOM, opts?: { daily?: Daily }) {
     this.ledger = ledger;
     this.mode = mode;
-    this.run = mode.start(seed, data, tuned, unlockedPool(ledger, data));
+    this.run = mode.start(seed, data, tuned, unlockedPool(ledger, data), opts);
   }
 
   private record(next: UnlockLedger): void {

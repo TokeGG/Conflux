@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import type { EnemyDef, EnemySnap } from '@conflux/shared';
 import { defaultParams, PRESETS, type PresetParams } from '../anim/procedural.ts';
+import { dampAngle, dampTo, mobMotion, MOTION } from '../anim/mobMotion.ts';
 import { fitHeight } from './scene.ts';
 
 const FADE = 0.2;
@@ -24,6 +25,13 @@ export class EnemyView {
   private prev: { x: number; z: number } | null = null;
   private moving = false;
   private attackSince = -1;
+  /** Where the view is drawn: it follows the simulation's position and turn smoothly instead of snapping to each tick. */
+  private shown: { x: number; y: number; z: number; yaw: number } | null = null;
+  private speed = 0;
+  private hurtT = -1;
+  private spawnT = 0;
+  private phase = 0;
+  private lifeScale = new THREE.Vector3();
   private lastAttack: string | null = null;
 
   constructor(
@@ -74,6 +82,7 @@ export class EnemyView {
   /** A short red flash when hit. */
   hurt(): void {
     this.flashLeft = 0.14;
+    this.hurtT = 0;
   }
 
   /** Starts the death animation (shrink and sink); `finished` says when it is over and the view can be removed. */
@@ -129,19 +138,50 @@ export class EnemyView {
       if (this.flashLeft > 0) m.emissive.setRGB(0.9, 0.1, 0.05);
       else m.emissive.copy(this.glow.get(m) ?? ZERO);
     }
-    this.root.position.set(snap.pos.x, snap.pos.y, snap.pos.z);
-    this.root.rotation.y = snap.facing;
-    this.moving = this.prev ? Math.hypot(snap.pos.x - this.prev.x, snap.pos.z - this.prev.z) / Math.max(dt, 1e-3) > MOVING : false;
+    const step = this.prev ? Math.hypot(snap.pos.x - this.prev.x, snap.pos.z - this.prev.z) / Math.max(dt, 1e-3) : 0;
+    this.speed = dampTo(this.speed, step, 10, dt);
+    this.moving = this.prev ? step > MOVING : false;
     this.prev = { x: snap.pos.x, z: snap.pos.z };
+    // follow the simulation smoothly (it ticks at 60 Hz whatever the screen does) and turn the short way round
+    if (!this.shown) this.shown = { x: snap.pos.x, y: snap.pos.y, z: snap.pos.z, yaw: snap.facing };
+    const s = this.shown;
+    s.x = dampTo(s.x, snap.pos.x, MOTION.followRate, dt);
+    s.y = dampTo(s.y, snap.pos.y, MOTION.followRate, dt);
+    s.z = dampTo(s.z, snap.pos.z, MOTION.followRate, dt);
+    s.yaw = dampAngle(s.yaw, snap.facing, MOTION.turnRate, dt);
+    this.root.position.set(s.x, s.y, s.z);
+    this.root.rotation.y = s.yaw;
+    this.spawnT += dt;
+    if (this.hurtT >= 0) this.hurtT += dt;
+    this.phase = (snap.id % 7) * 0.9;
     if (snap.attack && snap.attack !== this.lastAttack) this.attackSince = this.clock;
     if (!snap.attack) this.attackSince = -1;
     this.lastAttack = snap.attack;
 
+    // the body starts each frame at rest; the animation and the extra life are laid on it
+    this.body.position.set(0, 0, 0);
+    this.body.scale.set(1, 1, 1);
     if (this.mixer) {
       this.play(this.pick(snap));
+      // a walk cycle plays at the pace the mob actually moves, so its feet do not skate
+      if (this.current && this.moving && !snap.attack) this.current.timeScale = Math.max(0.6, Math.min(1.7, this.speed / Math.max(this.def.speed, 0.5)));
+      else if (this.current) this.current.timeScale = 1;
       this.mixer.update(dt);
     }
     if (this.def.rig.type === 'procedural') this.proceduralPose(snap);
+    this.addLife();
+  }
+
+  /** The motion every mob gets on top of its own animation: breathing, lean, bob, attack draw-back and thrust, hit kick and spawn pop. */
+  private addLife(): void {
+    const m = mobMotion({ t: this.clock, speed: this.speed, attackT: this.attackSince >= 0 ? this.clock - this.attackSince : -1, hurtT: this.hurtT, spawnT: this.spawnT, phase: this.phase });
+    const procedural = this.def.rig.type === 'procedural';
+    // a procedural mob already breathes and bobs through its preset; the lean, the attack, the hit and the spawn pop still apply
+    this.body.position.x += m.pos.x;
+    this.body.position.y += procedural ? 0 : m.pos.y;
+    this.body.position.z += m.pos.z;
+    this.body.rotation.x = m.tilt;
+    this.body.scale.multiply(this.lifeScale.set(m.scale.x, m.scale.y, m.scale.z));
   }
 
   private proceduralPose(snap: EnemySnap): void {

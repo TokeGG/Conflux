@@ -309,6 +309,8 @@ export interface ThemeDef {
   pools: Record<'set' | 'medium' | 'small' | 'wall', PoolItem[]>;
   /** Enemy id to how often the theme draws it. */
   mobs: Record<string, number>;
+  /** A boss arena: rooms of this style are only used for boss rooms, which hold one of these bosses. */
+  boss?: string[];
 }
 
 export interface BiomeDef {

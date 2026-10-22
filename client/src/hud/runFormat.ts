@@ -82,9 +82,26 @@ export function describeDoor(d: DoorChoice, data: GameData): DoorText {
   };
 }
 
-export function endSummary(run: RunState): { headline: string; lines: string[] } {
+export interface GateText {
+  kind: 'fight' | 'elite' | 'boss';
+  title: string;
+  sub: string;
+}
+
+const STYLE_NAME: Record<string, string> = { bonepit: 'Bone pit', cellar: 'Cellar', prison: 'Prison', grove: 'Grove', chapel: 'Chapel', crypt: 'Crypt', hall: 'Hall', cave: 'Cave', ember: 'Ember cavern', flooded: 'Flooded cave', library: 'Library', arena: 'Arena' };
+
+/** The label hung above a gate: where it leads and what you get for going there. */
+export function describeGate(d: DoorChoice, data: GameData): GateText {
+  const style = STYLE_NAME[d.biome] ?? cap(d.biome);
+  const kind = d.room.type === 'boss' ? 'boss' : d.room.type === 'elite' ? 'elite' : 'fight';
+  const reward = { skill: 'a skill', augment: 'an augment', heal: 'healing', element: 'an element' }[d.reward] ?? d.reward;
+  return { kind, title: kind === 'boss' ? `Boss: ${style}` : kind === 'elite' ? `Elite ${style}` : style, sub: `Reward: ${reward}` };
+}
+
+export function endSummary(run: RunState, bestToday = 0): { headline: string; lines: string[] } {
   const rooms = run.history.length;
   const lines = [`${rooms} ${rooms === 1 ? 'room' : 'rooms'} cleared`, `${run.skills.pool.length} skills, ${run.augments.length} augments`];
+  if (run.daily) lines.push('Daily run', rooms >= bestToday && rooms > 0 ? `New best today: ${rooms} ${rooms === 1 ? 'room' : 'rooms'}` : `Best today: ${bestToday} ${bestToday === 1 ? 'room' : 'rooms'}`);
   if (run.tuned) lines.push('This run used tuned numbers, so it does not count toward unlocks.');
   return { headline: run.status === 'victory' ? 'Victory' : 'You fell', lines };
 }

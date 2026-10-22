@@ -32,6 +32,7 @@ export class Hud {
   private crosshair = div('crosshair');
   private crosshairCfg: CrosshairCfg = defaultCrosshair();
   private crosshairHot: boolean | null = null;
+  private gateLabels: { el: HTMLElement; pos: Vec3 }[] = [];
   private elementChips: HTMLDivElement[] = [];
   private slotBoxes: { box: HTMLDivElement; name: HTMLElement; cd: HTMLElement; text: HTMLElement; key: HTMLElement }[] = [];
   private bonus = div('bonus', 'Swap bonus: +25% and a sure status');
@@ -88,6 +89,17 @@ export class Hud {
   }
 
   /** The camera the enemy tags are projected through. */
+  /** Hangs a label above each open gate (an empty list takes them down). */
+  setGates(gates: { pos: Vec3; title: string; sub: string; kind: string }[]): void {
+    this.gateLabels.forEach((g) => g.el.remove());
+    this.gateLabels = gates.map((g) => {
+      const root = div(`gate ${g.kind}`);
+      root.append(div('t', g.title), div('s', g.sub));
+      this.root.append(root);
+      return { el: root, pos: g.pos };
+    });
+  }
+
   /** Changes how the crosshair looks (from the dev panel or the saved setting). */
   setCrosshair(cfg: CrosshairCfg): void {
     this.crosshairCfg = cfg;
@@ -98,6 +110,7 @@ export class Hud {
   private drawCrosshair(hot: boolean): void {
     if (hot === this.crosshairHot) return;
     this.crosshairHot = hot;
+    this.crosshair.classList.toggle('hot', hot);
     const c = this.crosshairCfg;
     this.crosshair.style.width = this.crosshair.style.height = `${c.size}px`;
     this.crosshair.style.margin = `${-c.size / 2}px 0 0 ${-c.size / 2}px`;
@@ -129,6 +142,7 @@ export class Hud {
     this.hpFill.style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
     this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
     this.drawCrosshair(aimTarget !== null);
+    for (const g of this.gateLabels) this.place(g.el, g.pos.x, g.pos.y + 3.2, g.pos.z);
     this.updateTags(s, aimTarget, showAi);
     this.updateNumbers();
   }

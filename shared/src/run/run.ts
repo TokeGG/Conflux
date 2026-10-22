@@ -1,4 +1,5 @@
 // The shapes of a run: the plan for a room, the choices at a door, and the state that carries from room to room.
+import type { Daily } from './daily.ts';
 import type { GameData, Rarity, RoomDef } from '../types.ts';
 import type { Vec3 } from '../math.ts';
 
@@ -55,6 +56,8 @@ export interface RunState {
   tuned: boolean;
   /** The content the player has unlocked; everything when absent. */
   pool?: { skills: Set<string>; augments: Set<string> };
+  /** True in the daily run: the three elements are locked, so no reward offers another. */
+  daily: boolean;
   status: 'running' | 'victory' | 'defeat';
   /** The game data the run plans its rooms from (shared, not copied; the run is never sent whole to another thread). */
   data: GameData;
@@ -62,7 +65,7 @@ export interface RunState {
 
 export interface RunMode {
   id: string;
-  start(seed: number, data: GameData, tuned?: boolean, pool?: RunState['pool']): RunState;
+  start(seed: number, data: GameData, tuned?: boolean, pool?: RunState['pool'], opts?: { daily?: Daily }): RunState;
   nextChoices(state: RunState): DoorChoice[];
   onRoomCleared(state: RunState): RunState;
 }

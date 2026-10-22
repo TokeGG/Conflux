@@ -8,8 +8,8 @@ import { USED_PIECES } from '../../scripts/gen-pieces.ts';
 const manifest = new Set<string>((JSON.parse(readFileSync(new URL('../../client/public/assets/assets.json', import.meta.url), 'utf8')) as { id: string }[]).map((a) => a.id));
 const data = defaultData();
 
-test('the three themes exist and the data validates with them', () => {
-  assert.deepEqual(Object.keys(data.themes).sort(), ['cave', 'crypt', 'hall']);
+test('the twelve themes exist and the data validates with them', () => {
+  assert.deepEqual(Object.keys(data.themes).sort(), ['arena', 'bonepit', 'cave', 'cellar', 'chapel', 'crypt', 'ember', 'flooded', 'grove', 'hall', 'library', 'prison']);
   assert.deepEqual(validateData(data), []);
 });
 

@@ -1,5 +1,6 @@
 // The simulation: a fixed 60 Hz tick over plain data. It takes inputs and returns events; it never touches graphics.
 import type { Vec3 } from '../math.ts';
+import { NavGrid } from './nav.ts';
 import { World } from '../world.ts';
 import { makeStreams, type Streams } from '../rng.ts';
 import { ELEMENTS, SLOTS, type Element, type GameData, type Input, type ReactionDef, type SimEvent, type Slot, type SkillDef } from '../types.ts';
@@ -44,6 +45,11 @@ export class Sim {
   /** How many enemies have ever been spawned, and whether the room has been announced as cleared. */
   spawned = 0;
   roomCleared = false;
+  private navGrid: NavGrid | null = null;
+  /** How enemies find their way round the room's walls and props (built the first time it is needed). */
+  get nav(): NavGrid {
+    return (this.navGrid ??= new NavGrid(this.world));
+  }
   /** The gates of the room (inside points). Walking into one after the room is cleared emits `door_entered`. */
   doors: Vec3[] = [];
   private inDoor = -1;

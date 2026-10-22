@@ -9,6 +9,8 @@ export const USED_PIECES: Record<string, string[]> = {
   dungeon: ['template-floor', 'template-floor-detail', 'template-floor-detail-a', 'template-wall', 'template-wall-detail-a', 'template-wall-corner', 'template-wall-half', 'template-corner', 'gate', 'gate-metal-bars', 'gate-door', 'template-floor-layer', 'template-floor-layer-raised'],
   graveyard: ['coffin', 'coffin-old', 'crypt-small', 'crypt-a', 'crypt-b', 'gravestone-bevel', 'gravestone-broken', 'gravestone-cross', 'gravestone-cross-large', 'gravestone-round', 'gravestone-wide', 'gravestone-debris', 'gravestone-decorative', 'urn-round', 'urn-square', 'debris', 'debris-wood', 'pillar-square', 'pillar-large', 'pillar-small', 'pillar-obelisk', 'column-large', 'altar-stone', 'candle', 'candle-multiple', 'fire-basket', 'lantern-candle', 'stone-wall', 'stone-wall-column', 'rocks', 'rocks-tall', 'trunk', 'shovel-dirt', 'crypt-large'],
   cave: ['template-floor', 'template-floor-detail', 'template-floor-detail-a', 'template-wall', 'template-wall-detail-a', 'template-wall-corner', 'gate', 'gate-metal-bars', 'gate-rock'],
+  minidungeon: ['barrel', 'chair', 'chest', 'column', 'pot', 'table', 'banner', 'wood-structure', 'wood-support', 'stones', 'rocks', 'trap'],
+  forest: ['tree', 'tree-high', 'plant', 'rocks-high', 'rocks-low', 'stones', 'fence', 'tent', 'flag', 'patch-grass', 'patch-dirt'],
   nature: ['rock_largeA', 'rock_largeB', 'rock_largeC', 'rock_tallA', 'rock_tallC', 'rock_tallF', 'rock_tallI', 'rock_smallA', 'rock_smallB', 'rock_smallC', 'rock_smallF', 'stone_smallA', 'mushroom_tanTall', 'mushroom_redGroup', 'mushroom_tanGroup', 'stump_old', 'log'],
 };
 

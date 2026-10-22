@@ -59,6 +59,7 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
     }
     if (kind === 'element') {
       // an element off the bench that has skills to play; one at most per set
+      if (state.daily) return null; // the day's three elements are locked
       const bench = ELEMENTS.filter((el) => !state.skills.equipped.includes(el) && state.skills.slots[el].basic && !out.some((o) => o.kind === 'element' && o.element === el));
       return bench.length ? { kind, element: rng.pick(bench) } : null;
     }
@@ -93,7 +94,7 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
   const first: RewardKind = forceSkill ? 'skill' : state.reward;
   if (!add(first)) add(first === 'augment' ? 'heal' : 'augment');
   // every third room one of the offers is an element off the bench (until shops sell them)
-  if ((state.roomIndex + 1) % ELEMENT_EVERY === 0) add('element');
+  if ((state.roomIndex + 1) % ELEMENT_EVERY === 0 && !state.daily) add('element');
   let guard = 0;
   while (out.length < OFFERS && guard++ < 200) {
     const hasSkills = skillPool(state, data, skillIds).length > 0;
