@@ -6,7 +6,7 @@ export interface ChangeRow {
   path: string;
   from: unknown;
   to: unknown;
-  layer: 'session' | 'run' | 'custom';
+  layer: 'server' | 'session' | 'run' | 'custom';
 }
 
 /** A mob added by the owner (from the dev panel): an enemy entry and the biome pools it joins. */
@@ -17,6 +17,7 @@ export interface CustomMobData {
 }
 
 export class DataLayers {
+  private server: DataPatch[] = [];
   private session: DataPatch[] = [];
   private run: DataPatch[] = [];
   private cache: GameData | null = null;
@@ -27,6 +28,18 @@ export class DataLayers {
   version = 0;
 
   constructor(readonly base: GameData) {}
+
+  /** Replaces the layer of tuning published for everyone by dev accounts (it sits under the session and run layers). */
+  setServer(patches: readonly DataPatch[]): string[] {
+    const { ok, errors } = this.sanitize(patches);
+    this.server = ok;
+    this.touch();
+    return errors;
+  }
+
+  serverPatches(): DataPatch[] {
+    return [...this.server];
+  }
 
   /** Replaces the session layer. Patches that no longer apply are dropped and reported. */
   setSession(patches: readonly DataPatch[]): string[] {
@@ -105,7 +118,7 @@ export class DataLayers {
 
   /** True when any patch or uploaded mob is in effect: a run on this data must not count toward unlocks. */
   isModified(): boolean {
-    return this.patches().length > 0 || this.custom.length > 0;
+    return this.patches().length > 0 || this.server.length > 0 || this.custom.length > 0;
   }
 
   /** The effective patches, one per path: session patches that are not overridden, then the run patches. */
@@ -117,13 +130,13 @@ export class DataLayers {
   }
 
   current(): GameData {
-    if (!this.cache) this.cache = applyPatches(this.withCustom(), [...this.session, ...this.run]).data;
+    if (!this.cache) this.cache = applyPatches(this.withCustom(), [...this.server, ...this.session, ...this.run]).data;
     return this.cache;
   }
 
   /** Every changed value as file value to current value, one row per path, tagged with the layer that wins. */
   changes(): ChangeRow[] {
-    const paths = [...new Set([...this.session, ...this.run].map((p) => p.path))];
+    const paths = [...new Set([...this.server, ...this.session, ...this.run].map((p) => p.path))];
     const now = this.current();
     const rows: ChangeRow[] = [];
     for (const m of this.custom) rows.push({ path: `enemies.${m.id}`, from: undefined, to: 'added', layer: 'custom' });
@@ -131,7 +144,7 @@ export class DataLayers {
       const from = resolvePath(this.withCustom(), path)?.value;
       const to = resolvePath(now, path)?.value;
       if (from === to) continue;
-      rows.push({ path, from, to, layer: this.run.some((p) => p.path === path) ? 'run' : 'session' });
+      rows.push({ path, from, to, layer: this.run.some((p) => p.path === path) ? 'run' : this.session.some((p) => p.path === path) ? 'session' : 'server' });
     }
     return rows;
   }
