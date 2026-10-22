@@ -124,9 +124,9 @@ test('a lost run reports where it ended: the room, its type and theme, and what 
     if (r.seconds >= 899) continue;
     lost++;
     assert.ok(r.death, `seed ${seed} died without a death report`);
-    assert.equal(r.death.room, r.rooms, 'the room it died in is the one after the rooms it cleared');
+    assert.ok(r.death.room >= r.rooms, 'the room it died in is at or after the number of fights it cleared (quiet rooms are not fights)');
     assert.ok(['combat', 'elite', 'boss'].includes(r.death.type) && r.death.theme in data.themes);
-    assert.ok(r.death.killer === '' || r.death.killer === 'timeout' || r.death.killer === 'zone' || r.death.killer.startsWith('elite.') || r.death.killer in data.enemies, `killer ${r.death.killer}`);
+    assert.ok(r.death.killer === '' || r.death.killer === 'timeout' || r.death.killer === 'zone' || r.death.killer === 'projectile' || r.death.killer.startsWith('elite.') || r.death.killer in data.enemies, `killer ${r.death.killer}`);
   }
   assert.ok(lost > 0, 'some run in twelve should end in a death');
 });

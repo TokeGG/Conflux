@@ -160,8 +160,8 @@ One reaction for every pair of elements. It fires when a target carrying one ele
 | `enemy.fire_sprite` | Fire Sprite | fire | 30 | 3.5 | 2 | flyer | water, dark | wind | - | atk.ember_bolt |
 | `enemy.wisp` | Wisp | wind | 45 | 3 | 3 | flyer | fire, dark | earth, light | - | atk.wisp_dive |
 | `enemy.gust` | Gust | wind | 25 | 4 | 1 | swarm | fire, lightning | earth | - | atk.gust_nip |
-| `boss.maw` | Maw | earth | 1800 | 2.6 | 0 | rusher | wind, lightning | water, poison | - | atk.maw_claw, atk.maw_slam, atk.maw_charge, atk.maw_summon |
-| `boss.reaper` | Pumpkin Reaper | earth | 1500 | 2.4 | 0 | rusher | water, wind, light | dark, poison | burning, rocked | atk.reaper_scythe, atk.reaper_wave, atk.reaper_spikes |
+| `boss.maw` | Maw | earth | 2900 | 2.6 | 0 | rusher | wind, lightning | water, poison | - | atk.maw_claw, atk.maw_slam, atk.maw_charge, atk.maw_summon |
+| `boss.reaper` | Pumpkin Reaper | earth | 2400 | 2.4 | 0 | rusher | water, wind, light | dark, poison | burning, rocked | atk.reaper_scythe, atk.reaper_wave, atk.reaper_spikes |
 | `enemy.skeleton` | Skeleton | earth | 55 | 2.6 | 2 | swarm | fire, light | earth, poison | - | atk.skeleton_slash |
 | `enemy.skeleton_mage` | Skeleton Mage | earth | 40 | 2 | 3 | shooter | fire, light | earth, poison | - | atk.bone_bolt |
 | `enemy.bone_giant` | Bone Giant | earth | 320 | 1.7 | 7 | tank | fire, light | earth, poison, metal | - | atk.bone_stomp, atk.skeleton_slash |
