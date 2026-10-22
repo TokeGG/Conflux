@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.43",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:26:02Z",
+    "notes": [
+      "The cave rock kit is in the game, ready for the generated dungeon."
+    ]
+  },
+  {
     "version": "0.1.42",
     "date": "2026-10-22",
     "at": "2026-10-22T04:22:37Z",

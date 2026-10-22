@@ -13,6 +13,7 @@ export const KEEP: [string, string][] = [
   ['fx/spellwoven', 'client/public/assets/fx/spellwoven'],
   ['env/forest', 'client/public/assets/env/forest'],
   ['env/dungeon', 'client/public/assets/env/dungeon'],
+  ['env/cave', 'client/public/assets/env/cave'],
   ['env/graveyard', 'client/public/assets/env/graveyard'],
   ['env/nature', 'client/public/assets/env/nature'],
   ['env/index.json', 'client/public/assets/env/index.json'],
