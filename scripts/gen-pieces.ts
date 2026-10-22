@@ -3,6 +3,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { EnvIndex } from '../shared/src/room.ts';
+import { PROC_KIT, procBounds } from '../shared/src/gen/proc.ts';
+import { PROC_DEFS } from './proc-defs.ts';
 
 /** Every piece any theme recipe names (themes.json may only use these). */
 export const USED_PIECES: Record<string, string[]> = {
@@ -28,11 +30,15 @@ export function buildPieces(index: EnvIndex): PieceBounds {
       out[kit][id] = { size: item.size.map(r3) as [number, number, number], min: item.min.map(r3) as [number, number, number] };
     }
   }
+  // the procedural props (kit `proc`) take their bounds from their own boxes, not from the environment index
+  out[PROC_KIT] = {};
+  for (const [id, def] of Object.entries(PROC_DEFS)) out[PROC_KIT][id] = procBounds(def);
   return out;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const index = JSON.parse(readFileSync(new URL('../client/public/assets/env/index.json', import.meta.url), 'utf8')) as EnvIndex;
+  writeFileSync(new URL('../shared/data/proc.json', import.meta.url), JSON.stringify(PROC_DEFS) + '\n');
   writeFileSync(new URL('../shared/data/pieces.json', import.meta.url), JSON.stringify(buildPieces(index), null, 1) + '\n');
-  console.log('wrote shared/data/pieces.json');
+  console.log('wrote shared/data/proc.json and shared/data/pieces.json');
 }

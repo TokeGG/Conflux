@@ -1,8 +1,9 @@
 // Builds the visible side of a room: floor tiles and the kit pieces, from the room data and the asset manifest.
 import * as THREE from 'three';
-import { pieceAssetId, slugId, type RoomDef } from '@conflux/shared';
+import { isProc, pieceAssetId, slugId, type RoomDef } from '@conflux/shared';
 import type { AssetLoader } from '../assets/loader.ts';
 import { applyTextureFilters, CHUNKY } from './profile.ts';
+import { buildProcGroup } from './procProps.ts';
 import { addDetail, skinFor, tintMaterials } from './skins.ts';
 
 export async function buildRoomScene(room: RoomDef, loader: AssetLoader): Promise<THREE.Group> {
@@ -42,6 +43,7 @@ export async function buildRoomScene(room: RoomDef, loader: AssetLoader): Promis
   group.add(propsGroup);
   const cache = new Map<string, THREE.Object3D>();
   for (const p of room.pieces) {
+    if (isProc(p.kit)) continue; // procedural props are instanced below
     const id = pieceAssetId(p);
     let src = cache.get(id);
     if (!src) cache.set(id, (src = (await loader.loadModel(id)).scene));
@@ -72,5 +74,10 @@ export async function buildRoomScene(room: RoomDef, loader: AssetLoader): Promis
     }
   }
   applyTextureFilters(group, CHUNKY);
+  // the procedural props: instanced, tinted like the rest, a wood texture on the planks (built last: they own their materials)
+  if (room.pieces.some((p) => isProc(p.kit))) {
+    const wood = await loader.loadTexture('tex.sbs256.wood.wood_05_256x256', 'linear');
+    group.add(buildProcGroup(room.pieces, wood, skin?.tint ?? null));
+  }
   return group;
 }

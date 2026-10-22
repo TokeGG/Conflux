@@ -165,6 +165,7 @@ const flyer: Behaviour = (sim, e, dt) => {
     walk(sim, e, headingTo(dx, dz), speed * 2.5, dt);
     e.pos.y += Math.max(-speed * 2.5 * dt, Math.min(speed * 2.5 * dt, dy));
     if (reach < 1.2 && dive) {
+      sim.lastHurtBy = e.def.id;
       dealDamage(sim, p, dive.a.damage, 'none', { applies: dive.a.applies ?? null });
       e.aiState = 'recover';
       e.aiUntil = sim.time + 1.5;

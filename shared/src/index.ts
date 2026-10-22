@@ -37,6 +37,7 @@ export * from './run/unlocks.ts';
 export * from './run/endless.ts';
 export * from './run/daily.ts';
 export * from './gen/generate.ts';
+export * from './gen/proc.ts';
 export * from './gen/reach.ts';
 export * from './run/director.ts';
 export * from './run/loadout.ts';

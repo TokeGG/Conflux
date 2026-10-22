@@ -47,7 +47,7 @@ export function tickStatuses(sim: Sim, target: Combatant, dt: number): void {
 
 function burnTick(sim: Sim, target: Combatant, damage: number, spread: number, until: number): void {
   if (isEnemy(target)) damageEnemy(sim, target, damage, 'status.burning', target.pos);
-  else sim.hurtPlayer(damage);
+  else sim.hurtPlayer(damage); // lastHurtBy stays on whatever set the player alight
   if (!isEnemy(target) || spread <= 0 || until - sim.time <= EPS) return; // the last tick of a fire spreads nothing
   for (const other of sim.enemies) {
     if (other === target || other.def.immune?.includes('burning')) continue;

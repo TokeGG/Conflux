@@ -110,9 +110,9 @@ test('claiming an augment adds it with its rarity', () => {
 
 test('claiming a heal restores a share of health, more for a higher rarity, and never past the maximum', () => {
   const data = defaultData();
-  const hurt = { ...fresh(data), hp: 40 };
+  const hurt = { ...fresh(data), hp: 5 };
   const common = claimReward(hurt, { kind: 'heal', rarity: 'common' });
-  assert.ok(Math.abs(common.hp - (40 + data.rewards.healFraction * data.player.health)) < 1e-9, `${common.hp}`);
+  assert.ok(Math.abs(common.hp - (5 + data.rewards.healFraction * data.player.health)) < 1e-9, `${common.hp}`);
   const epic = claimReward(hurt, { kind: 'heal', rarity: 'epic' });
   assert.ok(epic.hp > common.hp);
   assert.equal(claimReward({ ...hurt, hp: 95 }, { kind: 'heal', rarity: 'epic' }).hp, data.player.health);

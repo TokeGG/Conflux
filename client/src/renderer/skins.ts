@@ -2,6 +2,7 @@
 // over its floors and walls in world space (projected along the dominant axis of the surface) and tints everything cool and dark.
 import * as THREE from 'three';
 import type { RoomLook } from '@conflux/shared';
+import { disposeProc } from './procProps.ts';
 
 export interface Skin {
   floorTex: string;
@@ -61,4 +62,5 @@ export function disposeCopies(root: THREE.Object3D): void {
     if (!mesh.material) return;
     for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) if (m.userData.roomCopy) m.dispose();
   });
+  disposeProc(root);
 }

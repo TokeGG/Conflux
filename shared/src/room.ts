@@ -20,7 +20,7 @@ const BOUNDARY_HEIGHT = 10;
 /** What a kit piece collides as: trees as cylinders, solid props as boxes, floor tiles and small decor not at all. */
 export function colliderKindFor(pieceId: string): 'box' | 'cyl' | null {
   if (/^(tree|pine)/.test(pieceId)) return 'cyl';
-  if (/^(rocks|rock_(?!small)|tent|fence|building|platform|bridge|template-wall|column|pillar|crypt|altar|coffin|stone-wall|brick-wall|barrel|chest|table|wood-structure)/.test(pieceId)) return 'box';
+  if (/^(rocks|rock_(?!small)|tent|fence|building|platform|bridge|template-wall|column|pillar|crypt|altar|coffin|stone-wall|brick-wall|barrel|chest|table|wood-structure|bookshelf|reading-table|lectern|bone-pile|skull-heap|crate|cell-bars|pew|cot)/.test(pieceId)) return 'box';
   return null;
 }
 

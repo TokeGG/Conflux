@@ -32,6 +32,7 @@ export class AssetLoader {
   private gltf = new GLTFLoader();
   private custom = new Map<string, Uint8Array>();
   private textures = new THREE.TextureLoader();
+  private textureCache = new Map<string, Promise<THREE.Texture>>();
 
   constructor(
     readonly manifest: AssetEntry[],
@@ -68,12 +69,20 @@ export class AssetLoader {
     return p;
   }
 
-  async loadTexture(id: string, filter: 'nearest' | 'linear' = 'nearest'): Promise<THREE.Texture> {
-    const t = await this.textures.loadAsync(this.url(id));
-    t.magFilter = t.minFilter = filter === 'nearest' ? THREE.NearestFilter : THREE.LinearFilter;
-    t.generateMipmaps = false;
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
+  /** A texture, loaded once per id and filter and shared by every room (a room that asked again used to upload a new copy that was never freed). */
+  loadTexture(id: string, filter: 'nearest' | 'linear' = 'nearest'): Promise<THREE.Texture> {
+    const key = `${id}|${filter}`;
+    let p = this.textureCache.get(key);
+    if (!p) {
+      p = this.textures.loadAsync(this.url(id)).then((t) => {
+        t.magFilter = t.minFilter = filter === 'nearest' ? THREE.NearestFilter : THREE.LinearFilter;
+        t.generateMipmaps = false;
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      });
+      this.textureCache.set(key, p);
+    }
+    return p;
   }
 
   loadJson<T>(id: string): Promise<T> {

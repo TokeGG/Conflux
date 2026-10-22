@@ -10,7 +10,7 @@ import type { DoorChoice, RoomPlan, RunMode, RunState } from './run.ts';
 
 /** Rooms in a floor: the depth, which gates the themes by `minDepth`, rises by one after this many. */
 const ROOMS_PER_FLOOR = 8;
-const budgetFor = (index: number) => 12 + 5 * index;
+const budgetFor = (data: GameData, index: number) => data.rewards.budget.base + data.rewards.budget.perRoom * index;
 /** Every third room from the third is an elite room, as in the first run mode. */
 const isElite = (index: number) => index % 3 === 2;
 /** Every fifth room closes with a boss in the arena. */
@@ -24,7 +24,7 @@ export function planRoomAt(data: GameData, seed: number, depth: number, index: n
   if (arena) return planBoss(data, seed, depth, index, gate, room, arena);
   const def = data.themes[theme];
   const rng = makeStreams(seed).encounter.fork(`room/${index}/${gate}`);
-  const budget = budgetFor(index);
+  const budget = budgetFor(data, index);
   // no single enemy may cost more than half the budget (at least 4), so early rooms are crowds of small things and the big ones come later
   const pool = { id: theme, enemyPool: Object.keys(def.mobs).filter((m) => data.enemies[m] && data.enemies[m].cost <= Math.max(4, budget * 0.5)).sort() };
   const enemies = encounterFor(budget, pool, data.enemies, rng, room.spawns.enemies, def.mobs);
@@ -42,7 +42,7 @@ function planBoss(data: GameData, seed: number, depth: number, index: number, ga
   const rng = makeStreams(seed).encounter.fork(`room/${index}/${gate}/boss`);
   const spots = [...room.spawns.enemies].sort((a, b) => Math.hypot(a.x, a.z) - Math.hypot(b.x, b.z));
   const boss = rng.pick([...(arena.boss ?? [])].sort());
-  const budget = budgetFor(index);
+  const budget = budgetFor(data, index);
   const adds = encounterFor(Math.round(budget * 0.4), { id: arena.id, enemyPool: Object.keys(arena.mobs).filter((m) => data.enemies[m] && data.enemies[m].cost <= Math.max(4, budget * 0.3)).sort() }, data.enemies, rng, spots.slice(1), arena.mobs);
   const enemies = [{ enemyId: boss, at: { x: spots[0].x, y: 0, z: spots[0].z } }, ...adds];
   return { index, roomId: room.id, biome: arena.id, type: 'boss', budget, enemies, def: room };

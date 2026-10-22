@@ -219,6 +219,8 @@ export interface RunReport {
   skillUse: Record<string, number>;
   augmentUse: Record<string, number>;
   reactions: Record<string, number>;
+  /** Where the run ended, when the bot died: the room's number (0 based), its type and theme, and what dealt the last hit. */
+  death?: { room: number; type: string; theme: string; killer: string };
 }
 
 /** A room the bot cannot clear in this long counts as a loss, so a stuck fight cannot hang a report. */
@@ -251,7 +253,8 @@ export function playRun(data: GameData, seed: number, maxSeconds: number): RunRe
   const d = new RunDirector(data, seed, emptyLedger(), false, ENDLESS);
   const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {} };
   let sim: Sim | null = null;
-  d.onEnter = () => (sim = null);
+  let lastKiller = '';
+  d.onEnter = () => ((sim = null), (lastKiller = ''));
   let ticks = 0;
   let roomTicks = 0;
   const limit = Math.floor(maxSeconds / TICK);
@@ -268,13 +271,15 @@ export function playRun(data: GameData, seed: number, maxSeconds: number): RunRe
       if (e.type === 'cast') bump(report.skillUse, String(e.skillId));
       else if (e.type === 'reaction') bump(report.reactions, String(e.effect));
     }
+    if (sim.lastHurtBy) lastKiller = sim.lastHurtBy;
     d.onPlayerHp(sim.player.hp);
     d.onEvents(events);
     if (!sim) roomTicks = 0;
     // a room the bot cannot clear (or leave) in this long counts as a loss, so a stuck fight cannot hang a report
-    else if (roomTicks * TICK > ROOM_LIMIT) d.onPlayerHp(0);
+    else if (roomTicks * TICK > ROOM_LIMIT) ((lastKiller = 'timeout'), d.onPlayerHp(0));
   }
   for (const a of d.run.augments) bump(report.augmentUse, a.id);
+  if (d.phase === 'dead') report.death = { room: d.run.current.index, type: d.run.current.type, theme: d.run.current.biome, killer: lastKiller };
   report.rooms = d.run.history.length;
   report.seconds = ticks * TICK;
   return report;

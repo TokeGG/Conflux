@@ -290,6 +290,14 @@ export interface PoolItem {
   turn?: 'quarter' | 'none';
   /** The light it carries: a brazier, a candle, or a mushroom glow. */
   light?: 'brazier' | 'candle' | 'glow';
+  /** A row of this many copies side by side (a run of bookshelves, a block of pews); `clear` then covers the whole row. */
+  row?: number;
+  /** Which way the row runs in the prop's own frame: along its width (the default) or its depth. */
+  rowAxis?: 'x' | 'z';
+  /** Metres between the copies of a row. */
+  gap?: number;
+  /** A candle stands at this height on the prop (a table, a lectern) instead of the default spot. */
+  top?: number;
 }
 
 /** A room style as data: the generator is the same for every theme. */
@@ -329,6 +337,8 @@ export interface RewardsCfg {
   guaranteeSkillByRoom: number;
   /** How much stronger every enemy gets per room entered: health and damage are multiplied by 1 + this x the room number. */
   scaling: { hpPerRoom: number; damagePerRoom: number };
+  /** The endless run's enemy budget for room n (counting from 0): base + perRoom x n. */
+  budget: { base: number; perRoom: number };
 }
 
 export interface GameData {

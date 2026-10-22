@@ -8,9 +8,9 @@ import { makeSim, run } from './helpers.ts';
 
 const data = defaultData();
 
-test('the scaling numbers are 0.10 health and 0.06 damage per room', () => {
+test('the scaling numbers are 0.10 health and 0.02 damage per room (tuned by the balance report)', () => {
   assert.equal(data.rewards.scaling.hpPerRoom, 0.1);
-  assert.equal(data.rewards.scaling.damagePerRoom, 0.06);
+  assert.equal(data.rewards.scaling.damagePerRoom, 0.02);
 });
 
 test('the same enemy at room 10 has twice the health of room 0, and the snapshot carries its level and max health', () => {
@@ -36,7 +36,7 @@ test('the same enemy hits harder at room 10: the damage the player takes is mult
   const base = lost(0);
   assert.ok(base > 0, 'the golem hurt the player at level 0');
   const later = lost(10);
-  assert.ok(Math.abs(later / base - 1.6) < 0.01, `ratio ${later / base}`);
+  assert.ok(Math.abs(later / base - (1 + 10 * data.rewards.scaling.damagePerRoom)) < 0.01, `ratio ${later / base}`);
 });
 
 test('a room built by the run gives its enemies the room number as their level, and elites keep their modifier', () => {
@@ -51,7 +51,7 @@ test('a room built by the run gives its enemies the room number as their level, 
 
 test('the budget and the number of enemies rise with the room, up to 40', () => {
   const counts = [0, 2, 5, 8, 12].map((i) => planRoomAt(data, 9, 1, i).enemies.length);
-  assert.equal(planRoomAt(data, 9, 1, 4).budget, 12 + 5 * 4);
+  assert.equal(planRoomAt(data, 9, 1, 4).budget, data.rewards.budget.base + data.rewards.budget.perRoom * 4);
   // later rooms also buy costlier mobs, so the count need not rise every step, but it does rise overall
   assert.ok(counts[4] >= counts[0] * 1.5, `counts ${counts}`);
   assert.ok(counts[2] > counts[0], `counts ${counts}`);
