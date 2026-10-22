@@ -1,0 +1,110 @@
+// A room from a seed: pick a theme, lay out the floor and walls, scatter props in layers, place the player and the enemy spots,
+// and make sure a player can get to every exit and every spot. Pure: the same inputs always give the same room.
+import { makeStreams } from '../rng.ts';
+import { genColliders } from '../room.ts';
+import { World } from '../world.ts';
+import type { GameData, LightDef, RoomDef, RoomPiece, ThemeDef } from '../types.ts';
+import { boundaryEdges, CELL, makeFootprint, pickExits, type Edge, type Footprint } from './footprint.ts';
+import { envIndexFromPieces } from './pieces.ts';
+import { freeSpot, piece, placeLayer, placeWallDecor, type PlaceCtx } from './place.ts';
+import { isSolvable } from './reach.ts';
+
+export interface GeneratedRoom {
+  room: RoomDef;
+  theme: string;
+}
+
+/** Most props a layer holds (the spec's figures: 2 to 5 set pieces, 10 to 20 medium, 40 to 100 small). */
+const CAPS = { set: 5, medium: 20, small: 100 };
+const ENEMY_SPOTS = 8;
+const OUTWARD_TURN = (nx: number, nz: number) => (nz > 0 ? 0 : nz < 0 ? Math.PI : nx < 0 ? Math.PI / 2 : -Math.PI / 2);
+
+function structure(fp: Footprint, theme: ThemeDef, edges: Edge[], exits: Edge[], gate: (e: Edge) => string, rng: ReturnType<typeof makeStreams>['map']): RoomPiece[] {
+  const out: RoomPiece[] = [];
+  for (const [i, j] of fp.cells) {
+    if (rng.next() < theme.detailChance) out.push(piece(theme.floor.kit, theme.floor.detail, fp.cx(i), fp.cz(j), rng.int(4) * (Math.PI / 2), 1));
+  }
+  for (const e of edges) {
+    const isExit = exits.includes(e);
+    const id = isExit ? gate(e) : rng.next() < 0.3 ? theme.wall.detail : theme.wall.plain;
+    out.push(piece(theme.wall.kit, id, e.x + e.nx, e.z + e.nz, OUTWARD_TURN(e.nx, e.nz), 1));
+  }
+  // the square left outside every convex corner (a lattice point with exactly one floor cell round it)
+  for (let i = 0; i <= fp.cw; i++) {
+    for (let j = 0; j <= fp.cd; j++) {
+      const around = [fp.solid(i - 1, j - 1), fp.solid(i, j - 1), fp.solid(i - 1, j), fp.solid(i, j)];
+      if (around.filter(Boolean).length !== 1) continue;
+      const sx = around[0] || around[2] ? 1 : -1; // the floor cell is to the left (-x) of the point when sx is 1
+      const sz = around[0] || around[1] ? 1 : -1;
+      out.push(piece(theme.wall.kit, theme.wall.corner, -(fp.cw * CELL) / 2 + i * CELL + sx, -(fp.cd * CELL) / 2 + j * CELL + sz, 0, 2));
+    }
+  }
+  return out;
+}
+
+export function generateRoom(data: GameData, seed: number, depth: number, roomIndex: number, themeId?: string): GeneratedRoom {
+  const rng = makeStreams(seed).map.fork(`gen/${depth}/${roomIndex}`);
+  const candidates = Object.values(data.themes).filter((t) => t.minDepth <= depth);
+  const theme = themeId ? data.themes[themeId] : rng.weighted(candidates, (t) => t.weight);
+  if (!theme) throw new Error(`unknown theme ${themeId}`);
+  const floorTex = rng.pick(theme.floor.tex);
+  const wallTex = rng.pick(theme.wall.tex);
+
+  const fp = makeFootprint(rng, theme);
+  const edges = boundaryEdges(fp);
+  const exits = pickExits(rng, fp, edges);
+  const doorSpots = exits.map((e) => ({ x: e.x - e.nx * 1.2, z: e.z - e.nz * 1.2 }));
+  const fixed = structure(fp, theme, edges, exits, () => rng.pick(theme.wall.gates), rng);
+
+  // the player starts on the floor cell farthest from the first exit
+  const far = fp.cells.reduce((best, [i, j]) => (Math.hypot(fp.cx(i) - doorSpots[0].x, fp.cz(j) - doorSpots[0].z) > Math.hypot(fp.cx(best[0]) - doorSpots[0].x, fp.cz(best[1]) - doorSpots[0].z) ? [i, j] : best), fp.cells[0]);
+  const start = { x: fp.cx(far[0]), z: fp.cz(far[1]) };
+
+  const ctx: PlaceCtx = { rng, theme, fp, taken: [{ ...start, r: 4, hard: true }, ...doorSpots.map((d) => ({ ...d, r: 3.2, hard: true }))], props: [] };
+  const spots: { x: number; z: number }[] = [];
+  for (let k = 0; k < ENEMY_SPOTS; k++) {
+    const p = freeSpot(ctx, 2.4, 1.8, 1, true) ?? (spots.length < 5 ? (freeSpot(ctx, 1.4, 1.4, 1, true) ?? freeSpot(ctx, 0.9, 1.0, 1, true)) : null);
+    if (p) spots.push({ x: Math.round(p.x * 1e3) / 1e3, z: Math.round(p.z * 1e3) / 1e3 });
+  }
+  placeLayer(ctx, theme.pools.set, CAPS.set);
+  placeWallDecor(ctx, theme.pools.wall, edges, exits);
+  // a room is never lit by less than three lights: more braziers until it is
+  for (let k = 0; k < 6 && exits.length + ctx.props.reduce((n, p) => n + p.lights.length, 0) < 3; k++) placeWallDecor(ctx, [{ ...theme.pools.wall[0], count: [1, 1] }], edges, exits);
+  placeLayer(ctx, theme.pools.medium, CAPS.medium);
+  placeLayer(ctx, theme.pools.small, CAPS.small, 0.45);
+
+  const exitLights: LightDef[] = exits.map((e) => ({ x: e.x - e.nx * 1.6, y: 2.4, z: e.z - e.nz * 1.6, color: theme.lights.brazier, intensity: 14, dist: 12 }));
+  const index = envIndexFromPieces();
+  const assemble = (): RoomDef => {
+    const pieces = [...fixed, ...ctx.props.flatMap((p) => p.parts)];
+    const colliders = genColliders(pieces, index);
+    // a spot must have room for a 0.8 m body, not just a free grid cell beside it
+    const world = new World(colliders, 0);
+    const open = spots.filter((s) => !world.blocked({ x: s.x, y: 0, z: s.z }, 0.8));
+    return {
+      id: `gen_${seed}_${depth}_${roomIndex}`,
+      biome: theme.id,
+      size: [fp.cw * CELL, fp.cd * CELL],
+      floor: { kit: theme.floor.kit, tile: theme.floor.tile, tileSize: CELL },
+      pieces,
+      colliders,
+      spawns: { player: { x: start.x, y: 0, z: start.z }, enemies: open.map((s) => ({ ...s, y: 0 })), doors: doorSpots.map((d) => ({ x: Math.round(d.x * 1e3) / 1e3, y: 0, z: Math.round(d.z * 1e3) / 1e3 })) },
+      lighting: theme.lighting,
+      cells: fp.cells,
+      lights: [...exitLights, ...ctx.props.flatMap((p) => p.lights)],
+      look: { floorTex, wallTex, tint: theme.tint },
+      theme: theme.id,
+    };
+  };
+
+  // a prop that closes a path is taken away again, the latest first
+  let room = assemble();
+  while (!isSolvable(room) || room.spawns.enemies.length < 5) {
+    let k = ctx.props.length - 1;
+    while (k >= 0 && !ctx.props[k].blocks) k--;
+    if (k < 0) throw new Error(`generated room ${seed}/${depth}/${roomIndex} cannot be solved even without props (${room.spawns.enemies.length} enemy spots, solvable ${isSolvable(room)})`);
+    ctx.props.splice(k, 1);
+    room = assemble();
+  }
+  return { room, theme: theme.id };
+}

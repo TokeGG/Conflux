@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.45",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:33:30Z",
+    "notes": [
+      "Under the hood: a generator that builds random dark rooms (crypts, halls, caves) from a seed."
+    ]
+  },
+  {
     "version": "0.1.44",
     "date": "2026-10-22",
     "at": "2026-10-22T04:27:35Z",

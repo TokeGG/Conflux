@@ -101,8 +101,8 @@
      "id": "coffin",
      "scale": 2.3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.8,
      "turn": "quarter",
@@ -113,8 +113,8 @@
      "id": "coffin-old",
      "scale": 2.3,
      "count": [
-      1,
-      3
+      3,
+      7
      ],
      "clear": 1.8,
      "turn": "quarter"
@@ -124,8 +124,8 @@
      "id": "pillar-square",
      "scale": 3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.4,
      "turn": "none"
@@ -135,8 +135,8 @@
      "id": "gravestone-wide",
      "scale": 2.2,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.4,
      "turn": "quarter"
@@ -146,8 +146,8 @@
      "id": "gravestone-cross-large",
      "scale": 2.2,
      "count": [
-      1,
-      3
+      3,
+      7
      ],
      "clear": 1.4,
      "turn": "quarter"
@@ -158,7 +158,7 @@
      "scale": 3.2,
      "count": [
       0,
-      2
+      5
      ],
      "clear": 2.4,
      "turn": "quarter"
@@ -170,10 +170,10 @@
      "id": "gravestone-bevel",
      "scale": 2.2,
      "count": [
-      2,
-      5
+      10,
+      24
      ],
-     "clear": 1.2,
+     "clear": 0.66,
      "turn": "quarter"
     },
     {
@@ -181,10 +181,10 @@
      "id": "gravestone-broken",
      "scale": 2.2,
      "count": [
-      2,
-      5
+      10,
+      24
      ],
-     "clear": 1.2,
+     "clear": 0.66,
      "turn": "quarter"
     },
     {
@@ -192,10 +192,10 @@
      "id": "gravestone-round",
      "scale": 2.2,
      "count": [
-      2,
-      5
+      10,
+      24
      ],
-     "clear": 1.2,
+     "clear": 0.66,
      "turn": "quarter"
     },
     {
@@ -203,50 +203,50 @@
      "id": "urn-round",
      "scale": 2.4,
      "count": [
-      2,
-      5
+      10,
+      24
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "urn-square",
      "scale": 2.4,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "debris",
      "scale": 2.4,
      "count": [
-      4,
-      8
+      20,
+      39
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "debris-wood",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "candle-multiple",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.7,
+     "clear": 0.39,
      "light": "candle"
     },
     {
@@ -255,9 +255,9 @@
      "scale": 2.4,
      "count": [
       0,
-      2
+      10
      ],
-     "clear": 0.9
+     "clear": 0.5
     }
    ],
    "wall": [
@@ -372,8 +372,8 @@
      "id": "pillar-large",
      "scale": 3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.4,
      "turn": "none"
@@ -383,8 +383,8 @@
      "id": "stone-wall-column",
      "scale": 3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.4,
      "turn": "quarter"
@@ -394,8 +394,8 @@
      "id": "rocks",
      "scale": 2.4,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.8
     },
@@ -404,8 +404,8 @@
      "id": "rocks-tall",
      "scale": 2.4,
      "count": [
-      1,
-      3
+      3,
+      7
      ],
      "clear": 1.8
     },
@@ -415,7 +415,7 @@
      "scale": 2,
      "count": [
       0,
-      1
+      3
      ],
      "clear": 2.4,
      "turn": "quarter"
@@ -427,40 +427,40 @@
      "id": "debris",
      "scale": 2.4,
      "count": [
-      6,
-      12
+      29,
+      58
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "debris-wood",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "urn-square",
      "scale": 2.4,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "graveyard",
      "id": "candle-multiple",
      "scale": 2.4,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 0.7,
+     "clear": 0.39,
      "light": "candle"
     },
     {
@@ -468,10 +468,10 @@
      "id": "gravestone-debris",
      "scale": 2.2,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 1.2,
+     "clear": 0.66,
      "turn": "quarter"
     }
    ],
@@ -597,8 +597,8 @@
      "id": "rock_tallC",
      "scale": 3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.6
     },
@@ -607,8 +607,8 @@
      "id": "rock_tallF",
      "scale": 3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.6
     },
@@ -617,8 +617,8 @@
      "id": "rock_tallI",
      "scale": 3,
      "count": [
-      2,
-      4
+      5,
+      9
      ],
      "clear": 1.6
     },
@@ -627,8 +627,8 @@
      "id": "stump_old",
      "scale": 2.6,
      "count": [
-      1,
-      2
+      3,
+      5
      ],
      "clear": 1.4
     },
@@ -637,8 +637,8 @@
      "id": "log",
      "scale": 2.6,
      "count": [
-      1,
-      3
+      3,
+      7
      ],
      "clear": 1.6
     }
@@ -649,60 +649,60 @@
      "id": "rock_smallA",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "nature",
      "id": "rock_smallB",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "nature",
      "id": "rock_smallC",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "nature",
      "id": "rock_smallF",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "nature",
      "id": "stone_smallA",
      "scale": 2.4,
      "count": [
-      3,
-      6
+      15,
+      29
      ],
-     "clear": 0.9
+     "clear": 0.5
     },
     {
      "kit": "nature",
      "id": "mushroom_tanTall",
      "scale": 3,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 0.9,
+     "clear": 0.5,
      "light": "glow"
     },
     {
@@ -710,10 +710,10 @@
      "id": "mushroom_redGroup",
      "scale": 3,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 0.9,
+     "clear": 0.5,
      "light": "glow"
     },
     {
@@ -721,10 +721,10 @@
      "id": "mushroom_tanGroup",
      "scale": 3,
      "count": [
-      2,
-      4
+      10,
+      20
      ],
-     "clear": 0.9,
+     "clear": 0.5,
      "light": "glow"
     }
    ],
