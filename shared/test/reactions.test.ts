@@ -97,7 +97,7 @@ test('Magma\'s obsidian crust is brittle: +30% damage taken and half speed for 4
   assert.equal(target.marks.brittle, undefined);
 });
 
-test('Firestorm sets enemies within 6 m alight and bursts for 60%', () => {
+test('Firestorm (the fire tornado) sets enemies within 6 m alight, lifts the target and raises a wide tornado', () => {
   const { sim, target } = setup();
   const near = spawnEnemy(sim, 'enemy.dummy', at(5, 8));
   const far = spawnEnemy(sim, 'enemy.dummy', at(7, 8));
@@ -105,7 +105,8 @@ test('Firestorm sets enemies within 6 m alight and bursts for 60%', () => {
   triggerReaction(sim, target, 'wind', 10, sim.time);
   assert.ok(near.statuses.burning);
   assert.equal(far.statuses.burning, undefined);
-  assert.equal(lost(near), 6);
+  assert.equal(mods(sim, target).canAct, false, 'the target is lifted');
+  assert.ok(sim.zones.some((z) => z.kind === 'fire_tornado' && z.radius >= 3.5), 'a wide tornado is up');
 });
 
 test('Mud roots for 2 s, then slows 40% for the following 4 s', () => {
