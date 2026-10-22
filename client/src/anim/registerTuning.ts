@@ -1,6 +1,8 @@
 // Puts the live tuning objects of client/src/anim into the registry the dev panel's "Motion tuning" page lists.
 // Anyone who adds an exported tuning object (for example the attack animations' numbers) adds one line here.
 import { MOTION } from './mobMotion.ts';
+import { ATTACK_TIMING, CLIPPED_BODY_WEIGHT } from './attackAnim.ts';
+import { AURA_PULSE } from './bossAura.ts';
 import { tuning } from './tuning.ts';
 
 export function registerAnimTuning(): void {
@@ -24,4 +26,13 @@ export function registerAnimTuning(): void {
       turnRate: { label: 'Turn rate (per s)', min: 1, max: 100, step: 1 },
     },
   });
+  tuning.register('attackTiming', ATTACK_TIMING, {
+    title: 'Mob attack timing',
+    specs: {
+      strikeSeconds: { label: 'Strike time (s)', min: 0.03, max: 0.6, step: 0.01 },
+      recoverSeconds: { label: 'Recovery time (s)', min: 0.05, max: 1.5, step: 0.01 },
+      clipHitFraction: { label: 'Share of an attack clip where the blow lands', min: 0.1, max: 0.95, step: 0.01 },
+    },
+  });
+  tuning.register('bossAura', AURA_PULSE as unknown as Record<string, unknown>, { title: 'Boss aura pulse', specs: {} });
 }

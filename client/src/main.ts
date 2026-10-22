@@ -27,7 +27,7 @@ import { devEnabled } from './dev/access.ts';
 import { AccountSession, apiBase } from './account/session.ts';
 import { adminPageAllowed, devPanelAllowed } from './account/logic.ts';
 import { AccountChip } from './account/accountUi.ts';
-import { AdminPage, TuningPage } from './dev/pages/accountPages.ts';
+import { AdminPage, TuningPage as PublishTuningPage } from './dev/pages/accountPages.ts';
 import { DevState } from './dev/devstate.ts';
 import { DevPanel } from './dev/panel.ts';
 import { PerfPage } from './dev/perf.ts';
@@ -170,7 +170,7 @@ async function boot(): Promise<void> {
       height: 4,
     });
     panel.registerPage(perf);
-    if (serverThere && session.account?.dev) panel.registerPage(new TuningPage(session, layers, refresh, sendData));
+    if (serverThere && session.account?.dev) panel.registerPage(new PublishTuningPage(session, layers, refresh, sendData));
     if (adminPageAllowed(session.account)) panel.registerPage(new AdminPage(session));
     const p = perf;
     window.__confluxDev = {
