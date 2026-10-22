@@ -11,3 +11,4 @@ Conflux is a browser roguelite. The binding design is `docs/superpowers/specs/20
 - **Licences:** `client/public/assets/licenses.json` lists every asset. Unverified assets only warn until `LICENSE_GATE=enforce` is set, which must be switched on before any public release. Never commit raw downloads or the unmodified Spellwoven pack.
 - **Three.js is pinned to 0.164.1.** Newer releases broke FBX rendering in this project.
 - **Tests first:** every behaviour has a test that was seen to fail before the code that makes it pass. Tests run with `node:test` through `tsx`.
+- **Always push to `main`.** The owner plays the live site (Cloudflare Pages, built from `main`) and wants to see every iteration: after each version passes `npm run typecheck` and `npm test`, push the same commit to `main` as well as the working branch. Their standing instruction, given 2026-10-22.

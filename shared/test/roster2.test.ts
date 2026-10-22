@@ -64,3 +64,15 @@ test('the summoner brings books, and books are not summoned without limit', () =
   assert.equal(a.summon!.enemy, 'enemy.book');
   assert.ok(a.summon!.cap && a.summon!.cap <= 6);
 });
+
+test('the humanoid mobs stand as tall as the rigged elementals, so the roster reads at one scale', () => {
+  const top = (id: string) => {
+    const e = data.enemies[id];
+    return Math.max(...e.hurtboxes.map((h) => Math.max(h.a[1], h.b[1]) + h.r)) * e.scale;
+  };
+  const want = top('enemy.fire_elemental');
+  for (const id of ['enemy.skeleton', 'enemy.skeleton_mage', 'enemy.zombie', 'enemy.vampire', 'enemy.ghost', 'enemy.water_elemental', 'enemy.wraith']) {
+    assert.ok(Math.abs(top(id) - want) < want * 0.1, `${id} is ${top(id).toFixed(2)} m, the fire elemental is ${want.toFixed(2)} m`);
+  }
+  assert.ok(top('enemy.bone_giant') > want * 1.4, 'the bone giant towers over them');
+});
