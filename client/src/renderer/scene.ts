@@ -36,11 +36,14 @@ export function createScene(preset: LightingPreset): GameScene {
 
 /** Scales a model so it is `height` metres tall, stands on y = 0 and is centred on x and z. */
 export function fitHeight(obj: THREE.Object3D, height: number): void {
-  const box = new THREE.Box3().setFromObject(obj);
+  // exact bounds from the vertices: a cloned rigged model's quick bounds are wrong until its bones have been through a frame
+  obj.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(obj, true);
   const size = box.getSize(new THREE.Vector3());
   if (size.y <= 0) return;
   obj.scale.multiplyScalar(height / size.y);
-  const fitted = new THREE.Box3().setFromObject(obj);
+  obj.updateMatrixWorld(true);
+  const fitted = new THREE.Box3().setFromObject(obj, true);
   const c = fitted.getCenter(new THREE.Vector3());
   obj.position.set(obj.position.x - c.x, obj.position.y - fitted.min.y, obj.position.z - c.z);
 }

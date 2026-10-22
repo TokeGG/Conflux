@@ -96,3 +96,45 @@ test('own clips are used for a golem when the model has them, and a model withou
   const bare = new EnemyView(data.enemies['enemy.golem_fire'], model().root, []);
   assert.doesNotThrow(() => bare.update(snap({ defId: 'enemy.golem_fire' }), 1 / 60));
 });
+
+test('every enemy is graded the same way: a little darker and cooler than its model, so all of them sit in one gloomy palette', () => {
+  const { root } = model();
+  const v = new EnemyView(data.enemies['enemy.stump'], root);
+  const c = material(v).color;
+  assert.ok(c.r < 1 && c.g < 1 && c.b < 1, 'darker than the model');
+  assert.ok(c.b > c.r, 'cooler: more blue than red');
+});
+
+test('a skinned model straight from the loader (bones not yet positioned) is fitted to its height', () => {
+  // like a glTF rig: the file gives each bone's inverse bind matrix, but the bones' world matrices are stale until the first frame
+  const geo = new THREE.BoxGeometry(1, 100, 1, 1, 4, 1);
+  geo.translate(0, 50, 0);
+  const n = geo.attributes.position.count;
+  geo.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(new Uint16Array(n * 4), 4));
+  geo.setAttribute('skinWeight', new THREE.Float32BufferAttribute(Array.from({ length: n }, () => [1, 0, 0, 0]).flat(), 4));
+  const bone = new THREE.Bone();
+  bone.position.set(0, 30, 0);
+  const mesh = new THREE.SkinnedMesh(geo, new THREE.MeshStandardMaterial());
+  mesh.add(bone);
+  mesh.bind(new THREE.Skeleton([bone], [new THREE.Matrix4().makeTranslation(0, -30, 0)]), new THREE.Matrix4());
+  const wrapper = new THREE.Group();
+  wrapper.scale.setScalar(2);
+  wrapper.add(mesh);
+  const root = new THREE.Group();
+  root.add(wrapper);
+  const def = data.enemies['enemy.stump'];
+  const v = new EnemyView(def, root);
+  const top = Math.max(...def.hurtboxes.map((h) => Math.max(h.a[1], h.b[1]) + h.r)) * def.scale;
+  v.root.updateMatrixWorld(true);
+  const size = new THREE.Box3().setFromObject(v.root).getSize(new THREE.Vector3());
+  assert.ok(Math.abs(size.y - top) < top * 0.05, `height ${size.y.toFixed(2)} should be ${top.toFixed(2)}`);
+});
+
+test('metallic models are not left fully metallic: with no environment map in the scene, metal would draw black', () => {
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0.3 });
+  const root = new THREE.Group();
+  root.add(new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), mat));
+  const v = new EnemyView(data.enemies['enemy.stump'], root);
+  assert.ok(material(v).metalness <= 0.1);
+  assert.equal(mat.metalness, 1, 'the shared material is untouched');
+});

@@ -39,7 +39,18 @@
       "enemy.treefellow",
       "enemy.fire_sprite",
       "enemy.wisp",
-      "enemy.gust"
+      "enemy.gust",
+      "enemy.skeleton",
+      "enemy.skeleton_mage",
+      "enemy.bone_giant",
+      "enemy.zombie",
+      "enemy.vampire",
+      "enemy.ghost",
+      "enemy.fire_elemental",
+      "enemy.water_elemental",
+      "enemy.wraith",
+      "enemy.book",
+      "enemy.tome_guardian"
     ],
     "bosses": [
       "boss.reaper",

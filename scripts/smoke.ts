@@ -5,6 +5,7 @@ import { createServer } from 'node:http';
 import { readFileSync, existsSync, statSync, readdirSync, mkdirSync } from 'node:fs';
 import { join, extname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaultData } from '@conflux/shared';
 
 const dist = fileURLToPath(new URL('../client/dist/', import.meta.url));
 const shots = fileURLToPath(new URL('../.superpowers/shots/', import.meta.url));
@@ -216,19 +217,24 @@ try {
   }
   // 4d. every enemy of the roster spawns through the dev tool, loads its model and renders without console errors
   {
-    const { page, errors } = await open(browser, `${server.url}?dev&sandbox`);
+    const { page, errors } = await open(browser, `${server.url}?dev&room=dungeon_hall`);
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
-    const ids = ['enemy.stump', 'enemy.treefellow', 'enemy.treegolem', 'enemy.golem_fire', 'enemy.golem_water', 'enemy.golem_wind', 'enemy.fire_sprite', 'enemy.wisp', 'enemy.gust', 'boss.maw', 'boss.reaper'];
+    const ids = Object.keys(defaultData().enemies).filter((id) => id !== 'enemy.dummy');
     await page.evaluate((list) => {
       const c = (window as any).__conflux;
       c.command({ op: 'god', on: true });
-      list.forEach((enemy: string, i: number) => c.command({ op: 'spawn', enemy, count: 1, at: { x: -11 + i * 2.2, y: 0, z: 4 + (i % 2) * 3 } }));
+      list.forEach((enemy: string, i: number) => c.command({ op: 'spawn', enemy, count: 1, at: { x: -7.5 + (i % 6) * 3, y: 0, z: -3.5 + Math.floor(i / 6) * 3.8 } }));
+      c.command({ op: 'pause', on: true });
+      c.command({ op: 'step', n: 3 });
     }, ids);
     await page.waitForFunction((n) => (window as any).__conflux.enemyViews() === n, ids.length, { timeout: 60000 });
     check(true, `all ${ids.length} roster enemies loaded their models`);
     await page.waitForTimeout(1500);
     await page.screenshot({ path: join(shots, 'roster.png') });
+    await page.evaluate(() => (window as any).__conflux.lookFrom(0, 7.5, 13, 0, 0.8, 2.5));
+    await page.waitForTimeout(1500);
+    await page.screenshot({ path: join(shots, 'roster-lineup.png') });
     check(errors.length === 0, `the roster renders without console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }

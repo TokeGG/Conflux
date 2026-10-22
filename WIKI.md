@@ -88,6 +88,17 @@ Reactions of the same enemy wait 0.75 s between triggers.
 | `enemy.gust` | Gust | wind | 25 | 4 | 1 | swarm | fire | earth | - | atk.gust_nip |
 | `boss.maw` | Maw | earth | 1800 | 2.6 | 0 | rusher | wind | water | - | atk.maw_claw, atk.maw_slam, atk.maw_charge, atk.maw_summon |
 | `boss.reaper` | Pumpkin Reaper | earth | 1500 | 2.4 | 0 | rusher | water, wind | - | burning, rocked | atk.reaper_scythe, atk.reaper_wave, atk.reaper_spikes |
+| `enemy.skeleton` | Skeleton | earth | 55 | 2.6 | 2 | swarm | fire | earth | - | atk.skeleton_slash |
+| `enemy.skeleton_mage` | Skeleton Mage | earth | 40 | 2 | 3 | shooter | fire | earth | - | atk.bone_bolt |
+| `enemy.bone_giant` | Bone Giant | earth | 320 | 1.7 | 7 | tank | fire | earth | - | atk.bone_stomp, atk.skeleton_slash |
+| `enemy.zombie` | Zombie | earth | 120 | 1.5 | 3 | rusher | wind | water | - | atk.zombie_claw |
+| `enemy.vampire` | Vampire | wind | 90 | 3 | 4 | charger | fire | earth | - | atk.vampire_lunge, atk.skeleton_slash |
+| `enemy.ghost` | Ghost | wind | 50 | 2.8 | 3 | flyer | fire | earth | rocked | atk.ghost_wail |
+| `enemy.fire_elemental` | Fire Elemental | fire | 130 | 2.6 | 4 | rusher | water | wind | burning | atk.elemental_swipe |
+| `enemy.water_elemental` | Water Elemental | water | 120 | 2.2 | 4 | shooter | earth | fire | soaked | atk.tide_bolt |
+| `enemy.wraith` | Wraith | wind | 75 | 2.8 | 4 | flyer | fire | earth | - | atk.wraith_rush |
+| `enemy.book` | Book | wind | 30 | 3.2 | 2 | flyer | fire | earth | - | atk.page_flurry |
+| `enemy.tome_guardian` | Tome Guardian | wind | 300 | 1.6 | 7 | summoner | fire | earth | - | atk.tome_slam, atk.tome_summon |
 
 ## Elite modifiers
 

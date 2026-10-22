@@ -34,7 +34,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; counters: Record<string, number>; unlocked: string[] } | null; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; counters: Record<string, number>; unlocked: string[] } | null; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; damageShown(): number };
   }
 }
 
@@ -157,6 +157,13 @@ async function boot(): Promise<void> {
     events: () => play.log,
     enemyViews: () => play.enemyViews,
     damageShown: () => hud.damageShown,
+    /** Puts the camera at one point looking at another (test hook for screenshots). */
+    lookFrom(px, py, pz, lx, ly, lz) {
+      play.cameraOverride = (camera) => {
+        camera.position.set(px, py, pz);
+        camera.lookAt(lx, ly, lz);
+      };
+    },
     /** Puts the temporary camera in front of the player so the smoke screenshots show the pose. */
     frontView() {
       play.cameraOverride = (camera) => {

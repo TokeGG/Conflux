@@ -7,6 +7,8 @@ import { fitHeight } from './scene.ts';
 const FADE = 0.2;
 const ZERO = new THREE.Color(0, 0, 0);
 const MOVING = 0.4;
+/** Every enemy's colours are multiplied by this, so models from different sources sit in one cool, gloomy palette. */
+const GRADE = new THREE.Color('#9fb0d6').multiplyScalar(0.9);
 const DEATH_SECONDS = 0.55;
 
 type PresetName = keyof typeof PRESETS;
@@ -32,6 +34,10 @@ export class EnemyView {
     const top = Math.max(...def.hurtboxes.map((h) => Math.max(h.a[1], h.b[1]) + h.r));
     fitHeight(model, top * def.scale);
     this.ownMaterials(model);
+    for (const m of this.materials) {
+      m.color?.multiply(GRADE);
+      m.metalness = Math.min(m.metalness ?? 0, 0.1); // nothing to reflect in this scene, so metal would draw black
+    }
     if (def.tint) this.tint(model, def.tint);
     this.body.add(model);
     this.root.add(this.body);

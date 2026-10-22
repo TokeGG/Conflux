@@ -166,5 +166,112 @@
     "cooldown": 7,
     "range": 6,
     "radius": 3
+  },
+  "atk.skeleton_slash": {
+    "template": "melee_swipe",
+    "damage": 6,
+    "windup": 0.5,
+    "cooldown": 1.6,
+    "range": 1.9,
+    "angle": 90
+  },
+  "atk.bone_bolt": {
+    "template": "projectile",
+    "damage": 7,
+    "windup": 0.8,
+    "cooldown": 3,
+    "range": 15,
+    "radius": 0.3,
+    "speed": 13
+  },
+  "atk.bone_stomp": {
+    "template": "slam",
+    "damage": 18,
+    "windup": 1.1,
+    "cooldown": 5,
+    "range": 3,
+    "radius": 3
+  },
+  "atk.zombie_claw": {
+    "template": "melee_swipe",
+    "damage": 9,
+    "windup": 0.7,
+    "cooldown": 2,
+    "range": 2,
+    "angle": 100
+  },
+  "atk.vampire_lunge": {
+    "template": "charge",
+    "damage": 11,
+    "windup": 0.8,
+    "cooldown": 5,
+    "range": 6,
+    "radius": 0.8,
+    "speed": 15
+  },
+  "atk.ghost_wail": {
+    "template": "charge",
+    "damage": 7,
+    "windup": 0.9,
+    "cooldown": 5,
+    "range": 6,
+    "radius": 0.7,
+    "speed": 9
+  },
+  "atk.elemental_swipe": {
+    "template": "melee_swipe",
+    "damage": 10,
+    "windup": 0.6,
+    "cooldown": 2,
+    "range": 2.2,
+    "angle": 90
+  },
+  "atk.tide_bolt": {
+    "template": "projectile",
+    "damage": 8,
+    "windup": 0.7,
+    "cooldown": 3,
+    "range": 15,
+    "radius": 0.35,
+    "speed": 12,
+    "applies": "soaked"
+  },
+  "atk.wraith_rush": {
+    "template": "charge",
+    "damage": 10,
+    "windup": 0.8,
+    "cooldown": 5,
+    "range": 7,
+    "radius": 0.8,
+    "speed": 11
+  },
+  "atk.page_flurry": {
+    "template": "projectile",
+    "damage": 5,
+    "windup": 0.6,
+    "cooldown": 2.5,
+    "range": 13,
+    "radius": 0.25,
+    "speed": 15
+  },
+  "atk.tome_slam": {
+    "template": "slam",
+    "damage": 16,
+    "windup": 1.2,
+    "cooldown": 5,
+    "range": 3,
+    "radius": 2.8
+  },
+  "atk.tome_summon": {
+    "template": "summon",
+    "damage": 0,
+    "windup": 1.2,
+    "cooldown": 10,
+    "range": 2.5,
+    "summon": {
+      "enemy": "enemy.book",
+      "count": 2,
+      "cap": 4
+    }
   }
 }

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.40",
+    "date": "2026-10-22",
+    "at": "2026-10-22T02:36:14Z",
+    "notes": [
+      "Eleven new enemies for the dungeon: skeletons, a skeleton mage, a bone giant, a zombie, a vampire, a ghost, fire and water elementals, a wraith, flying books and a tome guardian. Every enemy is now graded into one cooler, darker palette."
+    ]
+  },
+  {
     "version": "0.1.39",
     "date": "2026-10-21",
     "at": "2026-10-21T22:14:18Z",

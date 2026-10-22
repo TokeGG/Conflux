@@ -551,5 +551,509 @@
       0.66,
       0.33
     ]
+  },
+  "enemy.skeleton": {
+    "name": "Skeleton",
+    "element": "earth",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.skeleton",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk",
+        "attack": [
+          "attack-melee-right",
+          "attack-melee-left"
+        ]
+      }
+    },
+    "hp": 55,
+    "speed": 2.6,
+    "cost": 2,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          1.2,
+          0
+        ],
+        "r": 0.4
+      }
+    ],
+    "ai": "swarm",
+    "attacks": [
+      "atk.skeleton_slash"
+    ]
+  },
+  "enemy.skeleton_mage": {
+    "name": "Skeleton Mage",
+    "element": "earth",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.skeleton",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk",
+        "attack": [
+          "attack-melee-right",
+          "attack-melee-left"
+        ]
+      }
+    },
+    "hp": 40,
+    "speed": 2.0,
+    "cost": 3,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          1.2,
+          0
+        ],
+        "r": 0.4
+      }
+    ],
+    "ai": "shooter",
+    "attacks": [
+      "atk.bone_bolt"
+    ],
+    "tint": "#9a7cff"
+  },
+  "enemy.bone_giant": {
+    "name": "Bone Giant",
+    "element": "earth",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.skeleton",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk",
+        "attack": [
+          "attack-melee-right",
+          "attack-melee-left"
+        ]
+      }
+    },
+    "hp": 320,
+    "speed": 1.7,
+    "cost": 7,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.8,
+          0
+        ],
+        "b": [
+          0,
+          2.6,
+          0
+        ],
+        "r": 0.8
+      }
+    ],
+    "ai": "tank",
+    "attacks": [
+      "atk.bone_stomp",
+      "atk.skeleton_slash"
+    ],
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
+  },
+  "enemy.zombie": {
+    "name": "Zombie",
+    "element": "earth",
+    "weak": [
+      "wind"
+    ],
+    "resist": [
+      "water"
+    ],
+    "immune": [],
+    "model": "model.zombie",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk",
+        "attack": [
+          "attack-melee-right",
+          "attack-melee-left"
+        ]
+      }
+    },
+    "hp": 120,
+    "speed": 1.5,
+    "cost": 3,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          1.3,
+          0
+        ],
+        "r": 0.45
+      }
+    ],
+    "ai": "rusher",
+    "attacks": [
+      "atk.zombie_claw"
+    ]
+  },
+  "enemy.vampire": {
+    "name": "Vampire",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.vampire",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk",
+        "attack": [
+          "attack-melee-right",
+          "attack-melee-left"
+        ]
+      }
+    },
+    "hp": 90,
+    "speed": 3.0,
+    "cost": 4,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.4,
+          0
+        ],
+        "b": [
+          0,
+          1.3,
+          0
+        ],
+        "r": 0.4
+      }
+    ],
+    "ai": "charger",
+    "attacks": [
+      "atk.vampire_lunge",
+      "atk.skeleton_slash"
+    ]
+  },
+  "enemy.ghost": {
+    "name": "Ghost",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [
+      "rocked"
+    ],
+    "model": "model.ghost",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk",
+        "attack": [
+          "attack-melee-right",
+          "attack-melee-left"
+        ]
+      }
+    },
+    "hp": 50,
+    "speed": 2.8,
+    "cost": 3,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.5,
+          0
+        ],
+        "b": [
+          0,
+          1.3,
+          0
+        ],
+        "r": 0.45
+      }
+    ],
+    "ai": "flyer",
+    "attacks": [
+      "atk.ghost_wail"
+    ]
+  },
+  "enemy.fire_elemental": {
+    "name": "Fire Elemental",
+    "element": "fire",
+    "weak": [
+      "water"
+    ],
+    "resist": [
+      "wind"
+    ],
+    "immune": [
+      "burning"
+    ],
+    "model": "model.fire_elemental",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk"
+      }
+    },
+    "hp": 130,
+    "speed": 2.6,
+    "cost": 4,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.5,
+          0
+        ],
+        "b": [
+          0,
+          1.5,
+          0
+        ],
+        "r": 0.55
+      }
+    ],
+    "ai": "rusher",
+    "attacks": [
+      "atk.elemental_swipe"
+    ]
+  },
+  "enemy.water_elemental": {
+    "name": "Water Elemental",
+    "element": "water",
+    "weak": [
+      "earth"
+    ],
+    "resist": [
+      "fire"
+    ],
+    "immune": [
+      "soaked"
+    ],
+    "model": "model.water_elemental",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk"
+      }
+    },
+    "hp": 120,
+    "speed": 2.2,
+    "cost": 4,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.5,
+          0
+        ],
+        "b": [
+          0,
+          1.5,
+          0
+        ],
+        "r": 0.55
+      }
+    ],
+    "ai": "shooter",
+    "attacks": [
+      "atk.tide_bolt"
+    ]
+  },
+  "enemy.wraith": {
+    "name": "Wraith",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.wraith",
+    "scale": 1,
+    "rig": {
+      "type": "own",
+      "clips": {
+        "idle": "idle",
+        "walk": "walk"
+      }
+    },
+    "hp": 75,
+    "speed": 2.8,
+    "cost": 4,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.5,
+          0
+        ],
+        "b": [
+          0,
+          1.5,
+          0
+        ],
+        "r": 0.5
+      }
+    ],
+    "ai": "flyer",
+    "attacks": [
+      "atk.wraith_rush"
+    ]
+  },
+  "enemy.book": {
+    "name": "Book",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.book",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "part_sway"
+    },
+    "hp": 30,
+    "speed": 3.2,
+    "cost": 2,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.3,
+          0
+        ],
+        "b": [
+          0,
+          0.9,
+          0
+        ],
+        "r": 0.4
+      }
+    ],
+    "ai": "flyer",
+    "attacks": [
+      "atk.page_flurry"
+    ],
+    "tint": "#d9c9a0"
+  },
+  "enemy.tome_guardian": {
+    "name": "Tome Guardian",
+    "element": "wind",
+    "weak": [
+      "fire"
+    ],
+    "resist": [
+      "earth"
+    ],
+    "immune": [],
+    "model": "model.book",
+    "scale": 1,
+    "rig": {
+      "type": "procedural",
+      "preset": "part_sway"
+    },
+    "hp": 300,
+    "speed": 1.6,
+    "cost": 7,
+    "hurtboxes": [
+      {
+        "a": [
+          0,
+          0.6,
+          0
+        ],
+        "b": [
+          0,
+          2.4,
+          0
+        ],
+        "r": 0.9
+      }
+    ],
+    "ai": "summoner",
+    "attacks": [
+      "atk.tome_slam",
+      "atk.tome_summon"
+    ],
+    "tint": "#b08060",
+    "guard": {
+      "reduction": 0.8,
+      "onFor": 3,
+      "offFor": 5,
+      "staggerOnWeak": 2
+    }
   }
 }
