@@ -33,7 +33,7 @@ export function stepElites(sim: Sim): void {
       if (now < (e.cooldowns['elite.tick'] ?? 0)) continue;
       e.cooldowns['elite.tick'] = now + TICK;
       const p = sim.player;
-      if (Math.hypot(p.pos.x - e.pos.x, p.pos.z - e.pos.z) <= mod.params.radius) dealDamage(sim, p, mod.params.dps * TICK, 'none', { applies: 'burning' });
+      if (Math.hypot(p.pos.x - e.pos.x, p.pos.z - e.pos.z) <= mod.params.radius) dealDamage(sim, p, mod.params.dps * TICK * e.damageMul, 'none', { applies: 'burning' });
     } else if (e.elite === 'burning_trail') {
       if (now < (e.cooldowns['elite.tick'] ?? 0)) continue;
       e.cooldowns['elite.tick'] = now + mod.params.interval;

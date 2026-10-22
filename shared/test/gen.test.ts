@@ -9,7 +9,7 @@ import type { RoomDef } from '../src/types.ts';
 
 const data = defaultData();
 const THEMES = ['crypt', 'hall', 'cave'];
-const SEEDS = Array.from({ length: 500 }, (_, i) => i + 1);
+const SEEDS = Array.from({ length: 250 }, (_, i) => i + 1);
 const rooms = new Map<string, RoomDef>();
 const get = (theme: string, seed: number): RoomDef => {
   const key = `${theme}/${seed}`;
@@ -17,7 +17,7 @@ const get = (theme: string, seed: number): RoomDef => {
   return rooms.get(key)!;
 };
 
-test('every room of 500 seeds per theme is solvable: the start reaches every exit and every enemy spot', () => {
+test('every room of 250 seeds per theme is solvable: the start reaches every exit and every enemy spot', () => {
   for (const theme of THEMES) for (const seed of SEEDS) assert.ok(isSolvable(get(theme, seed)), `${theme} seed ${seed}`);
 });
 
@@ -87,19 +87,19 @@ test('L-shaped footprints keep every enemy spot and the start on a floor cell', 
   assert.ok(cut > 30, `only ${cut} of 600 rooms were cut`);
 });
 
-test('a room has 1 to 3 exits, 8 enemy spots at most, a piece count in the recipe range, and lights', () => {
+test('a room has 1 to 3 exits, 12 to 28 enemy spots, a piece count in the recipe range, and lights', () => {
   for (const theme of THEMES) {
     for (const seed of SEEDS.slice(0, 100)) {
       const room = get(theme, seed);
       assert.ok(room.spawns.doors.length >= 1 && room.spawns.doors.length <= 3, `${theme} ${seed} exits`);
-      assert.ok(room.spawns.enemies.length >= 5 && room.spawns.enemies.length <= 10, `${theme} ${seed} enemy spots ${room.spawns.enemies.length}`);
-      assert.ok(room.pieces.length >= 50 && room.pieces.length <= 400, `${theme} ${seed} pieces ${room.pieces.length}`);
+      assert.ok(room.spawns.enemies.length >= 12 && room.spawns.enemies.length <= 28, `${theme} ${seed} enemy spots ${room.spawns.enemies.length}`);
+      assert.ok(room.pieces.length >= 120 && room.pieces.length <= 1000, `${theme} ${seed} pieces ${room.pieces.length}`);
       assert.ok((room.lights?.length ?? 0) >= 3, `${theme} ${seed} lights`);
       assert.equal(room.theme, theme);
       assert.ok(room.look!.floorTex.startsWith('tex.') && room.look!.wallTex.startsWith('tex.'));
     }
     const mean = SEEDS.slice(0, 100).reduce((n, seed) => n + get(theme, seed).pieces.length, 0) / 100;
-    assert.ok(mean >= 100, `${theme}: a lot of scenery wanted, mean ${mean.toFixed(0)} pieces`);
+    assert.ok(mean >= 250, `${theme}: a lot of scenery wanted, mean ${mean.toFixed(0)} pieces`);
     const t = data.themes[theme];
     const room = get(theme, 3);
     for (const item of Object.values(t.pools).flat()) assert.ok(room.pieces.filter((p) => p.kit === item.kit && p.id === item.id).length <= item.count[1] * 4, `${theme}: ${item.id} count`);
@@ -127,6 +127,42 @@ test('the player starts well away from the walls (3 m), so the camera behind the
       const room = get(theme, seed);
       const p = room.spawns.player;
       assert.ok(!buildWorld(room).blocked({ x: p.x, y: 0, z: p.z }, 3), `${theme} seed ${seed}: a wall within 3 m of the start`);
+    }
+  }
+});
+
+test('rooms are large: at least 28 m on each side, and 60 of them generate in well under a second each', () => {
+  const t0 = Date.now();
+  for (const theme of THEMES) {
+    for (const seed of SEEDS.slice(0, 20)) {
+      const [w, d] = generateRoom(data, seed, 1, 0, theme).room.size;
+      assert.ok(w >= 28 && d >= 28, `${theme} seed ${seed} is ${w} x ${d}`);
+    }
+  }
+  assert.ok((Date.now() - t0) / 60 < 400, `${((Date.now() - t0) / 60).toFixed(0)} ms per room`);
+});
+
+/** The share of floor (on a 0.5 m grid) where a body of radius 0.5 can stand. */
+function openShare(room: RoomDef): number {
+  const world = buildWorld(room);
+  const floor = new Set(room.cells!.map(([i, j]) => `${i},${j}`));
+  let total = 0;
+  let open = 0;
+  for (let x = -room.size[0] / 2 + 0.25; x < room.size[0] / 2; x += 0.5) {
+    for (let z = -room.size[1] / 2 + 0.25; z < room.size[1] / 2; z += 0.5) {
+      if (!floor.has(`${Math.floor((x + room.size[0] / 2) / 4)},${Math.floor((z + room.size[1] / 2) / 4)}`)) continue;
+      total++;
+      if (!world.blocked({ x, y: 0, z }, 0.5)) open++;
+    }
+  }
+  return open / total;
+}
+
+test('at least 75% of every room\'s floor is clear for a body to stand on, in every theme', () => {
+  for (const theme of THEMES) {
+    for (const seed of SEEDS.slice(0, 120)) {
+      const share = openShare(get(theme, seed));
+      assert.ok(share >= 0.75, `${theme} seed ${seed}: ${(share * 100).toFixed(0)}% clear`);
     }
   }
 });

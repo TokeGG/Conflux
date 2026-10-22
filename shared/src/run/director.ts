@@ -26,7 +26,7 @@ export function createRunRoomSim(run: RoomEntry, data: GameData): Sim {
   sim.setAugments(run.augments);
   sim.player.hp = run.hp;
   for (const spot of plan.enemies) {
-    const e = spawnEnemy(sim, spot.enemyId, { x: spot.at.x, y: sim.world.groundAt(spot.at.x, spot.at.z), z: spot.at.z });
+    const e = spawnEnemy(sim, spot.enemyId, { x: spot.at.x, y: sim.world.groundAt(spot.at.x, spot.at.z), z: spot.at.z }, plan.index);
     if (spot.elite) applyElite(sim, e, spot.elite);
   }
   return sim;

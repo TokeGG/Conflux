@@ -16,7 +16,10 @@ export interface GeneratedRoom {
 
 /** Most props a layer holds (the spec's figures: 2 to 5 set pieces, 10 to 20 medium, 40 to 100 small). */
 const CAPS = { set: 5, medium: 20, small: 100 };
-const ENEMY_SPOTS = 8;
+/** Floor cells of the reference room (6 x 6) that CAPS and the pools' counts were made for; a bigger floor scales them up. */
+const REFERENCE_CELLS = 30;
+/** The least share of the floor that stays clear for a body (the owner's rule: stuff on the ground, but not in the way). */
+const MIN_CLEAR = 0.78;
 const OUTWARD_TURN = (nx: number, nz: number) => (nz > 0 ? 0 : nz < 0 ? Math.PI : nx < 0 ? Math.PI / 2 : -Math.PI / 2);
 
 function structure(fp: Footprint, theme: ThemeDef, edges: Edge[], exits: Edge[], gate: (e: Edge) => string, rng: ReturnType<typeof makeStreams>['map']): RoomPiece[] {
@@ -89,18 +92,20 @@ export function generateRoom(data: GameData, seed: number, depth: number, roomIn
   // the player starts well away from every wall (the camera sits four metres behind them) and as far from the exits as that allows
   const start = chooseStart(fp, doorSpots);
 
-  const ctx: PlaceCtx = { rng, theme, fp, taken: [{ ...start, r: 4, hard: true }, ...doorSpots.map((d) => ({ ...d, r: 3.2, hard: true }))], props: [] };
+  const scale = Math.max(1, fp.cells.length / REFERENCE_CELLS);
+  const enemySpots = Math.min(28, Math.round(8 + fp.cells.length / 4));
+  const ctx: PlaceCtx = { rng, theme, fp, scale, taken: [{ ...start, r: 4, hard: true }, ...doorSpots.map((d) => ({ ...d, r: 3.2, hard: true }))], props: [] };
   const spots: { x: number; z: number }[] = [];
-  for (let k = 0; k < ENEMY_SPOTS; k++) {
+  for (let k = 0; k < enemySpots; k++) {
     const p = freeSpot(ctx, 2.4, 1.8, 1, true) ?? (spots.length < 5 ? (freeSpot(ctx, 1.4, 1.4, 1, true) ?? freeSpot(ctx, 0.9, 1.0, 1, true)) : null);
     if (p) spots.push({ x: Math.round(p.x * 1e3) / 1e3, z: Math.round(p.z * 1e3) / 1e3 });
   }
-  placeLayer(ctx, theme.pools.set, CAPS.set);
+  placeLayer(ctx, theme.pools.set, Math.round(CAPS.set * scale));
   placeWallDecor(ctx, theme.pools.wall, edges, exits);
   // a room is never lit by less than three lights: more braziers until it is
   for (let k = 0; k < 6 && exits.length + ctx.props.reduce((n, p) => n + p.lights.length, 0) < 3; k++) placeWallDecor(ctx, [{ ...theme.pools.wall[0], count: [1, 1] }], edges, exits);
-  placeLayer(ctx, theme.pools.medium, CAPS.medium);
-  placeLayer(ctx, theme.pools.small, CAPS.small, 0.45);
+  placeLayer(ctx, theme.pools.medium, Math.round(CAPS.medium * scale));
+  placeLayer(ctx, theme.pools.small, Math.round(CAPS.small * scale), 0.45);
 
   const exitLights: LightDef[] = exits.map((e) => ({ x: e.x - e.nx * 1.6, y: 2.4, z: e.z - e.nz * 1.6, color: theme.lights.brazier, intensity: 14, dist: 12 }));
   const index = envIndexFromPieces();
@@ -127,7 +132,33 @@ export function generateRoom(data: GameData, seed: number, depth: number, roomIn
   };
 
   // a prop that closes a path is taken away again, the latest first
+  // the floor must stay at least 75% clear for a body to stand on (props that block take the room's space, the latest first)
+  const clearShare = (r: RoomDef): number => {
+    const w = new World(r.colliders, 0);
+    let total = 0;
+    let open = 0;
+    for (let x = -r.size[0] / 2 + 0.25; x < r.size[0] / 2; x += 0.5) {
+      for (let z = -r.size[1] / 2 + 0.25; z < r.size[1] / 2; z += 0.5) {
+        if (!inside(fp, x, z, 0)) continue;
+        total++;
+        if (!w.blocked({ x, y: 0, z }, 0.5)) open++;
+      }
+    }
+    return total === 0 ? 1 : open / total;
+  };
   let room = assemble();
+  // thin the blocking props a few at a time until enough floor is clear (a cheap pass before the one-by-one solvability one)
+  for (let share = clearShare(room); share < MIN_CLEAR; share = clearShare(room)) {
+    let cut = 0;
+    for (let k = ctx.props.length - 1; k >= 0 && cut < 4; k--) {
+      if (ctx.props[k].blocks) {
+        ctx.props.splice(k, 1);
+        cut++;
+      }
+    }
+    if (cut === 0) break;
+    room = assemble();
+  }
   while (!isSolvable(room) || room.spawns.enemies.length < 5) {
     let k = ctx.props.length - 1;
     while (k >= 0 && !ctx.props[k].blocks) k--;

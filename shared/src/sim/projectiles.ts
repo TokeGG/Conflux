@@ -73,7 +73,7 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     const target = enemyId === null ? null : sim.enemies.find((e) => e.id === enemyId);
     const skill = sim.skill(q.skillId);
     const attack = sim.data.attacks[q.skillId];
-    if (hitsPlayer && attack) dealDamage(sim, sim.player, attack.damage, 'none', { applies: attack.applies ?? null });
+    if (hitsPlayer && attack) dealDamage(sim, sim.player, attack.damage * (sim.enemies.find((o) => o.id === q.ownerId)?.damageMul ?? 1), 'none', { applies: attack.applies ?? null });
     else if (target && skill) skillHit(sim, target, skill, skill.damage, point, q.bonus);
     else sim.emit('hit', { target: 'world', skillId: q.skillId, x: point.x, y: point.y, z: point.z });
     if (target && skill && (q.pierce ?? 0) > 0) {

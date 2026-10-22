@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.59",
+    "date": "2026-10-22",
+    "at": "2026-10-22T06:50:58Z",
+    "notes": [
+      "Rooms are bigger and fuller of enemies, and enemies get stronger every room. At least 75% of every floor is now clear, small rocks no longer block you, and you can no longer freeze when caught inside a prop."
+    ]
+  },
+  {
     "version": "0.1.58",
     "date": "2026-10-22",
     "at": "2026-10-22T06:24:51Z",

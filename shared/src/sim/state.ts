@@ -89,6 +89,11 @@ export interface EnemyState {
   elite: string | null;
   /** When the current AI state ends (recovering, surfacing, diving). */
   aiUntil: number;
+  /** The room number it was made in: the depth scaling of its health and damage. */
+  level: number;
+  maxHp: number;
+  /** What its attacks' damage is multiplied by (1 at level 0). */
+  damageMul: number;
 }
 
 /** An attack in progress: telegraphed, then landing at hitAt. */
@@ -204,6 +209,7 @@ export interface EnemySnap {
   /** The attack being wound up or carried out, for animation. */
   attack: string | null;
   elite: string | null;
+  level: number;
 }
 
 export interface ProjectileSnap {
@@ -231,15 +237,20 @@ export interface Snapshot {
   tuned: boolean;
 }
 
-export function spawnEnemy(sim: Sim, id: string, pos: Vec3): EnemyState {
+export function spawnEnemy(sim: Sim, id: string, pos: Vec3, level = 0): EnemyState {
   const def = sim.data.enemies[id];
   if (!def) throw new Error(`unknown enemy ${id}`);
+  const { hpPerRoom, damagePerRoom } = sim.data.rewards.scaling;
+  const maxHp = def.hp * (1 + hpPerRoom * level);
   const e: EnemyState = {
     id: sim.allocId(),
     def,
     pos: { ...pos },
     facing: 0,
-    hp: def.hp,
+    hp: maxHp,
+    maxHp,
+    level,
+    damageMul: 1 + damagePerRoom * level,
     statuses: {},
     marks: {},
     aiState: 'idle',

@@ -83,3 +83,21 @@ test('a cast slows movement by its move multiplier until it ends', () => {
   run(sim, 60, input({ moveZ: 1 }));
   assert.ok(Math.abs(sim.player.pos.z - 3) < 0.05, `z ${sim.player.pos.z}`);
 });
+
+test('a player caught inside a collider (a prop moved onto them, a dash end) can always walk out instead of freezing', () => {
+  const sim = makeSim(1, { world: new World([box(-0.3, -0.3, 0.3, 0.3)], 0) });
+  sim.player.pos.x = 0;
+  sim.player.pos.z = 0;
+  assert.ok(sim.world.blocked(sim.player.pos, sim.data.player.radius), 'starts overlapping');
+  run(sim, 60, input({ moveX: -1 }));
+  assert.ok(!sim.world.blocked(sim.player.pos, sim.data.player.radius), 'walked clear');
+  assert.ok(sim.player.pos.x > 0.5 || sim.player.pos.x < -0.5, `x ${sim.player.pos.x}`);
+});
+
+test('a player outside a collider is still stopped by it', () => {
+  const sim = makeSim(1, { world: new World([box(-5, 2, 5, 3)], 0) });
+  sim.player.pos.x = 0;
+  sim.player.pos.z = 0;
+  run(sim, 120, input({ moveZ: 1 }));
+  assert.ok(sim.player.pos.z < 2, `z ${sim.player.pos.z}`);
+});

@@ -37,11 +37,11 @@ test('every gate of a room has a door choice and a planned next room with its ow
   assert.equal(new Set(ids).size, ids.length, 'two gates lead to two different rooms');
 });
 
-test('the enemy budget never exceeds 8 + 3 * index except for the one forced enemy, and each enemy is one of the theme\'s mobs', () => {
+test('the enemy budget never exceeds 12 + 5 * index except for the one forced enemy, and each enemy is one of the theme\'s mobs', () => {
   for (const s of walk(11, 20)) {
     const cost = s.current.enemies.reduce((n, e) => n + data.enemies[e.enemyId].cost, 0);
     const cheapest = Math.min(...Object.keys(data.themes[s.current.biome].mobs).map((m) => data.enemies[m].cost));
-    assert.ok(cost <= 8 + 3 * s.current.index || s.current.enemies.length === 1, `room ${s.current.index} costs ${cost}`);
+    assert.ok(cost <= 12 + 5 * s.current.index || s.current.enemies.length === 1, `room ${s.current.index} costs ${cost}`);
     for (const e of s.current.enemies) assert.ok(s.current.biome in data.themes && e.enemyId in data.themes[s.current.biome].mobs);
     assert.ok(cheapest > 0);
   }

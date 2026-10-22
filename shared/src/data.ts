@@ -164,6 +164,7 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
   }
 
   if (!(d.rewards.offers > 0)) err('rewards.offers must be above 0');
+  if (!(d.rewards.scaling.hpPerRoom >= 0) || !(d.rewards.scaling.damagePerRoom >= 0)) err('rewards.scaling needs hpPerRoom and damagePerRoom of 0 or more');
   return errors;
 }
 

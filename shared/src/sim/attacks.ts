@@ -42,8 +42,8 @@ function telegraph(e: EnemyState, a: AttackDef, attackId: string, yaw: number, u
   }
 }
 
-function hurtPlayer(sim: Sim, a: AttackDef): void {
-  dealDamage(sim, sim.player, a.damage, 'none', { applies: a.applies ?? null });
+function hurtPlayer(sim: Sim, a: AttackDef, damageMul = 1): void {
+  dealDamage(sim, sim.player, a.damage * damageMul, 'none', { applies: a.applies ?? null });
 }
 
 /** Lands the attacks whose telegraphs have ended and moves charging enemies. */
@@ -78,13 +78,13 @@ function land(sim: Sim, e: EnemyState, a: AttackDef): void {
       const r = sim.data.player.radius;
       const angle = d < 1e-9 ? 0 : Math.acos(Math.max(-1, Math.min(1, (dx * fwd.x + dz * fwd.z) / d)));
       const slack = d > r ? Math.asin(Math.min(1, r / d)) : Math.PI;
-      if (d <= a.range + r && angle <= (((a.angle ?? 90) * Math.PI) / 180) / 2 + slack) hurtPlayer(sim, a);
+      if (d <= a.range + r && angle <= (((a.angle ?? 90) * Math.PI) / 180) / 2 + slack) hurtPlayer(sim, a, e.damageMul);
       e.attack = null;
       break;
     }
     case 'slam': {
       const centre = { x: e.pos.x + fwd.x * a.range, y: 0, z: e.pos.z + fwd.z * a.range };
-      if (flat(p.pos, centre) <= (a.radius ?? 2)) hurtPlayer(sim, a);
+      if (flat(p.pos, centre) <= (a.radius ?? 2)) hurtPlayer(sim, a, e.damageMul);
       e.attack = null;
       break;
     }
@@ -107,7 +107,7 @@ function land(sim: Sim, e: EnemyState, a: AttackDef): void {
           const ang = (k / spec.count) * Math.PI * 2;
           const x = e.pos.x + Math.cos(ang) * a.range;
           const z = e.pos.z + Math.sin(ang) * a.range;
-          spawnEnemy(sim, spec.enemy, { x, y: sim.world.groundAt(x, z), z });
+          spawnEnemy(sim, spec.enemy, { x, y: sim.world.groundAt(x, z), z }, e.level);
         }
       }
       e.attack = null;
@@ -129,7 +129,7 @@ function charge(sim: Sim, e: EnemyState, a: AttackDef): void {
   act.remaining -= moved;
   if (!act.hit && flat(e.pos, sim.player.pos) <= (a.radius ?? 0.8) + sim.data.player.radius) {
     act.hit = true;
-    hurtPlayer(sim, a);
+    hurtPlayer(sim, a, e.damageMul);
   }
   if (stop !== null || act.remaining <= EPS) e.attack = null;
 }

@@ -325,6 +325,8 @@ export interface RewardsCfg {
   rarity: { early: { until: number; weights: Record<Rarity, number> }; late: { weights: Record<Rarity, number> } };
   healFraction: number;
   guaranteeSkillByRoom: number;
+  /** How much stronger every enemy gets per room entered: health and damage are multiplied by 1 + this x the room number. */
+  scaling: { hpPerRoom: number; damagePerRoom: number };
 }
 
 export interface GameData {

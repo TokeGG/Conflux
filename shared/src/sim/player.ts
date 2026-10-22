@@ -59,10 +59,12 @@ export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): 
   // each axis on its own, so a wall is slid along rather than stuck to
   // the last step of a dash is cut to the time left, so it covers exactly its distance
   const moveDt = p.dash ? Math.min(dt, Math.max(0, p.dash.until - now)) : dt;
+  // a player already overlapping a collider (a dash ended on a prop, a spawn beside one) may always move, so they walk out rather than freeze
+  const stuck = sim.world.blocked(p.pos, cfg.radius);
   const nx = p.pos.x + vx * moveDt;
-  if (!sim.world.blocked({ x: nx, y: p.pos.y, z: p.pos.z }, cfg.radius)) p.pos.x = nx;
+  if (stuck || !sim.world.blocked({ x: nx, y: p.pos.y, z: p.pos.z }, cfg.radius)) p.pos.x = nx;
   const nz = p.pos.z + vz * moveDt;
-  if (!sim.world.blocked({ x: p.pos.x, y: p.pos.y, z: nz }, cfg.radius)) p.pos.z = nz;
+  if (stuck || !sim.world.blocked({ x: p.pos.x, y: p.pos.y, z: nz }, cfg.radius)) p.pos.z = nz;
   // jump: leave the ground on a press (only while standing on it), then fall back under gravity
   const ground = sim.world.groundAt(p.pos.x, p.pos.z);
   if (input.buttons & BTN.JUMP && p.pos.y <= ground + 1e-6 && p.vy <= 0) p.vy = cfg.jump.speed;

@@ -3,8 +3,8 @@
   "weight": 4,
   "minDepth": 0,
   "cells": [
-   5,
-   7
+   7,
+   10
   ],
   "cutChance": 0.35,
   "detailChance": 0.22,
@@ -287,8 +287,8 @@
   "weight": 3,
   "minDepth": 0,
   "cells": [
-   5,
-   8
+   7,
+   11
   ],
   "cutChance": 0.2,
   "detailChance": 0.18,
@@ -504,8 +504,8 @@
   "weight": 3,
   "minDepth": 0,
   "cells": [
-   5,
-   7
+   7,
+   10
   ],
   "cutChance": 0.5,
   "detailChance": 0.25,

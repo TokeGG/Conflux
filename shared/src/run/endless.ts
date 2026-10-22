@@ -10,7 +10,7 @@ import type { DoorChoice, RoomPlan, RunMode, RunState } from './run.ts';
 
 /** Rooms in a floor: the depth, which gates the themes by `minDepth`, rises by one after this many. */
 const ROOMS_PER_FLOOR = 8;
-const budgetFor = (index: number) => 8 + 3 * index;
+const budgetFor = (index: number) => 12 + 5 * index;
 /** Every third room from the third is an elite room, as in the first run mode. */
 const isElite = (index: number) => index % 3 === 2;
 const depthOf = (index: number) => 1 + Math.floor(index / ROOMS_PER_FLOOR);

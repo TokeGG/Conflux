@@ -41,7 +41,7 @@ function planRoom(seed: number, index: number, door: number, data: GameData): Ro
     const boss = map.pick(biome.bosses ?? biome.enemyPool);
     return { index, roomId, biome: biome.id, type: 'boss', budget, enemies: [{ enemyId: boss, at: { ...spots[0], y: 0 } }] };
   }
-  const enemies = encounterFor(budget, biome, data.enemies, encounterStream(seed, label), spots);
+  const enemies = encounterFor(budget, biome, data.enemies, encounterStream(seed, label), spots, undefined, 12);
   const elite = isElite(index);
   if (elite) {
     // the costliest enemy of the room carries a modifier

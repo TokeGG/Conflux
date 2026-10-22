@@ -21,6 +21,8 @@ export interface Prop {
 }
 
 export interface PlaceCtx {
+  /** How much bigger than the reference room the floor is: prop counts are multiplied by it. */
+  scale: number;
   rng: Rng;
   theme: ThemeDef;
   fp: Footprint;
@@ -93,7 +95,7 @@ export function placeLayer(ctx: PlaceCtx, items: PoolItem[], cap: number, pack =
   let placed = 0;
   const order = shuffled(ctx.rng, items);
   for (const item of order) {
-    const n = item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1);
+    const n = Math.round((item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1)) * ctx.scale);
     for (let k = 0; k < n && placed < cap; k++) {
       const p = freeSpot(ctx, item.clear, Math.max(pack < 1 ? 1.0 : 1.4, item.clear * 0.6), pack);
       if (!p) break;
@@ -108,7 +110,7 @@ export function placeWallDecor(ctx: PlaceCtx, items: PoolItem[], edges: Edge[], 
   const usable = edges.filter((e) => !exits.some((x) => Math.hypot(x.x - e.x, x.z - e.z) < 4.5));
   if (!usable.length) return;
   for (const item of items) {
-    const n = item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1);
+    const n = Math.round((item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1)) * Math.sqrt(ctx.scale));
     for (let k = 0; k < n; k++) {
       for (let t = 0; t < 20; t++) {
         const e = usable[ctx.rng.int(usable.length)];
