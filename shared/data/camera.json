@@ -1,0 +1,11 @@
+{
+  "distance": 4.2,
+  "shoulder": 0.7,
+  "height": 1.6,
+  "collisionRadius": 0.25,
+  "fov": 55,
+  "pitchMin": -1.3,
+  "pitchMax": 1.3,
+  "followRate": 0,
+  "mouseSensitivity": 0.0022
+}

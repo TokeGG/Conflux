@@ -2,14 +2,14 @@
 import { ELEMENTS, STATUS_IDS, SLOTS, SHAPE_TYPES, CAST_ARCHETYPES, AI_ARCHETYPES, RIG_TYPES, ATTACK_TEMPLATES, type GameData } from './types.ts';
 
 const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes', 'elites', 'unlocks', 'themes'] as const;
-const SECTIONS = ['player', 'elements', 'statuses', 'reactions', 'rewards', ...KEYED] as const;
+const SECTIONS = ['player', 'camera', 'animation', 'elements', 'statuses', 'reactions', 'rewards', ...KEYED] as const;
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /** Builds GameData from the parsed data files (a deep copy, so callers may change it freely). */
 export function loadData(raw: Record<string, unknown>): GameData {
   for (const name of SECTIONS) if (raw[name] === undefined) throw new Error(`missing data section "${name}"`);
-  for (const name of ['player', 'elements', 'statuses', 'rewards', 'reactions', ...KEYED] as const) {
+  for (const name of ['player', 'camera', 'animation', 'elements', 'statuses', 'rewards', 'reactions', ...KEYED] as const) {
     if (!isObject(raw[name])) throw new Error(`data section "${name}" must be an object`);
   }
   const copy = structuredClone(raw) as Record<string, any>;
@@ -18,6 +18,8 @@ export function loadData(raw: Record<string, unknown>): GameData {
   for (const name of KEYED) for (const [key, entry] of Object.entries(copy[name] as Record<string, any>)) entry.id = key;
   return {
     player: copy.player,
+    camera: copy.camera,
+    animation: copy.animation,
     elements: copy.elements,
     statuses: copy.statuses,
     reactionCooldown: reactions.cooldown,
@@ -78,7 +80,22 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     }
   }
 
+  // camera and animation
+  const cam = d.camera;
+  if (!(cam.distance > 0) || !(cam.fov > 0 && cam.fov < 180)) err('camera: distance and field of view must be positive');
+  if (!(cam.pitchMin < 0 && cam.pitchMax > 0)) err('camera: the look limits must be one below and one above the horizon');
+  for (const [rig, a] of Object.entries(d.animation.rigs)) {
+    for (const [state, clip] of Object.entries({ ...a.states, ...a.cast })) if (typeof clip !== 'string' || !clip) err(`animation ${rig}: "${state}" needs a clip name`);
+    for (const arch of CAST_ARCHETYPES) if (!a.cast[arch]) err(`animation ${rig}: no clip for the "${arch}" archetype`);
+    if (!(a.transition >= 0) || !(a.castBlendRate > 0)) err(`animation ${rig}: blend times must be positive`);
+  }
+
   // skills
+  for (const [key, s] of Object.entries(d.skills)) {
+    const c = s.cast;
+    if (c && c.blend !== undefined && !(c.blend >= 0 && c.blend <= 1)) err(`skill ${key}: cast blend must be 0 to 1`);
+    if (c && c.fireAt !== undefined && !(c.fireAt >= 0 && c.fireAt <= 1)) err(`skill ${key}: cast fireAt must be 0 to 1`);
+  }
   for (const [key, s] of Object.entries(d.skills)) {
     if (!has(ELEMENTS, s.element)) err(`skill ${key}: element "${s.element}" is not an element`);
     else if (!key.startsWith(`${s.element}.`)) err(`skill ${key}: id must start with "${s.element}."`);

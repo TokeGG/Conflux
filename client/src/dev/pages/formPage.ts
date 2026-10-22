@@ -15,6 +15,8 @@ export interface FormPageOptions {
   /** Paths to show when there is no picker; with a picker, the roots of the chosen entry. */
   roots: (choice: string) => string[];
   picker?: { label: string; options: () => string[] };
+  /** Whether the sim is held while the page is open (default yes; pages about feel keep the game running). */
+  pausesSim?: boolean;
   changed(): void;
 }
 
@@ -22,7 +24,7 @@ export class FormPage implements DevPage {
   readonly id: string;
   readonly title: string;
   /** Data pages pause the sim while open (the panel can turn that off). */
-  readonly pausesSim = true;
+  readonly pausesSim: boolean;
   private choice = '';
   private filter = '';
   private rowsHost: HTMLElement | null = null;
@@ -30,6 +32,7 @@ export class FormPage implements DevPage {
   constructor(private o: FormPageOptions) {
     this.id = o.id;
     this.title = o.title;
+    this.pausesSim = o.pausesSim ?? true;
   }
 
   private draw(): void {

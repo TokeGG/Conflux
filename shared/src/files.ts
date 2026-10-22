@@ -1,5 +1,7 @@
 // The shipped data files, parsed, and the GameData built from them.
 import player from '../data/player.json' with { type: 'json' };
+import camera from '../data/camera.json' with { type: 'json' };
+import animation from '../data/animation.json' with { type: 'json' };
 import elements from '../data/elements.json' with { type: 'json' };
 import statuses from '../data/statuses.json' with { type: 'json' };
 import reactions from '../data/reactions.json' with { type: 'json' };
@@ -17,7 +19,7 @@ import rewards from '../data/rewards.json' with { type: 'json' };
 import { loadData } from './data.ts';
 import type { GameData } from './types.ts';
 
-export const DATA_FILES = { player, elements, statuses, reactions, skills, augments, enemies, attacks, rooms, biomes, elites, unlocks, themes, rewards };
+export const DATA_FILES = { player, camera, animation, elements, statuses, reactions, skills, augments, enemies, attacks, rooms, biomes, elites, unlocks, themes, rewards };
 
 /** The patch notes, newest first. */
 export const PATCHES: { version: string; date: string; at: string; notes: string[] }[] = patches;

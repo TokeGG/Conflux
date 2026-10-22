@@ -3,10 +3,11 @@
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { buildWorld, hurtboxesFor, idleInput, resolveAim, type GameData, type Input, type RoomDef, type SimEvent, type SimBridge, type Snapshot, type Vec3, type World } from '@conflux/shared';
-import { castClipFor, pickLocomotion, type LocoState } from './anim/locomotion.ts';
+import { pickLocomotion, type LocoState } from './anim/locomotion.ts';
+import { castClipChoice, castSpeed } from './anim/castTiming.ts';
 import type { CharacterRig } from './anim/rig.ts';
 import type { AssetLoader } from './assets/loader.ts';
-import { ThirdPersonCamera } from './camera.ts';
+import { effectiveFov, NEUTRAL_FOV, ThirdPersonCamera } from './camera.ts';
 import { fxForEvent } from './fx/events.ts';
 import type { FxHandle, FxSystem } from './fx/sprites.ts';
 import type { Hud } from './hud/hud.ts';
@@ -47,6 +48,9 @@ export class Game {
   /** Test hooks: hold the player in a pose, or put the camera somewhere else. */
   poseOverride: { state: LocoState; castClip: string | null; castW: number; pitch: number } | null = null;
   cameraOverride: ((camera: THREE.PerspectiveCamera) => void) | null = null;
+  /** The player's own settings: mouse sensitivity (a multiplier) and field of view. The camera data (camera.json) is what they are applied to. */
+  sensitivityScale = 1;
+  fovSetting = NEUTRAL_FOV;
 
   private room: RoomDef;
   private cam: ThirdPersonCamera;
@@ -65,7 +69,7 @@ export class Game {
   constructor(private d: GameDeps) {
     this.room = d.room;
     this.world = buildWorld(d.room);
-    this.cam = new ThirdPersonCamera(this.world);
+    this.cam = new ThirdPersonCamera(this.world, () => this.d.data().camera);
     this.input = new InputController(d.canvas);
     fitHeight(d.playerModel, 1.8);
     applyTextureFilters(d.playerModel, d.profile);
@@ -80,7 +84,7 @@ export class Game {
   loadRoom(room: RoomDef): void {
     this.room = room;
     this.world = buildWorld(room);
-    this.cam = new ThirdPersonCamera(this.world);
+    this.cam = new ThirdPersonCamera(this.world, () => this.d.data().camera);
     for (const view of [...this.enemies.values(), ...this.dying]) this.d.scene.remove(view.root);
     this.enemies.clear();
     this.dying = [];
@@ -191,7 +195,16 @@ export class Game {
     const base = this.scripted ?? (this.inputEnabled ? this.input.poll(this.lastCamOrigin) : { ...idleInput(), aimYaw: this.lastYaw, aimPitch: 0 });
     this.lastYaw = base.aimYaw;
     const feet = player?.pos ?? this.room.spawns.player;
-    const cam = this.cam.update(feet, base.aimYaw, base.aimPitch);
+    const feel = this.d.data().camera;
+    this.input.sensitivity = feel.mouseSensitivity * this.sensitivityScale;
+    this.input.pitchMin = feel.pitchMin;
+    this.input.pitchMax = feel.pitchMax;
+    const fov = effectiveFov(this.fovSetting, feel.fov);
+    if (this.d.camera.fov !== fov) {
+      this.d.camera.fov = fov;
+      this.d.camera.updateProjectionMatrix();
+    }
+    const cam = this.cam.update(feet, base.aimYaw, base.aimPitch, dt);
     this.lastCamOrigin = cam.origin;
     this.d.camera.position.set(cam.origin.x, cam.origin.y, cam.origin.z);
     this.d.camera.lookAt(cam.origin.x + Math.sin(cam.yaw) * Math.cos(cam.pitch), cam.origin.y + Math.sin(cam.pitch), cam.origin.z + Math.cos(cam.yaw) * Math.cos(cam.pitch));
@@ -206,8 +219,11 @@ export class Game {
     const speed = Math.hypot(this.vel.x, this.vel.z);
     const state = pickLocomotion(this.vel, player.facing, speed, player.dodging);
     const skill = player.casting ? this.d.data().skills[player.casting] : undefined;
-    const clip = skill ? (this.d.rig.hasClip(skill.cast.clip) ? skill.cast.clip : castClipFor(skill.cast.archetype)) : null;
-    this.castW += ((clip ? 1 : 0) - this.castW) * Math.min(1, dt * 15);
+    const anim = this.d.data().animation.rigs[this.d.rig.name];
+    this.d.rig.setMapping(anim ?? null);
+    const clip = skill ? castClipChoice(skill.cast, (n) => this.d.rig.hasClip(n), anim?.cast) : null;
+    this.d.rig.setCastSpeed(skill && clip ? castSpeed(skill.cast.fireAt, this.d.rig.clipDuration(clip), skill.cast.windup) : 1);
+    this.castW += ((clip ? (skill?.cast.blend ?? 1) : 0) - this.castW) * Math.min(1, dt * (anim?.castBlendRate ?? 15));
     const o = this.poseOverride;
     if (o) this.d.rig.play(o.state, o.castClip, o.castW, o.pitch);
     else this.d.rig.play(state, clip, this.castW, base.aimPitch);

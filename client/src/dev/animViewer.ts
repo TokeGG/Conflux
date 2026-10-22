@@ -1,43 +1,34 @@
 // The animation and model viewer: any model, any baked clip, a scrubber, the upper-body mask test, the cast clip per archetype
-// and a tint preview. It has its own small canvas, made when the page opens and thrown away when it closes.
+// and a tint preview. It has its own small canvas, made when the page opens and thrown away when it closes. The camera frames the
+// whole model (fitted from its real bounds) and can be orbited, zoomed and panned to look at any part.
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { decodeClip, type ClipFile } from '../anim/clips.ts';
 import { CharacterRig } from '../anim/rig.ts';
+import { fitHeight } from '../renderer/scene.ts';
+import { Stage } from './stage.ts';
 import castMap from '../anim/castMap.json' with { type: 'json' };
 import type { AssetLoader } from '../assets/loader.ts';
 import { el } from './dom.ts';
 import type { DevPage } from './page.ts';
 import { clipsForRig, scrubTime } from './tools.ts';
 
-const SIZE = { w: 420, h: 320 };
-
 export class AnimViewerPage implements DevPage {
   readonly id = 'anim';
   readonly title = 'Animation viewer';
-  private renderer: THREE.WebGLRenderer | null = null;
-  private raf = 0;
-  private scene = new THREE.Scene();
-  private camera = new THREE.PerspectiveCamera(40, SIZE.w / SIZE.h, 0.05, 100);
-  private holder = new THREE.Group();
+  private stage: Stage | null = null;
+  private get holder(): THREE.Group {
+    return this.stage!.subject;
+  }
   private rig: CharacterRig | null = null;
   private clipDuration = 1;
   private playing = true;
   private scrub: number | null = null;
   private tint = '';
-  private last = 0;
   private status: HTMLElement | null = null;
-  private clock = 0;
   private modelToken = 0;
 
-  constructor(private loader: AssetLoader) {
-    this.scene.background = new THREE.Color(0x20242c);
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.5), this.holder);
-    const floor = new THREE.Mesh(new THREE.CircleGeometry(2.2, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x30363f }));
-    this.scene.add(floor);
-    this.camera.position.set(0.6, 1.5, 3.8);
-    this.camera.lookAt(0, 0.9, 0);
-  }
+  constructor(private loader: AssetLoader) {}
 
   private modelIds(): string[] {
     return this.loader.manifest.filter((a) => a.id.startsWith('model.')).map((a) => a.id).sort();
@@ -50,9 +41,9 @@ export class AnimViewerPage implements DevPage {
 
   render(host: HTMLElement): void {
     host.replaceChildren();
-    const canvas = el('canvas', { id: 'viewer-canvas', width: String(SIZE.w), height: String(SIZE.h), class: 'dev-canvas' });
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    this.renderer.setSize(SIZE.w, SIZE.h, false);
+    const stage = new Stage();
+    this.stage = stage;
+    stage.canvas.id = 'viewer-canvas';
     const controls = el('div', { class: 'dev-viewer-controls' });
     const select = (label: string, options: string[], id: string) => {
       const s = el('select', { id });
@@ -78,7 +69,9 @@ export class AnimViewerPage implements DevPage {
     tintLabel.append(tint);
     this.status = el('div', { class: 'dev-msg', id: 'viewer-status' }, 'Pick a model.');
     controls.append(maskLabel, seekLabel, play, tintLabel);
-    host.append(canvas, controls, this.status);
+    const views = el('div', { class: 'dev-viewer-controls' });
+    views.append(el('span', { class: 'dev-unit' }, 'View (drag to orbit, wheel to zoom, right-drag to pan):'), ...stage.viewButtons());
+    host.append(stage.root, views, controls, this.status);
 
     const fillClips = (rigName: string | null) => {
       const names = rigName ? clipsForRig(this.loader.manifest, rigName) : [];
@@ -104,8 +97,9 @@ export class AnimViewerPage implements DevPage {
         const gltf = await this.loader.loadModel(id);
         if (token !== this.modelToken) return;
         const root = cloneSkinned(gltf.scene);
-        this.fit(root);
+        fitHeight(root, 1.8); // exact bounds from the vertices, as the game fits its own models
         this.holder.add(root);
+        stage.frame('side');
         this.applyTint(root);
         if (rigName) {
           const names = clipsForRig(this.loader.manifest, rigName);
@@ -159,31 +153,13 @@ export class AnimViewerPage implements DevPage {
       model.value = pick.value;
       void load();
     }
-    this.last = performance.now();
-    const frame = (now: number) => {
-      const dt = Math.min(0.1, (now - this.last) / 1000);
-      this.last = now;
-      this.clock += dt;
-      this.holder.rotation.y = this.rig ? 0 : this.clock * 0.6;
-      if (this.rig && this.playing) this.rig.update(dt);
-      else if (this.rig) this.rig.update(0);
-      if (this.renderer) this.renderer.render(this.scene, this.camera);
-      this.raf = requestAnimationFrame(frame);
-    };
-    this.raf = requestAnimationFrame(frame);
+    stage.onFrame((dt) => {
+      if (this.rig) this.rig.update(this.playing ? dt : 0);
+    });
+    stage.start();
   }
 
   private durations = new Map<string, number>();
-
-  /** Scales the model to about 1.8 m tall and stands it on the floor. */
-  private fit(root: THREE.Object3D): void {
-    const box = new THREE.Box3().setFromObject(root);
-    const h = box.max.y - box.min.y || 1;
-    root.scale.multiplyScalar(1.8 / h);
-    root.updateMatrixWorld(true);
-    const b2 = new THREE.Box3().setFromObject(root);
-    root.position.y -= b2.min.y;
-  }
 
   /** Multiplies the model's colours by the tint. Materials are cloned once so the shared model is never touched. */
   private applyTint(root: THREE.Object3D): void {
@@ -199,12 +175,10 @@ export class AnimViewerPage implements DevPage {
   }
 
   dispose(): void {
-    cancelAnimationFrame(this.raf);
     this.modelToken++;
-    this.holder.clear();
     this.rig = null;
-    this.renderer?.dispose();
-    this.renderer = null;
+    this.stage?.dispose();
+    this.stage = null;
     this.status = null;
   }
 }
