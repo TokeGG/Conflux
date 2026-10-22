@@ -27,25 +27,12 @@ export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): 
   const dirX = mx * cos + mz * sin;
   const dirZ = -mx * sin + mz * cos;
 
-  if (input.buttons & BTN.DODGE && now >= p.dodgeReadyAt && now >= p.dodgeUntil) {
-    p.dodgeUntil = now + cfg.dodge.duration;
-    p.invulnUntil = now + cfg.dodge.invulnerable;
-    p.dodgeReadyAt = now + cfg.dodge.cooldown;
-    p.castState = null;
-    const heading = mag > 0.01 ? Math.atan2(dirX, dirZ) : p.facing;
-    p.facing = heading;
-    sim.emit('dodge', { yaw: heading, x: p.pos.x, y: p.pos.y, z: p.pos.z });
-  }
-
   let vx: number;
   let vz: number;
   if (p.dash && now >= p.dash.until) p.dash = null;
   if (p.dash) {
     vx = p.dash.vx;
     vz = p.dash.vz;
-  } else if (now < p.dodgeUntil) {
-    vx = Math.sin(p.facing) * cfg.dodge.speed;
-    vz = Math.cos(p.facing) * cfg.dodge.speed;
   } else {
     const speed = cfg.moveSpeed * (p.castState ? p.castState.move : 1) * (p.buff && now < p.buff.until ? p.buff.speedMul : 1) * mods.speedMul;
     vx = dirX * speed;

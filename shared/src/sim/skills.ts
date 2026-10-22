@@ -179,7 +179,7 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       const dur = Math.max(0.1, travel / sim.data.player.dashSpeed);
       p.dash = { until: now + dur, vx: (flat.x * travel) / dur, vz: (flat.z * travel) / dur };
       p.facing = Math.atan2(flat.x, flat.z);
-      if (s.duration) p.invulnUntil = Math.max(p.invulnUntil, now + s.duration);
+      p.invulnUntil = Math.max(p.invulnUntil, now + Math.max(sim.data.player.dodge.invulnerable, s.duration ?? 0));
       break;
     }
   }

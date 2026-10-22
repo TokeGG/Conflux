@@ -40,6 +40,7 @@ test('the player slides along a wall instead of stopping dead', () => {
 
 test('a dodge is invulnerable for the first 0.25 s only', () => {
   const sim = makeSim();
+  sim.player.element = 2; // earth: no dash skill, so Shift is the plain dash
   run(sim, 1, input({ buttons: BTN.DODGE }));
   run(sim, 13, idle());
   assert.equal(sim.tick, 14);
@@ -51,17 +52,19 @@ test('a dodge is invulnerable for the first 0.25 s only', () => {
   assert.equal(sim.player.hp, 90);
 });
 
-test('a dodge rolls for 0.4 s then ends', () => {
+test('a plain dash carries the player for a fraction of a second then ends', () => {
   const sim = makeSim();
+  sim.player.element = 2;
   run(sim, 1, input({ buttons: BTN.DODGE }));
   assert.equal(sim.snapshot().players[0].dodging, true);
   run(sim, 30, idle());
   assert.equal(sim.snapshot().players[0].dodging, false);
-  assert.ok(sim.player.pos.z > 2, 'the roll covers ground');
+  assert.ok(sim.player.pos.z > 2, 'the dash covers ground');
 });
 
 test('a second dodge before 1.2 s is ignored, and one after is accepted', () => {
   const sim = makeSim();
+  sim.player.element = 2;
   run(sim, 1, input({ buttons: BTN.DODGE }));
   const until = sim.player.dodgeUntil;
   run(sim, 40, input({ buttons: BTN.DODGE }));
@@ -72,6 +75,7 @@ test('a second dodge before 1.2 s is ignored, and one after is accepted', () => 
 
 test('a dodge cancels an in-progress cast', () => {
   const sim = makeSim();
+  sim.player.element = 2;
   sim.player.castState = { skillId: 'fire.fireball', until: 5, move: 0.7 };
   run(sim, 1, input({ buttons: BTN.DODGE }));
   assert.equal(sim.player.castState, null);

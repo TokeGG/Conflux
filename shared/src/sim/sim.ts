@@ -191,7 +191,7 @@ export class Sim {
           element: ELEMENTS[p.element],
           equipped: [...p.equipped],
           statuses: list(p.statuses),
-          dodging: now < p.dodgeUntil,
+          dodging: now < p.dodgeUntil || (p.dash !== null && now < p.dash.until),
           casting: p.castState ? p.castState.skillId : null,
           slots: SLOTS.map((slot) => {
             const skillId = p.loadout[ELEMENTS[p.element]][slot];

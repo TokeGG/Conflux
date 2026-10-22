@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.63",
+    "date": "2026-10-22",
+    "at": "2026-10-22T17:32:34Z",
+    "notes": [
+      "Shift is now the one dash: it casts your held element's dash skill when its utility is a dash (with that skill's cooldown), otherwise the same dash without a skill, in the direction you are moving, and both give a short dodge window."
+    ]
+  },
+  {
     "version": "0.1.62",
     "date": "2026-10-22",
     "at": "2026-10-22T17:14:40Z",
