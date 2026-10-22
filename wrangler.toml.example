@@ -1,0 +1,13 @@
+# Example Cloudflare Pages configuration for the accounts API. Copy to wrangler.toml only if you deploy with `wrangler pages deploy`;
+# when the project is built from GitHub, set the same things in the dashboard instead (api/README.md). Do NOT put OWNER_CODE here.
+name = "conflux"
+pages_build_output_dir = "./client/dist"
+compatibility_date = "2026-10-01"
+
+[[kv_namespaces]]
+binding = "CONFLUX_KV"
+id = "REPLACE_WITH_THE_NAMESPACE_ID_FROM_THE_DASHBOARD"
+
+[vars]
+# Names only the owner code can register (comma separated). Optional; default is "toke".
+OWNER_NAMES = "toke"
