@@ -224,6 +224,23 @@ export interface RoomFloor {
   tileSize: number;
 }
 
+/** A point of light in a room: a brazier, a candle, a glowing mushroom, a lit gate. */
+export interface LightDef {
+  x: number;
+  y: number;
+  z: number;
+  color: string;
+  intensity: number;
+  dist: number;
+}
+
+/** How a generated room is skinned: which textures its floor and walls take and the cool tint over them. */
+export interface RoomLook {
+  floorTex: string;
+  wallTex: string;
+  tint: string;
+}
+
 export interface RoomDef {
   id: string;
   biome: string;
@@ -233,6 +250,11 @@ export interface RoomDef {
   colliders: Collider[];
   spawns: { player: Vec3; enemies: Vec3[]; doors: Vec3[] };
   lighting: LightingPreset;
+  /** Generated rooms only: the floor tiles (a floor of cells, not the whole rectangle), the lights and the skin. */
+  cells?: [number, number][];
+  lights?: LightDef[];
+  look?: RoomLook;
+  theme?: string;
 }
 
 /** An elite modifier: a name and the numbers its behaviour reads. The modifier's id says which behaviour it is. */
@@ -250,6 +272,39 @@ export interface AchievementDef {
   counter: string;
   atLeast: number;
   unlocks: { skills?: string[]; augments?: string[] };
+}
+
+/** One kind of prop a theme scatters: how many, how big, and how much room it keeps clear. */
+export interface PoolItem {
+  kit: string;
+  id: string;
+  scale: number;
+  count: [number, number];
+  /** Metres of free space reserved round it. */
+  clear: number;
+  /** Quarter turns only, no turn, or any angle (the default). */
+  turn?: 'quarter' | 'none';
+  /** The light it carries: a brazier, a candle, or a mushroom glow. */
+  light?: 'brazier' | 'candle' | 'glow';
+}
+
+/** A room style as data: the generator is the same for every theme. */
+export interface ThemeDef {
+  id: string;
+  weight: number;
+  minDepth: number;
+  /** Cells (4 m) along each side, from the first number to the second. */
+  cells: [number, number];
+  cutChance: number;
+  detailChance: number;
+  floor: { kit: string; tile: string; detail: string; tex: string[] };
+  wall: { kit: string; plain: string; detail: string; corner: string; gates: string[]; tex: string[] };
+  tint: string;
+  lighting: LightingPreset;
+  lights: { brazier: string; candle: string };
+  pools: Record<'set' | 'medium' | 'small' | 'wall', PoolItem[]>;
+  /** Enemy id to how often the theme draws it. */
+  mobs: Record<string, number>;
 }
 
 export interface BiomeDef {
@@ -282,5 +337,6 @@ export interface GameData {
   biomes: Record<string, BiomeDef>;
   elites: Record<string, EliteDef>;
   unlocks: Record<string, AchievementDef>;
+  themes: Record<string, ThemeDef>;
   rewards: RewardsCfg;
 }

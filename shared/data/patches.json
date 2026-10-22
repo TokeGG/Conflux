@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.44",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:27:35Z",
+    "notes": [
+      "Room themes (crypt, hall, cave) are now game data."
+    ]
+  },
+  {
     "version": "0.1.43",
     "date": "2026-10-22",
     "at": "2026-10-22T04:26:02Z",

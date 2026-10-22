@@ -1,0 +1,754 @@
+{
+ "crypt": {
+  "weight": 4,
+  "minDepth": 0,
+  "cells": [
+   5,
+   7
+  ],
+  "cutChance": 0.35,
+  "detailChance": 0.22,
+  "floor": {
+   "kit": "dungeon",
+   "tile": "template-floor",
+   "detail": "template-floor-detail",
+   "tex": [
+    "tex.sbs256.stone.stone_03_256x256",
+    "tex.sbs256.stone.stone_05_256x256",
+    "tex.sbs256.stone.stone_07_256x256"
+   ]
+  },
+  "wall": {
+   "kit": "dungeon",
+   "plain": "template-wall",
+   "detail": "template-wall-detail-a",
+   "corner": "template-wall-corner",
+   "gates": [
+    "gate",
+    "gate-metal-bars",
+    "gate-door"
+   ],
+   "tex": [
+    "tex.sbs256.brick.brick_05_256x256",
+    "tex.sbs256.brick.brick_08_256x256",
+    "tex.sbs256.brick.brick_11_256x256"
+   ]
+  },
+  "tint": "#8e9bb8",
+  "lighting": {
+   "ambient": "#2a2f4a",
+   "light": "#6677aa",
+   "intensity": 0.15,
+   "fogColor": "#05060a",
+   "fogNear": 6,
+   "fogFar": 26
+  },
+  "lights": {
+   "brazier": "#ff9a3c",
+   "candle": "#ffc766"
+  },
+  "pools": {
+   "set": [
+    {
+     "kit": "graveyard",
+     "id": "crypt-small",
+     "scale": 2.2,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 2.6,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "crypt-a",
+     "scale": 2.2,
+     "count": [
+      0,
+      1
+     ],
+     "clear": 2.4,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "altar-stone",
+     "scale": 3,
+     "count": [
+      0,
+      1
+     ],
+     "clear": 2.2,
+     "turn": "quarter",
+     "light": "candle"
+    },
+    {
+     "kit": "graveyard",
+     "id": "crypt-large",
+     "scale": 1.6,
+     "count": [
+      0,
+      1
+     ],
+     "clear": 3.2,
+     "turn": "quarter"
+    }
+   ],
+   "medium": [
+    {
+     "kit": "graveyard",
+     "id": "coffin",
+     "scale": 2.3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.8,
+     "turn": "quarter",
+     "light": "candle"
+    },
+    {
+     "kit": "graveyard",
+     "id": "coffin-old",
+     "scale": 2.3,
+     "count": [
+      1,
+      3
+     ],
+     "clear": 1.8,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "pillar-square",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.4,
+     "turn": "none"
+    },
+    {
+     "kit": "graveyard",
+     "id": "gravestone-wide",
+     "scale": 2.2,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.4,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "gravestone-cross-large",
+     "scale": 2.2,
+     "count": [
+      1,
+      3
+     ],
+     "clear": 1.4,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "stone-wall",
+     "scale": 3.2,
+     "count": [
+      0,
+      2
+     ],
+     "clear": 2.4,
+     "turn": "quarter"
+    }
+   ],
+   "small": [
+    {
+     "kit": "graveyard",
+     "id": "gravestone-bevel",
+     "scale": 2.2,
+     "count": [
+      2,
+      5
+     ],
+     "clear": 1.2,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "gravestone-broken",
+     "scale": 2.2,
+     "count": [
+      2,
+      5
+     ],
+     "clear": 1.2,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "gravestone-round",
+     "scale": 2.2,
+     "count": [
+      2,
+      5
+     ],
+     "clear": 1.2,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "urn-round",
+     "scale": 2.4,
+     "count": [
+      2,
+      5
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "urn-square",
+     "scale": 2.4,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "debris",
+     "scale": 2.4,
+     "count": [
+      4,
+      8
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "debris-wood",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "candle-multiple",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.7,
+     "light": "candle"
+    },
+    {
+     "kit": "graveyard",
+     "id": "shovel-dirt",
+     "scale": 2.4,
+     "count": [
+      0,
+      2
+     ],
+     "clear": 0.9
+    }
+   ],
+   "wall": [
+    {
+     "kit": "graveyard",
+     "id": "fire-basket",
+     "scale": 2.6,
+     "count": [
+      3,
+      4
+     ],
+     "clear": 1.2,
+     "light": "brazier"
+    }
+   ]
+  },
+  "mobs": {
+   "enemy.skeleton": 4,
+   "enemy.zombie": 3,
+   "enemy.ghost": 2,
+   "enemy.skeleton_mage": 2,
+   "enemy.stump": 1,
+   "enemy.bone_giant": 1
+  }
+ },
+ "hall": {
+  "weight": 3,
+  "minDepth": 0,
+  "cells": [
+   5,
+   8
+  ],
+  "cutChance": 0.2,
+  "detailChance": 0.18,
+  "floor": {
+   "kit": "dungeon",
+   "tile": "template-floor",
+   "detail": "template-floor-detail-a",
+   "tex": [
+    "tex.sbs256.tile.tile_02_256x256",
+    "tex.sbs256.tile.tile_04_256x256",
+    "tex.sbs256.tile.tile_06_256x256"
+   ]
+  },
+  "wall": {
+   "kit": "dungeon",
+   "plain": "template-wall",
+   "detail": "template-wall-detail-a",
+   "corner": "template-wall-corner",
+   "gates": [
+    "gate",
+    "gate-metal-bars"
+   ],
+   "tex": [
+    "tex.sbs256.brick.brick_02_256x256",
+    "tex.sbs256.brick.brick_14_256x256",
+    "tex.sbs256.brick.brick_17_256x256"
+   ]
+  },
+  "tint": "#9aa3b8",
+  "lighting": {
+   "ambient": "#262c44",
+   "light": "#5f6f9f",
+   "intensity": 0.15,
+   "fogColor": "#05060a",
+   "fogNear": 6,
+   "fogFar": 28
+  },
+  "lights": {
+   "brazier": "#ff9a3c",
+   "candle": "#ffc766"
+  },
+  "pools": {
+   "set": [
+    {
+     "kit": "graveyard",
+     "id": "column-large",
+     "scale": 2.7,
+     "count": [
+      4,
+      6
+     ],
+     "clear": 1.8,
+     "turn": "none"
+    },
+    {
+     "kit": "graveyard",
+     "id": "stone-wall",
+     "scale": 3.2,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 2.4,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "pillar-obelisk",
+     "scale": 3,
+     "count": [
+      0,
+      1
+     ],
+     "clear": 1.8,
+     "turn": "none"
+    }
+   ],
+   "medium": [
+    {
+     "kit": "graveyard",
+     "id": "pillar-large",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.4,
+     "turn": "none"
+    },
+    {
+     "kit": "graveyard",
+     "id": "stone-wall-column",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.4,
+     "turn": "quarter"
+    },
+    {
+     "kit": "graveyard",
+     "id": "rocks",
+     "scale": 2.4,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.8
+    },
+    {
+     "kit": "graveyard",
+     "id": "rocks-tall",
+     "scale": 2.4,
+     "count": [
+      1,
+      3
+     ],
+     "clear": 1.8
+    },
+    {
+     "kit": "graveyard",
+     "id": "crypt-small",
+     "scale": 2,
+     "count": [
+      0,
+      1
+     ],
+     "clear": 2.4,
+     "turn": "quarter"
+    }
+   ],
+   "small": [
+    {
+     "kit": "graveyard",
+     "id": "debris",
+     "scale": 2.4,
+     "count": [
+      6,
+      12
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "debris-wood",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "urn-square",
+     "scale": 2.4,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "graveyard",
+     "id": "candle-multiple",
+     "scale": 2.4,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.7,
+     "light": "candle"
+    },
+    {
+     "kit": "graveyard",
+     "id": "gravestone-debris",
+     "scale": 2.2,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.2,
+     "turn": "quarter"
+    }
+   ],
+   "wall": [
+    {
+     "kit": "graveyard",
+     "id": "fire-basket",
+     "scale": 2.6,
+     "count": [
+      4,
+      6
+     ],
+     "clear": 1.2,
+     "light": "brazier"
+    }
+   ]
+  },
+  "mobs": {
+   "enemy.golem_fire": 2,
+   "enemy.golem_water": 2,
+   "enemy.treefellow": 2,
+   "enemy.skeleton": 3,
+   "enemy.skeleton_mage": 2,
+   "enemy.wisp": 2,
+   "enemy.fire_elemental": 2,
+   "enemy.water_elemental": 2
+  }
+ },
+ "cave": {
+  "weight": 3,
+  "minDepth": 0,
+  "cells": [
+   5,
+   7
+  ],
+  "cutChance": 0.5,
+  "detailChance": 0.25,
+  "floor": {
+   "kit": "cave",
+   "tile": "template-floor",
+   "detail": "template-floor-detail",
+   "tex": [
+    "tex.sbs256.dirt.dirt_03_256x256",
+    "tex.sbs256.dirt.dirt_05_256x256",
+    "tex.sbs256.dirt.dirt_08_256x256"
+   ]
+  },
+  "wall": {
+   "kit": "cave",
+   "plain": "template-wall",
+   "detail": "template-wall-detail-a",
+   "corner": "template-wall-corner",
+   "gates": [
+    "gate",
+    "gate-metal-bars",
+    "gate-rock"
+   ],
+   "tex": [
+    "tex.sbs256.stone.stone_10_256x256",
+    "tex.sbs256.stone.stone_12_256x256",
+    "tex.sbs256.stone.stone_15_256x256"
+   ]
+  },
+  "tint": "#8a9aa8",
+  "lighting": {
+   "ambient": "#222b3a",
+   "light": "#5a6c8a",
+   "intensity": 0.15,
+   "fogColor": "#04060a",
+   "fogNear": 5,
+   "fogFar": 24
+  },
+  "lights": {
+   "brazier": "#ff9a3c",
+   "candle": "#ffc766"
+  },
+  "pools": {
+   "set": [
+    {
+     "kit": "nature",
+     "id": "rock_largeA",
+     "scale": 3,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 2.4
+    },
+    {
+     "kit": "nature",
+     "id": "rock_largeB",
+     "scale": 3,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 2.4
+    },
+    {
+     "kit": "nature",
+     "id": "rock_largeC",
+     "scale": 3,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 2.4
+    },
+    {
+     "kit": "nature",
+     "id": "rock_tallA",
+     "scale": 3,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 2.0
+    }
+   ],
+   "medium": [
+    {
+     "kit": "nature",
+     "id": "rock_tallC",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.6
+    },
+    {
+     "kit": "nature",
+     "id": "rock_tallF",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.6
+    },
+    {
+     "kit": "nature",
+     "id": "rock_tallI",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 1.6
+    },
+    {
+     "kit": "nature",
+     "id": "stump_old",
+     "scale": 2.6,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 1.4
+    },
+    {
+     "kit": "nature",
+     "id": "log",
+     "scale": 2.6,
+     "count": [
+      1,
+      3
+     ],
+     "clear": 1.6
+    }
+   ],
+   "small": [
+    {
+     "kit": "nature",
+     "id": "rock_smallA",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "nature",
+     "id": "rock_smallB",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "nature",
+     "id": "rock_smallC",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "nature",
+     "id": "rock_smallF",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "nature",
+     "id": "stone_smallA",
+     "scale": 2.4,
+     "count": [
+      3,
+      6
+     ],
+     "clear": 0.9
+    },
+    {
+     "kit": "nature",
+     "id": "mushroom_tanTall",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.9,
+     "light": "glow"
+    },
+    {
+     "kit": "nature",
+     "id": "mushroom_redGroup",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.9,
+     "light": "glow"
+    },
+    {
+     "kit": "nature",
+     "id": "mushroom_tanGroup",
+     "scale": 3,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.9,
+     "light": "glow"
+    }
+   ],
+   "wall": [
+    {
+     "kit": "graveyard",
+     "id": "fire-basket",
+     "scale": 2.6,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 1.2,
+     "light": "brazier"
+    }
+   ]
+  },
+  "mobs": {
+   "enemy.stump": 3,
+   "enemy.gust": 3,
+   "enemy.fire_sprite": 2,
+   "enemy.wisp": 2,
+   "enemy.zombie": 2,
+   "enemy.treefellow": 1
+  }
+ }
+}

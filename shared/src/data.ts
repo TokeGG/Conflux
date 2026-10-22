@@ -1,7 +1,7 @@
 // Turns the raw JSON files into GameData and checks it. Entries keyed by id in their file get that id as a field.
 import { ELEMENTS, STATUS_IDS, SLOTS, SHAPE_TYPES, CAST_ARCHETYPES, AI_ARCHETYPES, RIG_TYPES, ATTACK_TEMPLATES, type GameData } from './types.ts';
 
-const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes', 'elites', 'unlocks'] as const;
+const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes', 'elites', 'unlocks', 'themes'] as const;
 const SECTIONS = ['player', 'elements', 'statuses', 'reactions', 'rewards', ...KEYED] as const;
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -30,6 +30,7 @@ export function loadData(raw: Record<string, unknown>): GameData {
     biomes: copy.biomes,
     elites: copy.elites,
     unlocks: copy.unlocks,
+    themes: copy.themes,
     rewards: copy.rewards,
   } as GameData;
 }
@@ -144,6 +145,22 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     if (!(a.atLeast > 0)) err(`achievement ${key}: atLeast must be above 0`);
     for (const s of a.unlocks.skills ?? []) if (!d.skills[s]) err(`achievement ${key}: skill "${s}" does not exist`);
     for (const x of a.unlocks.augments ?? []) if (!d.augments[x]) err(`achievement ${key}: augment "${x}" does not exist`);
+  }
+
+  for (const [key, t] of Object.entries(d.themes)) {
+    const bad = (m: string) => err(`theme ${key}: ${m}`);
+    if (!(t.weight > 0)) bad('weight must be above 0');
+    if (!(t.cells[0] >= 3 && t.cells[1] >= t.cells[0])) bad('cells must be two numbers, the first at least 3 and the second not smaller');
+    if (!t.floor.tex.length) bad('the floor needs at least one texture');
+    if (!t.wall.tex.length) bad('the walls need at least one texture');
+    if (!t.wall.gates.length) bad('it needs at least one gate piece');
+    for (const pool of ['set', 'medium', 'small', 'wall'] as const) if (!t.pools[pool]?.length) bad(`its ${pool} pool is empty`);
+    for (const p of Object.values(t.pools).flat()) if (!(p.scale > 0) || !(p.count[1] >= p.count[0]) || p.count[0] < 0) bad(`${p.kit}/${p.id} has a bad scale or count`);
+    if (!Object.keys(t.mobs).length) bad('it needs mobs');
+    for (const [m, w] of Object.entries(t.mobs)) {
+      if (!d.enemies[m]) bad(`mob "${m}" does not exist`);
+      if (!(w > 0)) bad(`mob "${m}" needs a weight above 0`);
+    }
   }
 
   if (!(d.rewards.offers > 0)) err('rewards.offers must be above 0');
