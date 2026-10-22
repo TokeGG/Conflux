@@ -419,7 +419,7 @@ async function boot(): Promise<void> {
     else if (d.phase === 'dead' || d.phase === 'won') {
       // a daily run records how far it got; the end screen compares it with the best of the day
       const bestToday = todays && d.run.daily ? saveDailyBest(storage, todays.day, d.run.history.length) : 0;
-      screens.end(d.run, d.earned, data, () => (bridge.command({ op: 'pause', on: true }), showMenu()), bestToday);
+      screens.end(d.run, d.earned, data, () => (bridge.command({ op: 'pause', on: true }), showMenu()), bestToday, { souls: d.run.soulsEarned, depth: depthAt(d.run.roomIndex) });
     }
   };
 
@@ -522,6 +522,8 @@ async function boot(): Promise<void> {
   const menu = new EscMenu({
     getSettings: () => settings,
     onSettings: (s) => ((settings = s), saveSettings(storage, s), applySettings()),
+    getCrosshair: () => crosshair,
+    onCrosshair: (c) => ((crosshair = c), saveCrosshair(storage, c), hud.setCrosshair(c)),
     getBindings: () => play.input.bindings,
     onBindings: (b) => ((play.input.bindings = b), saveBindings(storage, b)),
     onOpen: () => (document.exitPointerLock?.(), bridge.command({ op: 'pause', on: true }), (play.inputEnabled = false)),

@@ -1,0 +1,12 @@
+.xh-editor { display: flex; flex-direction: column; gap: 2px; }
+.xh-row { display: grid; grid-template-columns: minmax(120px, 200px) 1fr; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid #ffffff14; }
+.xh-range { display: flex; gap: 8px; align-items: center; }
+.xh-range input[type=range] { flex: 1; min-width: 0; max-width: 260px; accent-color: #e8862a; }
+.xh-num { width: 64px; }
+.xh-editor input[type=checkbox] { accent-color: #e8862a; justify-self: start; }
+.xh-cap { margin-top: 12px; font-size: 12px; opacity: .7; }
+.xh-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.xh-cell { display: flex; gap: 24px; align-items: center; justify-content: center; width: 176px; height: 108px; border-radius: 4px; border: 1px solid #ffffff22; }
+.xh-cell span { display: block; line-height: 0; }
+.xh-reset { align-self: flex-start; margin-top: 12px; }
+@media (max-width: 520px) { .xh-row { grid-template-columns: 1fr; gap: 4px; } .xh-cell { width: 100%; } }

@@ -1,0 +1,22 @@
+/* One look for everything the player sees: dark stone, ember accents, two faces (Cinzel for titles, Inter for the rest). */
+:root {
+  --stone-0: #07080c;
+  --stone-1: #0d0e14;
+  --stone-2: #15161e;
+  --stone-3: #1d1f2a;
+  --line: #4a3f2e;
+  --line-hi: #8a7650;
+  --ink: #e8dcc4;
+  --ink-dim: #a89a80;
+  --ink-faint: #7d7058;
+  --ember: #ff9a3c;
+  --ember-hi: #ffd27a;
+  --ember-lo: #e8862a;
+  --blood: #d8402f;
+  --good: #9be28f;
+  --font-display: "Cinzel", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.ico-svg { display: inline-flex; width: 1.2em; height: 1.2em; line-height: 0; vertical-align: middle; }
+.ico-svg svg { width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

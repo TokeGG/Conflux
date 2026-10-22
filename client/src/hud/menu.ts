@@ -3,12 +3,17 @@ import type { Bindings } from '../input.ts';
 import { ACTIONS, keyFor, keyLabel, rebind } from '../keybinds.ts';
 import { defaultBindings } from '../input.ts';
 import type { Settings } from '../settings.ts';
+import type { CrosshairCfg } from '../crosshair.ts';
+import { buildCrosshairEditor } from '../crosshairEditor.ts';
+import './theme.css';
 import './runScreens.css';
 import './menu.css';
 
 export interface MenuDeps {
   getSettings(): Settings;
   onSettings(s: Settings): void;
+  getCrosshair(): CrosshairCfg;
+  onCrosshair(c: CrosshairCfg): void;
   getBindings(): Bindings;
   onBindings(b: Bindings): void;
   /** Back to playing: called from the click, so the game can take the mouse again. */
@@ -17,7 +22,7 @@ export interface MenuDeps {
   onQuit(): void;
 }
 
-type Tab = 'controls' | 'game' | 'graphics';
+type Tab = 'controls' | 'game' | 'crosshair' | 'graphics';
 
 const h = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = '', text = ''): HTMLElementTagNameMap[K] => {
   const e = document.createElement(tag);
@@ -76,10 +81,11 @@ export class EscMenu {
       b.addEventListener('click', () => ((this.tab = id), (this.note = ''), this.stopListening(), this.render()));
       return b;
     };
-    tabs.append(tabButton('controls', 'Controls'), tabButton('game', 'Game'), tabButton('graphics', 'Graphics'));
+    tabs.append(tabButton('controls', 'Controls'), tabButton('game', 'Game'), tabButton('crosshair', 'Crosshair'), tabButton('graphics', 'Graphics'));
     const body = h('div', 'ebody');
     if (this.tab === 'controls') this.controls(body);
     else if (this.tab === 'game') this.game(body);
+    else if (this.tab === 'crosshair') buildCrosshairEditor(body, () => this.d.getCrosshair(), (c) => this.d.onCrosshair(c));
     else this.graphics(body);
     const foot = h('div', 'efoot');
     const resume = h('button', 'go', 'Resume');

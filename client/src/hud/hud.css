@@ -1,38 +1,74 @@
-#hud { position: fixed; inset: 0; pointer-events: none; font: 600 13px/1.2 system-ui, sans-serif; color: #fff; text-shadow: 0 1px 2px #000a; user-select: none; }
+/* The heads-up display: dark stone plates, ember edges, the element colour on whatever it owns. */
+#hud { position: fixed; inset: 0; pointer-events: none; font: 600 13px/1.2 var(--font-body); color: var(--ink); text-shadow: 0 1px 2px #000a; user-select: none; }
 #hud .crosshair { position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px; pointer-events: none; }
 #hud .crosshair svg { display: block; }
-#hud .bottom { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
-#hud .elements { display: flex; gap: 6px; }
-#hud .element { width: 38px; padding: 3px 0; text-align: center; border-radius: 6px; background: #0007; border: 2px solid #fff3; opacity: .6; }
-#hud .element.on { opacity: 1; border-color: var(--c); box-shadow: 0 0 8px var(--c); }
-#hud .element .k { font-size: 10px; opacity: .8; }
-#hud .slots { display: flex; gap: 8px; }
-#hud .slot { position: relative; width: 86px; height: 48px; border-radius: 8px; background: #000a; border: 2px solid var(--c); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-#hud .slot .key { position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: .8; }
-#hud .slot .name { font-size: 11px; }
-#hud .slot .cd { position: absolute; inset: 0; background: #000b; transform-origin: bottom; transform: scaleY(var(--p, 0)); }
-#hud .slot .cdtext { position: absolute; right: 6px; bottom: 3px; font-size: 14px; }
-#hud .bonus { height: 14px; font-size: 11px; color: #ffe066; opacity: 0; transition: opacity .15s; }
-#hud .bonus.on { opacity: 1; }
-#hud .hp { position: absolute; left: 18px; bottom: 18px; width: 240px; height: 18px; border-radius: 9px; background: #0009; border: 2px solid #fff4; overflow: hidden; }
-#hud .hp .fill { height: 100%; background: linear-gradient(#e0483a, #a82a24); width: 100%; }
-#hud .hp .txt { position: absolute; inset: 0; text-align: center; line-height: 18px; }
-#hud .tag { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
-#hud .tag.hot .bar { border-color: #ff5a4a; }
-#hud .tag .bar { width: 54px; height: 6px; border-radius: 3px; background: #000a; border: 1px solid #fff4; overflow: hidden; }
-#hud .tag .bar i { display: block; height: 100%; background: #e0483a; }
-#hud .tag .icons { display: flex; gap: 2px; }
-#hud .ico { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: conic-gradient(var(--c) calc(var(--p) * 360deg), #0008 0); position: relative; }
-#hud .ico::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #000b; }
-#hud .ico span { position: relative; }
-#hud .tag .ai { font-size: 10px; opacity: .85; }
-#hud .dmg { position: absolute; transform: translate(-50%, -100%); font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px #000; }
-#hud .dmg.weak { font-size: 24px; color: #ffd54a; }
 
-/* souls, depth, wares */
-#hud .runinfo { position: absolute; top: 12px; right: 16px; text-align: right; text-shadow: 0 1px 3px #000; }
-#hud .runinfo .souls { color: #9fe8ff; font-size: 18px; }
-#hud .runinfo .depth { font-size: 13px; opacity: .85; }
+/* bottom centre: the three element keys, then the three skills */
+#hud .bottom { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#hud .elements { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+#hud .element { display: flex; align-items: center; gap: 6px; min-width: 84px; padding: 4px 10px 4px 6px; border-radius: 3px; background: linear-gradient(#15161ee6, #0a0b10e6); border: 1px solid #ffffff22; opacity: .55; transition: opacity .15s, box-shadow .15s, border-color .15s; }
+#hud .element .k { font-size: 10px; color: var(--ink-faint); }
+#hud .element .eico { width: 18px; height: 18px; color: var(--c); display: grid; place-items: center; }
+#hud .element .eico svg { width: 100%; height: 100%; }
+#hud .element .name { font-size: 12px; letter-spacing: .04em; }
+#hud .element.on { opacity: 1; border-color: var(--c); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 60%, transparent), inset 0 0 8px color-mix(in srgb, var(--c) 25%, transparent); }
+#hud .slots { display: flex; gap: 8px; }
+#hud .slot { position: relative; width: 92px; height: 64px; border-radius: 3px; background: linear-gradient(#17181fee, #0a0b10ee); border: 1px solid color-mix(in srgb, var(--c, #888) 70%, #000); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; box-shadow: 0 4px 14px #0008; }
+#hud .slot .sico { width: 24px; height: 24px; color: var(--c); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--c) 70%, transparent)); transition: opacity .15s; }
+#hud .slot .sico svg { width: 100%; height: 100%; }
+#hud .slot .key { position: absolute; top: 3px; left: 5px; font-size: 9px; letter-spacing: .08em; color: var(--ink-dim); padding: 1px 4px; border: 1px solid #ffffff26; border-radius: 2px; background: #0007; }
+#hud .slot .name { font-size: 10px; max-width: 86px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink-dim); }
+#hud .slot .cd { position: absolute; inset: 0; background: conic-gradient(from 0deg, #05060ac4 calc(var(--p, 0) * 360deg), transparent 0); }
+#hud .slot .cdtext { position: absolute; inset: 0; display: grid; place-items: center; font: 700 17px var(--font-body); color: #fff; }
+#hud .slot:not(.ready) .sico { opacity: .45; }
+#hud .bonus { height: 14px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ember-hi); opacity: 0; transition: opacity .15s; text-shadow: 0 0 8px #ff9a3c99; }
+#hud .bonus.on { opacity: 1; }
+
+/* bottom left: health and the statuses on you */
+#hud .frame { position: absolute; left: 18px; bottom: 18px; width: min(260px, 36vw); display: flex; flex-direction: column; gap: 6px; }
+#hud .hp { position: relative; height: 22px; border-radius: 3px; background: #07080ccc; border: 1px solid var(--line-hi); overflow: hidden; box-shadow: 0 4px 14px #0008, inset 0 0 8px #000; }
+#hud .hp .fill { height: 100%; background: linear-gradient(#f0604a, #a82a24 60%, #7c1c18); width: 100%; transition: width .12s linear; box-shadow: inset 0 1px 0 #ffffff40; }
+#hud .hp .txt { position: absolute; inset: 0; text-align: center; line-height: 22px; font-size: 12px; letter-spacing: .06em; }
+#hud .pstat { display: flex; gap: 4px; min-height: 24px; }
+
+/* top right: souls and depth (the run fills them in) */
+#hud .runinfo { position: absolute; right: 18px; top: 16px; display: flex; gap: 8px; }
+#hud .runinfo .chip { display: none; align-items: center; gap: 8px; min-width: 76px; padding: 5px 12px; background: linear-gradient(#15161ee6, #0a0b10e6); border: 1px solid var(--line); border-radius: 3px; color: var(--ember-hi); }
+#hud .runinfo .chip .v { font: 700 16px var(--font-display); color: var(--ink); }
+#hud .runinfo .chip.souls { color: #8fe0ff; }
+#hud .runinfo .chip.on { display: flex; }
+
+/* top centre: the boss */
+#hud .bossbar { position: absolute; left: 50%; top: 16px; transform: translateX(-50%); width: min(520px, 70vw); opacity: 0; transition: opacity .25s; text-align: center; }
+#hud .bossbar.on { opacity: 1; }
+#hud .bossbar .bn { font: 700 15px var(--font-display); letter-spacing: .2em; text-transform: uppercase; color: #ffd8c0; margin-bottom: 4px; text-shadow: 0 0 10px #d8402f99, 0 1px 2px #000; }
+#hud .bossbar .bf { position: relative; height: 12px; background: #07080ccc; border: 1px solid #8a3a30; box-shadow: 0 4px 16px #000a; }
+#hud .bossbar .bf::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: var(--w, 100%); background: linear-gradient(#e0583e, #8a1f1a); transition: width .15s linear; }
+
+/* the tags above enemies */
+#hud .tag { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+#hud .tag.hot .bar { border-color: #ff7a60; box-shadow: 0 0 6px #ff5a4a88; }
+#hud .tag .bar { width: 58px; height: 6px; border-radius: 1px; background: #000b; border: 1px solid #ffffff44; overflow: hidden; }
+#hud .tag .bar i { display: block; height: 100%; background: linear-gradient(#f0604a, #a82a24); }
+#hud .tag .icons { display: flex; gap: 2px; }
+#hud .ico { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c) calc(var(--p) * 360deg), #0008 0); position: relative; flex: none; }
+#hud .ico::before { content: ''; position: absolute; inset: 2px; border-radius: 50%; background: #0a0b10; }
+#hud .ico .ico-svg { position: relative; width: 13px; height: 13px; }
+#hud .pstat .ico { width: 26px; height: 26px; }
+#hud .pstat .ico .ico-svg { width: 15px; height: 15px; }
+#hud .tag .ai { font-size: 10px; opacity: .85; }
+
+/* damage numbers */
+#hud .dmg { position: absolute; transform: translate(-50%, -100%); font: 800 18px var(--font-display); color: #fff; text-shadow: 0 0 3px #000, 0 2px 3px #000; }
+#hud .dmg.weak { font-size: 25px; color: #ffd54a; text-shadow: 0 0 3px #000, 0 0 12px #ff9a3caa, 0 2px 3px #000; }
+
+/* labels over the open gates: a kind icon and where it leads */
+#hud .gate { position: absolute; transform: translate(-50%, -100%); display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 10px; background: linear-gradient(#17181fee, #0a0b10ee); border: 1px solid var(--line-hi); border-radius: 3px; white-space: nowrap; box-shadow: 0 6px 20px #000a; color: var(--ink); }
+#hud .gate > .ico-svg { width: 24px; height: 24px; color: var(--ink-dim); }
+#hud .gate .t { font: 700 14px var(--font-display); letter-spacing: .08em; }
+#hud .gate .s { font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+
+/* wares and messages of the quiet rooms */
 #hud .prompt { position: absolute; left: 50%; bottom: 150px; transform: translateX(-50%); padding: 4px 12px; background: #000a; border: 1px solid #fff4; border-radius: 6px; opacity: 0; transition: opacity .15s; }
 #hud .prompt.on { opacity: 1; }
 #hud .toast { position: absolute; left: 50%; top: 22%; transform: translateX(-50%); font-size: 28px; letter-spacing: .15em; opacity: 0; text-shadow: 0 2px 6px #000; pointer-events: none; }
@@ -45,9 +81,25 @@
 #hud .stall.here { opacity: 1; border-color: #fff; }
 #hud .stall .near { max-width: 220px; white-space: normal; font-size: 11px; opacity: .9; }
 #hud .gate.shop, #hud .gate.shrine, #hud .gate.rest { border-color: #9fe8ff; color: #d8f6ff; }
-/* labels over the open gates */
-#hud .gate { position: absolute; transform: translate(-50%, -100%); text-align: center; padding: 4px 10px; background: #0009; border: 1px solid #fff4; border-radius: 6px; white-space: nowrap; }
-#hud .gate .t { font-size: 14px; }
-#hud .gate .s { font-size: 11px; opacity: .8; }
 #hud .gate.elite { border-color: #ffb040; color: #ffd890; }
-#hud .gate.boss { border-color: #ff5a4a; color: #ffb0a0; }
+#hud .gate.elite > .ico-svg { color: #ffb040; }
+#hud .gate.boss { border-color: #ff5a4a; color: #ffb0a0; box-shadow: 0 6px 20px #000a, 0 0 18px #d8402f66; }
+#hud .gate.boss > .ico-svg { color: #ff5a4a; }
+#hud .gate.shop > .ico-svg, #hud .gate.shrine > .ico-svg, #hud .gate.rest > .ico-svg { color: #8fe0ff; }
+#hud .gate.shop { border-color: #5aa8c8; }
+#hud .gate.shrine { border-color: #a070e0; }
+#hud .gate.rest { border-color: #6fbf6a; }
+
+@media (max-width: 720px) {
+  #hud .slot { width: 64px; height: 54px; }
+  #hud .slot .name { display: none; }
+  #hud .element { min-width: 0; padding: 3px 7px 3px 5px; }
+  #hud .element .name { display: none; }
+  #hud .frame { left: 10px; bottom: 78px; width: 140px; }
+  #hud .bottom { bottom: 10px; }
+  #hud .runinfo { right: 10px; top: 10px; }
+  #hud .bossbar { top: 46px; }
+}
+
+/* while a screen covers the room, the room's own tags stay out of the way */
+body:has(#runscreen.open) #hud .tag, body:has(#runscreen.open) #hud .bossbar, body:has(#runscreen.open) #hud .gate { display: none; }
