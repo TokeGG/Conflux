@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.50",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:54:20Z",
+    "notes": [
+      "Under the hood: the practice bot can leave a cleared room through a gate and the balance report covers endless runs."
+    ]
+  },
+  {
     "version": "0.1.49",
     "date": "2026-10-22",
     "at": "2026-10-22T04:48:49Z",

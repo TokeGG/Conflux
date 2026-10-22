@@ -3,6 +3,7 @@
 import { BTN, ELEMENTS, idleInput, type Input } from './types.ts';
 import { TICK, type Sim } from './sim/sim.ts';
 import { RunDirector, createRunRoomSim } from './run/director.ts';
+import { ENDLESS } from './run/endless.ts';
 import { emptyLedger } from './run/unlocks.ts';
 import type { DoorChoice, RunState } from './run/run.ts';
 import type { RewardOffer } from './run/rewards.ts';
@@ -72,12 +73,62 @@ function danger(sim: Sim): { x: number; z: number } | null {
   return null;
 }
 
+/** The waypoints from the player to the nearest gate, a breadth-first search over a 1 m grid; made once per room, when it is cleared. */
+const gatePaths = new WeakMap<Sim, { path: { x: number; z: number }[]; at: number }>();
+
+function findPath(sim: Sim, goal: { x: number; z: number }): { x: number; z: number }[] {
+  const R = Math.max(0.3, sim.data.player.radius);
+  const half = 22;
+  const n = half * 2;
+  const cell = (v: number) => Math.floor(v + half);
+  const centre = (i: number) => i - half + 0.5;
+  const free = (ix: number, iz: number) => ix >= 0 && iz >= 0 && ix < n && iz < n && !sim.world.blocked({ x: centre(ix), y: 0, z: centre(iz) }, R);
+  const start = [cell(sim.player.pos.x), cell(sim.player.pos.z)];
+  const end = [cell(goal.x), cell(goal.z)];
+  const from = new Map<number, number>();
+  const key = (ix: number, iz: number) => ix * n + iz;
+  const queue = [key(start[0], start[1])];
+  from.set(queue[0], -1);
+  for (let head = 0; head < queue.length && !from.has(key(end[0], end[1])); head++) {
+    const ix = Math.floor(queue[head] / n);
+    const iz = queue[head] % n;
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+      const a = ix + dx;
+      const c = iz + dz;
+      // a diagonal step must not cut a corner
+      if (!free(a, c) || from.has(key(a, c)) || (dx !== 0 && dz !== 0 && (!free(ix + dx, iz) || !free(ix, iz + dz)))) continue;
+      from.set(key(a, c), queue[head]);
+      queue.push(key(a, c));
+    }
+  }
+  const path: { x: number; z: number }[] = [];
+  for (let k = from.has(key(end[0], end[1])) ? key(end[0], end[1]) : -1; k >= 0; k = from.get(k)!) path.push({ x: centre(Math.floor(k / n)), z: centre(k % n) });
+  return path.reverse();
+}
+
+/** A cleared room: walk to the nearest gate by a route round the props. */
+function leaveRoom(sim: Sim, input: Input): Input {
+  const p = sim.player.pos;
+  let plan = gatePaths.get(sim);
+  if (!plan) {
+    const gate = [...sim.doors].sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
+    plan = { path: gate ? [...findPath(sim, gate), { x: gate.x, z: gate.z }] : [], at: 0 };
+    gatePaths.set(sim, plan);
+  }
+  while (plan.at < plan.path.length - 1 && Math.hypot(plan.path[plan.at].x - p.x, plan.path[plan.at].z - p.z) < 0.7) plan.at++;
+  const wp = plan.path[plan.at];
+  if (!wp) return input;
+  input.aimYaw = Math.atan2(wp.x - p.x, wp.z - p.z);
+  input.moveZ = 1;
+  return input;
+}
+
 export function botInput(sim: Sim): Input {
   const p = sim.player;
   const eye = { x: p.pos.x, y: p.pos.y + 1.6, z: p.pos.z };
   const input = { ...idleInput(), camOrigin: eye };
   const t = pickTarget(sim);
-  if (!t) return input;
+  if (!t) return sim.roomCleared ? leaveRoom(sim, input) : input;
 
   const want = chooseElement(sim);
   input.swapTo = want !== p.element ? want : -1;
@@ -195,32 +246,35 @@ export function botPickDoor(run: RunState, doors: DoorChoice[]): number {
 
 const bump = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
 
-/** Plays a whole run with the scripted bot and reports what happened. Deterministic for a seed. */
+/** Plays an endless run with the scripted bot until it dies or `maxSeconds` of simulated time pass, and reports what happened. Deterministic for a seed. */
 export function playRun(data: GameData, seed: number, maxSeconds: number): RunReport {
-  const d = new RunDirector(data, seed, emptyLedger());
+  const d = new RunDirector(data, seed, emptyLedger(), false, ENDLESS);
   const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {} };
+  let sim: Sim | null = null;
+  d.onEnter = () => (sim = null);
   let ticks = 0;
+  let roomTicks = 0;
   const limit = Math.floor(maxSeconds / TICK);
-  while (d.phase !== 'dead' && d.phase !== 'won' && ticks < limit) {
-    if (d.phase === 'reward') d.pick(botPickReward(d.run, d.offers));
-    else if (d.phase === 'doors') d.enter(botPickDoor(d.run, d.doors));
-    else {
-      const sim = createRunRoomSim(d.run, data);
-      while (d.phase === 'fighting' && ticks < limit) {
-        const events = sim.step([botInput(sim)]);
-        ticks++;
-        for (const e of events) {
-          if (e.type === 'cast') bump(report.skillUse, String(e.skillId));
-          else if (e.type === 'reaction') bump(report.reactions, String(e.effect));
-        }
-        d.onPlayerHp(sim.player.hp);
-        d.onEvents(events);
-        if (sim.time > ROOM_LIMIT) d.onPlayerHp(0);
-      }
+  while (d.phase !== 'dead' && ticks < limit) {
+    if (d.phase === 'reward') {
+      d.pick(botPickReward(d.run, d.offers));
+      continue;
     }
+    sim ??= createRunRoomSim(d.run, data);
+    const events = sim.step([botInput(sim)]);
+    ticks++;
+    roomTicks++;
+    for (const e of events) {
+      if (e.type === 'cast') bump(report.skillUse, String(e.skillId));
+      else if (e.type === 'reaction') bump(report.reactions, String(e.effect));
+    }
+    d.onPlayerHp(sim.player.hp);
+    d.onEvents(events);
+    if (!sim) roomTicks = 0;
+    // a room the bot cannot clear (or leave) in this long counts as a loss, so a stuck fight cannot hang a report
+    else if (roomTicks * TICK > ROOM_LIMIT) d.onPlayerHp(0);
   }
   for (const a of d.run.augments) bump(report.augmentUse, a.id);
-  report.victory = d.phase === 'won';
   report.rooms = d.run.history.length;
   report.seconds = ticks * TICK;
   return report;

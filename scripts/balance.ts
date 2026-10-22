@@ -1,9 +1,9 @@
 // Plays many runs with the scripted bot and prints how they went: win rate, run length, and what got used.
-// usage: npx tsx scripts/balance.ts [seeds=50] [maxSeconds=1800]
+// usage: npx tsx scripts/balance.ts [seeds=50] [maxSeconds=600]
 import { defaultData, playRun, type RunReport } from '@conflux/shared';
 
 const seeds = Number(process.argv[2] ?? 50);
-const maxSeconds = Number(process.argv[3] ?? 1800);
+const maxSeconds = Number(process.argv[3] ?? 600);
 if (!Number.isInteger(seeds) || seeds < 1) throw new Error('usage: balance.ts <seeds> [maxSeconds]');
 
 const data = defaultData();
@@ -12,12 +12,13 @@ for (let seed = 1; seed <= seeds; seed++) reports.push(playRun(data, seed, maxSe
 
 const pct = (n: number, d: number) => `${((100 * n) / d).toFixed(0)}%`;
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
-const wins = reports.filter((r) => r.victory).length;
-console.log(`runs: ${seeds}   win rate: ${pct(wins, seeds)} (${wins})   mean length: ${mean(reports.map((r) => r.seconds)).toFixed(0)} s   mean rooms cleared: ${mean(reports.map((r) => r.rooms)).toFixed(1)} of 9`);
+const survived = reports.filter((r) => r.seconds >= maxSeconds - 1).length;
+const rooms = reports.map((r) => r.rooms).sort((a, b) => a - b);
+console.log(`runs: ${seeds}   still alive at ${maxSeconds} s: ${pct(survived, seeds)}   mean length: ${mean(reports.map((r) => r.seconds)).toFixed(0)} s   rooms cleared: mean ${mean(rooms).toFixed(1)}, median ${rooms[Math.floor(rooms.length / 2)]}, best ${rooms[rooms.length - 1]}`);
 
 // where runs end
 const ended: Record<number, number> = {};
-for (const r of reports) if (!r.victory) ended[r.rooms] = (ended[r.rooms] ?? 0) + 1;
+for (const r of reports) if (r.seconds < maxSeconds - 1) ended[r.rooms] = (ended[r.rooms] ?? 0) + 1;
 console.log(`runs lost after N rooms: ${Object.entries(ended).map(([k, v]) => `${k}:${v}`).join('  ') || 'none'}`);
 
 function usage(title: string, all: string[], pick: (r: RunReport) => Record<string, number>): void {

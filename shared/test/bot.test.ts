@@ -1,23 +1,28 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chooseElement, playRun } from '../src/bot.ts';
+import { botInput, chooseElement, playRun } from '../src/bot.ts';
+import { ENDLESS } from '../src/run/endless.ts';
+import { createRunRoomSim } from '../src/run/director.ts';
+import { applyDevCommand } from '../src/sim/devcmd.ts';
 import { createRoomSim } from '../src/sim/roomSim.ts';
 import { spawnEnemy } from '../src/sim/state.ts';
 import { defaultData } from '../src/files.ts';
 import { ELEMENTS } from '../src/types.ts';
 
 const data = defaultData();
+/** Simulated seconds each run may last: enough for a dozen rooms, short enough to test 20 seeds. */
+const LIMIT = 600;
 const SEEDS = Array.from({ length: 20 }, (_, i) => i + 1);
 let cache: ReturnType<typeof playRun>[] | null = null;
 /** The 20 reports, played once and shared by the tests. */
-const reports = () => (cache ??= SEEDS.map((seed) => playRun(data, seed, 1800)));
+const reports = () => (cache ??= SEEDS.map((seed) => playRun(data, seed, LIMIT)));
 
-test('playRun finishes on 20 seeds within 1800 simulated seconds, win or lose', () => {
+test('playRun finishes on 20 seeds within the time it is given (the run is endless, so it ends in a death or at the limit)', () => {
   for (const [i, r] of reports().entries()) {
     const seed = SEEDS[i];
     assert.equal(r.seed, seed);
-    assert.ok(r.seconds > 0 && r.seconds <= 1800 + 1, `seed ${seed} ran ${r.seconds}s`);
-    assert.ok(r.rooms >= 0 && r.rooms <= 9);
+    assert.ok(r.seconds > 0 && r.seconds <= LIMIT + 1, `seed ${seed} ran ${r.seconds}s`);
+    assert.equal(r.victory, false, 'an endless run is never won');
   }
 });
 
@@ -27,7 +32,7 @@ test('the bot makes reactions on at least 15 of 20 seeds', () => {
 });
 
 test('the same seed gives the same report', () => {
-  assert.deepEqual(playRun(data, 7, 1800), playRun(data, 7, 1800));
+  assert.deepEqual(playRun(data, 7, LIMIT), playRun(data, 7, LIMIT));
 });
 
 test('the report counts skills used, and an augment once one is owned', () => {
@@ -47,4 +52,21 @@ test('chooseElement picks water against a lone fire golem and wind against a lon
   const earth = Object.values(data.enemies).find((e) => e.element === 'earth' && e.weak.includes('wind'))!;
   assert.equal(ELEMENTS[chooseElement(lone(fire.id))], 'water');
   assert.equal(ELEMENTS[chooseElement(lone(earth.id))], 'wind');
+});
+
+test('the bot clears a room, then walks around the props to a gate and leaves through it', () => {
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const run = ENDLESS.start(seed, data);
+    const sim = createRunRoomSim(run, data);
+    applyDevCommand(sim, { op: 'killAll' });
+    const types: string[] = [];
+    for (let i = 0; i < 90 * 60 && !types.includes('door_entered'); i++) types.push(...sim.step([botInput(sim)]).map((e) => e.type));
+    assert.ok(types.includes('room_cleared'), `seed ${seed} clears`);
+    assert.ok(types.includes('door_entered'), `seed ${seed}: the bot walked out through a gate`);
+  }
+});
+
+test('playRun gets past the first room on at least 15 of 20 seeds', () => {
+  const past = reports().filter((r) => r.rooms >= 2).length;
+  assert.ok(past >= 15, `only ${past} of 20 runs cleared two rooms`);
 });
