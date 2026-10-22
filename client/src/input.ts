@@ -25,6 +25,8 @@ function typingInAField(t: EventTarget | null): boolean {
 export class InputController {
   bindings = defaultBindings();
   sensitivity = 0.0022;
+  /** When true, moving the mouse up looks down. */
+  invertY = false;
   yaw = 0;
   pitch = 0;
   private keys = new Set<string>();
@@ -56,8 +58,9 @@ export class InputController {
 
   look(dx: number, dy: number): void {
     if (document.pointerLockElement !== this.target && !this.unlocked) return;
-    this.yaw += dx * this.sensitivity;
-    this.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, this.pitch - dy * this.sensitivity));
+    // yaw measures from +z toward +x, which is to the LEFT of a camera looking along +z, so a mouse move to the right lowers it
+    this.yaw -= dx * this.sensitivity;
+    this.pitch = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, this.pitch + (this.invertY ? dy : -dy) * this.sensitivity));
   }
 
   /** Lets tests and the benchmark turn the camera without pointer lock. */
@@ -80,6 +83,7 @@ export class InputController {
     if (k(b.interact)) buttons |= BTN.INTERACT;
     const swapTo = this.swap;
     this.swap = -1;
-    return { moveX: k(b.right) - k(b.left), moveZ: k(b.forward) - k(b.back), aimYaw: this.yaw, aimPitch: this.pitch, camOrigin, buttons, swapTo };
+    return { // the sim's +moveX is toward (cos yaw, -sin yaw), the left of the screen, so the right key sends -1
+      moveX: k(b.left) - k(b.right), moveZ: k(b.forward) - k(b.back), aimYaw: this.yaw, aimPitch: this.pitch, camOrigin, buttons, swapTo };
   }
 }

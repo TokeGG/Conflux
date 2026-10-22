@@ -40,7 +40,7 @@ export class RunScreens {
     this.show('text', el('h2', '', title), el('div', 'scroll', ...lines.map((l) => el('p', '', l))), el('div', 'row', button('go', 'Back', onBack)));
   }
 
-  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]> }): void {
+  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]>; invertY: boolean; onInvertY: (on: boolean) => void }): void {
     const total = Object.keys(data.unlocks).length;
     this.show(
       'start',
@@ -49,6 +49,7 @@ export class RunScreens {
       el('p', '', `${ledger.unlocked.length} of ${total} unlocks earned`),
       el('div', 'row', button('go', 'Begin run', onBegin)),
       ...(pages ? [el('div', 'row', button('card small', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), () => this.start(ledger, data, onBegin, pages))), button('card small', 'Credits', () => void pages.credits().then((lines) => this.text('Credits', lines.length ? lines : ['No credits yet.'], () => this.start(ledger, data, onBegin, pages)))))] : []),
+      ...(pages ? [invertRow(pages.invertY, pages.onInvertY)] : []),
       el('p', 'hint', 'WASD move, mouse aim, left and right click cast, Q/E/R/F swap element, Space dodge'),
     );
   }
@@ -98,4 +99,15 @@ function button(cls: string, text: string, onClick: () => void, ...kids: HTMLEle
   b.append(...kids);
   b.addEventListener('click', onClick);
   return b;
+}
+
+function invertRow(on: boolean, onChange: (on: boolean) => void): HTMLElement {
+  const box = document.createElement('input');
+  box.type = 'checkbox';
+  box.id = 'invert-y';
+  box.checked = on;
+  box.addEventListener('change', () => onChange(box.checked));
+  const label = document.createElement('label');
+  label.append(box, ' Invert vertical mouse look');
+  return el('p', '', label);
 }

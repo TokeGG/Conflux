@@ -384,6 +384,7 @@ try {
   {
     const { page, errors } = await open(browser, server.url);
     await page.waitForSelector('#runscreen.open button.go', { timeout: 60000 });
+    check((await page.locator('#invert-y').count()) === 1, 'the start page offers Invert Y');
     await page.click('#runscreen button:text-is("Patch notes")');
     await page.waitForSelector('#runscreen .scroll');
     const notes: string = await page.locator('#runscreen .scroll').innerText();

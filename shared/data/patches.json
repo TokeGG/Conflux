@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.42",
+    "date": "2026-10-22",
+    "at": "2026-10-22T04:22:37Z",
+    "notes": [
+      "Mouse look is fixed: moving the mouse right now turns right, D walks right, and there is an Invert vertical look option on the start page."
+    ]
+  },
+  {
     "version": "0.1.41",
     "date": "2026-10-22",
     "at": "2026-10-22T03:45:59Z",

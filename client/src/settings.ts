@@ -8,11 +8,13 @@ export interface Settings {
   effects: { sprites: boolean; particles: boolean; shaders: boolean };
   /** 0 means no limit. */
   maxEnemies: number;
+  /** Moving the mouse up looks down. */
+  invertY: boolean;
 }
 
 const KEY = 'conflux.settings';
 
-export const defaultSettings = (): Settings => ({ renderScale: CHUNKY.renderScale, antialias: CHUNKY.antialias, shadows: CHUNKY.shadows, effects: { ...CHUNKY.effects }, maxEnemies: 0 });
+export const defaultSettings = (): Settings => ({ renderScale: CHUNKY.renderScale, antialias: CHUNKY.antialias, shadows: CHUNKY.shadows, effects: { ...CHUNKY.effects }, maxEnemies: 0, invertY: false });
 
 const bool = (v: unknown, d: boolean) => (typeof v === 'boolean' ? v : d);
 
@@ -33,6 +35,7 @@ export function loadSettings(storage: { getItem(k: string): string | null } | nu
     shadows: bool(raw.shadows, d.shadows),
     effects: { sprites: bool(fx.sprites, d.effects.sprites), particles: bool(fx.particles, d.effects.particles), shaders: bool(fx.shaders, d.effects.shaders) },
     maxEnemies: Number.isInteger(raw.maxEnemies) && raw.maxEnemies >= 0 ? raw.maxEnemies : 0,
+    invertY: bool(raw.invertY, d.invertY),
   };
 }
 

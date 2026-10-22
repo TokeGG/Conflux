@@ -82,6 +82,7 @@ async function boot(): Promise<void> {
   const debugFlags = noDebug();
   const play = new Game({ scene: game.scene, camera: game.camera, canvas: renderer.domElement, loader, bridge, data: () => layers.current(), room, playerModel: player, rig, fx, hud, profile, flags: debugFlags });
 
+  play.input.invertY = settings.invertY;
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     game.resize(window.innerWidth, window.innerHeight);
@@ -254,7 +255,7 @@ async function boot(): Promise<void> {
         return [];
       }
     };
-    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits });
+    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits, invertY: settings.invertY, onInvertY: (on) => ((settings = { ...settings, invertY: on }), (play.input.invertY = on), saveSettings(storage, settings)) });
   }
 
   const clock = new THREE.Clock();
