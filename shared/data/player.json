@@ -4,6 +4,8 @@
   "radius": 0.4,
   "maxAimRange": 60,
   "dodge": { "duration": 0.4, "invulnerable": 0.25, "cooldown": 1.2, "speed": 10 },
+  "jump": { "speed": 6.3, "gravity": 18 },
+  "dashSpeed": 22,
   "swap": { "cooldown": 0.4, "bonusWindow": 3, "bonusDamage": 1.25 },
   "cast": { "windupMove": 0.7, "channelMove": 0.5 }
 }

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.53",
+    "date": "2026-10-22",
+    "at": "2026-10-22T05:58:17Z",
+    "notes": [
+      "Space jumps, Shift dashes (and dash skills carry you instead of teleporting), the utility skill is on Q, and a Developer tools box on the start page turns the dev panel on."
+    ]
+  },
+  {
     "version": "0.1.52",
     "date": "2026-10-22",
     "at": "2026-10-22T05:11:46Z",

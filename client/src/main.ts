@@ -16,7 +16,7 @@ import { Game } from './game.ts';
 import { FxSystem } from './fx/sprites.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
-import { devEnabled } from './dev/access.ts';
+import { devEnabled, setDevFlag } from './dev/access.ts';
 import { DevState } from './dev/devstate.ts';
 import { DevPanel } from './dev/panel.ts';
 import { PerfPage } from './dev/perf.ts';
@@ -294,7 +294,7 @@ async function boot(): Promise<void> {
         return [];
       }
     };
-    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits, invertY: settings.invertY, onInvertY: (on) => ((settings = { ...settings, invertY: on }), (play.input.invertY = on), saveSettings(storage, settings)) });
+    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits, dev, onDev: (on) => (setDevFlag(storage, on), location.reload()), invertY: settings.invertY, onInvertY: (on) => ((settings = { ...settings, invertY: on }), (play.input.invertY = on), saveSettings(storage, settings)) });
   }
 
   const clock = new THREE.Clock();

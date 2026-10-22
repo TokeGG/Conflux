@@ -39,7 +39,11 @@ export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): 
 
   let vx: number;
   let vz: number;
-  if (now < p.dodgeUntil) {
+  if (p.dash && now >= p.dash.until) p.dash = null;
+  if (p.dash) {
+    vx = p.dash.vx;
+    vz = p.dash.vz;
+  } else if (now < p.dodgeUntil) {
     vx = Math.sin(p.facing) * cfg.dodge.speed;
     vz = Math.cos(p.facing) * cfg.dodge.speed;
   } else {
@@ -53,9 +57,21 @@ export function stepPlayer(sim: Sim, p: PlayerState, input: Input, dt: number): 
   p.vel.z = vz;
 
   // each axis on its own, so a wall is slid along rather than stuck to
-  const nx = p.pos.x + vx * dt;
+  // the last step of a dash is cut to the time left, so it covers exactly its distance
+  const moveDt = p.dash ? Math.min(dt, Math.max(0, p.dash.until - now)) : dt;
+  const nx = p.pos.x + vx * moveDt;
   if (!sim.world.blocked({ x: nx, y: p.pos.y, z: p.pos.z }, cfg.radius)) p.pos.x = nx;
-  const nz = p.pos.z + vz * dt;
+  const nz = p.pos.z + vz * moveDt;
   if (!sim.world.blocked({ x: p.pos.x, y: p.pos.y, z: nz }, cfg.radius)) p.pos.z = nz;
-  p.pos.y = sim.world.groundAt(p.pos.x, p.pos.z);
+  // jump: leave the ground on a press (only while standing on it), then fall back under gravity
+  const ground = sim.world.groundAt(p.pos.x, p.pos.z);
+  if (input.buttons & BTN.JUMP && p.pos.y <= ground + 1e-6 && p.vy <= 0) p.vy = cfg.jump.speed;
+  if (p.vy !== 0 || p.pos.y > ground) {
+    p.vy -= cfg.jump.gravity * dt;
+    p.pos.y += p.vy * dt;
+    if (p.pos.y <= ground) {
+      p.pos.y = ground;
+      p.vy = 0;
+    }
+  } else p.pos.y = ground;
 }

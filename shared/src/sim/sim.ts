@@ -77,6 +77,8 @@ export class Sim {
       dodgeReadyAt: 0,
       element: 0,
       swapReadyAt: 0,
+      vy: 0,
+      dash: null,
       castState: null,
       cooldowns: {},
       buff: null,

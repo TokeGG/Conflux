@@ -161,11 +161,11 @@ test('a dash moves the caster its distance and a collider stops it short', () =>
   const data = dataWith(skill('wind.dash', { type: 'dash', distance: 6 }, { element: 'wind', slot: 'utility' }));
   const a = makeSim(1, { data });
   castSkill(a, a.player, 'wind.dash', AHEAD);
-  run(a, 3);
+  run(a, 40);
   assert.ok(Math.abs(a.player.pos.z - 6) < 0.05, `z ${a.player.pos.z}`);
   const b = makeSim(1, { data, world: new World([wallBox(3)]) });
   castSkill(b, b.player, 'wind.dash', AHEAD);
-  run(b, 3);
+  run(b, 40);
   assert.ok(b.player.pos.z < 3 && b.player.pos.z > 1.5, `z ${b.player.pos.z}`);
 });
 

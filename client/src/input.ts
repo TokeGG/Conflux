@@ -8,12 +8,13 @@ export interface Bindings {
   right: string;
   utility: string;
   dodge: string;
+  jump: string;
   interact: string;
   cycle: string;
   elements: [string, string, string, string];
 }
 
-export const defaultBindings = (): Bindings => ({ forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD', utility: 'ShiftLeft', dodge: 'Space', interact: 'KeyE', cycle: 'KeyQ', elements: ['Digit1', 'Digit2', 'Digit3', 'Digit4'] });
+export const defaultBindings = (): Bindings => ({ forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD', utility: 'KeyQ', dodge: 'ShiftLeft', jump: 'Space', interact: 'KeyE', cycle: 'KeyR', elements: ['Digit1', 'Digit2', 'Digit3', 'Digit4'] });
 
 const PITCH_LIMIT = 1.3;
 
@@ -80,6 +81,7 @@ export class InputController {
     let buttons = this.mouse;
     if (k(b.utility)) buttons |= BTN.UTIL;
     if (k(b.dodge)) buttons |= BTN.DODGE;
+    if (k(b.jump)) buttons |= BTN.JUMP;
     if (k(b.interact)) buttons |= BTN.INTERACT;
     const swapTo = this.swap;
     this.swap = -1;

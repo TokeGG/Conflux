@@ -59,6 +59,10 @@ export interface PlayerState {
   /** Index into ELEMENTS. */
   element: number;
   swapReadyAt: number;
+  /** Vertical speed of a jump in progress (0 on the ground). */
+  vy: number;
+  /** A dash skill in progress: the player is carried at this velocity until `until`. */
+  dash: { until: number; vx: number; vz: number } | null;
   castState: CastState | null;
   /** Time each skill is ready again. */
   cooldowns: Record<string, number>;

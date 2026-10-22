@@ -30,7 +30,7 @@ export const RARITIES = ['common', 'rare', 'epic'] as const;
 export type Rarity = (typeof RARITIES)[number];
 
 /** Button bits in Input.buttons. */
-export const BTN = { LMB: 1, RMB: 2, UTIL: 4, DODGE: 8, INTERACT: 16 } as const;
+export const BTN = { LMB: 1, RMB: 2, UTIL: 4, DODGE: 8, INTERACT: 16, JUMP: 32 } as const;
 
 /** What a player sends the simulation each tick. swapTo is an index into ELEMENTS, or -1 for none. */
 export interface Input {
@@ -77,6 +77,10 @@ export interface PlayerCfg {
   radius: number;
   maxAimRange: number;
   dodge: { duration: number; invulnerable: number; cooldown: number; speed: number };
+  /** A jump leaves the ground at `speed` m/s upward and is pulled back at `gravity` m/s squared. */
+  jump: { speed: number; gravity: number };
+  /** How fast a dash skill carries the player, in m/s (it covers its distance over the time that takes, not in one tick). */
+  dashSpeed: number;
   swap: { cooldown: number; bonusWindow: number; bonusDamage: number };
   cast: { windupMove: number; channelMove: number };
 }

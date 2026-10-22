@@ -122,7 +122,7 @@ test('constants: four elements, four statuses, button bits are distinct', () => 
   assert.deepEqual([...STATUS_IDS], ['burning', 'soaked', 'rocked', 'gusted']);
   const bits = Object.values(BTN);
   assert.equal(new Set(bits).size, bits.length);
-  assert.deepEqual(bits, [1, 2, 4, 8, 16]);
+  assert.deepEqual(bits, [1, 2, 4, 8, 16, 32]);
 });
 
 test('the rewards file holds the rarity weights and the skill guarantee from the spec', () => {

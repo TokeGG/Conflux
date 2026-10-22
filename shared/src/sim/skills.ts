@@ -175,8 +175,9 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
           sim.zones.push({ id: sim.allocId(), kind: skill.id, pos: { x: gx, y: sim.world.groundAt(gx, gz), z: gz }, radius: s.trailRadius, until: now + (s.trailSeconds ?? 3), ownerId: 0, skillId: skill.id, yaw: 0, width: 0, height: 0, damage: skill.damage, tick: 0.5, nextTick: now, bonus, effects: skill.applies === 'burning' ? { burn: true } : skill.applies === 'soaked' ? { soak: true } : undefined });
         }
       }
-      p.pos.x += flat.x * travel;
-      p.pos.z += flat.z * travel;
+      // carried along at the dash speed, not moved in one tick; stepPlayer does the moving and stops at colliders
+      const dur = Math.max(0.1, travel / sim.data.player.dashSpeed);
+      p.dash = { until: now + dur, vx: (flat.x * travel) / dur, vz: (flat.z * travel) / dur };
       p.facing = Math.atan2(flat.x, flat.z);
       if (s.duration) p.invulnUntil = Math.max(p.invulnUntil, now + s.duration);
       break;

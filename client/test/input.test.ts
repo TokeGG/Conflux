@@ -61,3 +61,16 @@ test('the pitch stays within its limit', () => {
   c.look(0, 200000);
   assert.ok(c.pitch >= -Math.PI / 2 && c.pitch < 0);
 });
+
+test('the default keys: Space jumps, Shift dashes, Q is the utility skill, E interacts', async () => {
+  const { BTN } = await import('@conflux/shared');
+  const c = make();
+  for (const code of ['Space', 'ShiftLeft', 'KeyQ']) (c as any).keys.add(code);
+  const b = c.poll().buttons;
+  assert.ok(b & BTN.JUMP, 'jump');
+  assert.ok(b & BTN.DODGE, 'dash');
+  assert.ok(b & BTN.UTIL, 'utility');
+  (c as any).keys.clear();
+  (c as any).keys.add('KeyE');
+  assert.ok(c.poll().buttons & BTN.INTERACT);
+});

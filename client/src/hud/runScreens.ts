@@ -40,7 +40,7 @@ export class RunScreens {
     this.show('text', el('h2', '', title), el('div', 'scroll', ...lines.map((l) => el('p', '', l))), el('div', 'row', button('go', 'Back', onBack)));
   }
 
-  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]>; invertY: boolean; onInvertY: (on: boolean) => void }): void {
+  start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]>; invertY: boolean; onInvertY: (on: boolean) => void; dev: boolean; onDev: (on: boolean) => void }): void {
     const total = Object.keys(data.unlocks).length;
     this.show(
       'start',
@@ -49,8 +49,8 @@ export class RunScreens {
       el('p', '', `${ledger.unlocked.length} of ${total} unlocks earned`),
       el('div', 'row', button('go', 'Begin run', onBegin)),
       ...(pages ? [el('div', 'row', button('card small', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), () => this.start(ledger, data, onBegin, pages))), button('card small', 'Credits', () => void pages.credits().then((lines) => this.text('Credits', lines.length ? lines : ['No credits yet.'], () => this.start(ledger, data, onBegin, pages)))))] : []),
-      ...(pages ? [invertRow(pages.invertY, pages.onInvertY)] : []),
-      el('p', 'hint', 'WASD move, mouse aim, left and right click cast, Q/E/R/F swap element, Space dodge'),
+      ...(pages ? [checkRow('invert-y', 'Invert vertical mouse look', pages.invertY, pages.onInvertY), checkRow('dev-tools', 'Developer tools (F2 opens the dev panel)', pages.dev, pages.onDev)] : []),
+      el('p', 'hint', 'WASD move, mouse aim, left and right click cast, 1 2 3 4 swap element, Space jump, Shift dash, Q utility skill'),
     );
   }
 
@@ -101,13 +101,13 @@ function button(cls: string, text: string, onClick: () => void, ...kids: HTMLEle
   return b;
 }
 
-function invertRow(on: boolean, onChange: (on: boolean) => void): HTMLElement {
+function checkRow(id: string, text: string, on: boolean, onChange: (on: boolean) => void): HTMLElement {
   const box = document.createElement('input');
   box.type = 'checkbox';
-  box.id = 'invert-y';
+  box.id = id;
   box.checked = on;
   box.addEventListener('change', () => onChange(box.checked));
   const label = document.createElement('label');
-  label.append(box, ' Invert vertical mouse look');
+  label.append(box, ` ${text}`);
   return el('p', '', label);
 }

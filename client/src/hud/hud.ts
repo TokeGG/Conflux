@@ -7,7 +7,7 @@ import { MARK_ICONS, STATUS_ICONS, type Icon } from './statusIcons.ts';
 import './hud.css';
 
 const ELEMENT_COLOUR: Record<string, string> = { fire: '#ff7a30', water: '#4aa8ff', earth: '#b08a5a', wind: '#b8f0e0' };
-const KEYS = ['LMB', 'RMB', 'Shift'];
+const KEYS = ['LMB', 'RMB', 'Q'];
 const NUMBER_LIFE = 0.9;
 
 const div = (cls: string, text = ''): HTMLDivElement => {
