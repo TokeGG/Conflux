@@ -42,6 +42,7 @@ export class SimRunner {
   private timeScale = 1;
   private stepsOwed = 0;
   private input: Input = idleInput();
+  private pendingSwap = -1;
   private commands: DevCommand[] = [];
   private handler: ((cmd: DevCommand) => void) | null = null;
 
@@ -56,6 +57,8 @@ export class SimRunner {
 
   send(input: Input): void {
     this.input = input;
+    // a swap is a press, not a held state: keep it until a tick has used it, even if a later frame (one that ran no tick) overwrites the input
+    if (input.swapTo >= 0) this.pendingSwap = input.swapTo;
   }
 
   command(cmd: DevCommand): void {
@@ -107,7 +110,11 @@ export class SimRunner {
   }
 
   private nextInput(): Input {
-    return this.bot ? botInput(this.sim) : this.input;
+    if (this.bot) return botInput(this.sim);
+    if (this.pendingSwap < 0) return this.input;
+    const swapTo = this.pendingSwap;
+    this.pendingSwap = -1;
+    return { ...this.input, swapTo };
   }
 
   private flushCommands(): void {

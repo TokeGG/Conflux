@@ -2,7 +2,7 @@
 // choices are made by clicking, so each screen lets go of the mouse pointer first.
 import type { DoorChoice, GameData, RewardOffer, RunState, UnlockLedger } from '@conflux/shared';
 import { visiblePatches, patchTime, type PatchEntry } from './patchNotes.ts';
-import { describeDoor, describeOffer, endSummary, achievementLines } from './runFormat.ts';
+import { describeDoor, describeOffer, elementCombos, endSummary, achievementLines } from './runFormat.ts';
 import './runScreens.css';
 
 export type ScreenName = 'none' | 'text' | 'start' | 'reward' | 'doors' | 'end';
@@ -67,7 +67,13 @@ export class RunScreens {
         const t = describeOffer(o, data);
         // an element is picked in two steps: which one, then which of your three keys it takes over
         const click = o.kind === 'element' ? () => replaceWhich(o, i) : () => (this.onResume(), onPick(i));
-        return button('card', '', click, el('div', 'tag', t.tag), el('div', 'title', t.title), el('p', '', t.detail));
+        const kids = [el('div', 'tag', t.tag), el('div', 'title', t.title), el('p', '', t.detail)];
+        // hovering an element shows what it combines into with the ones you hold
+        if (o.kind === 'element' && o.element) {
+          const combos = elementCombos(o.element, equipped, data);
+          kids.push(el('div', 'tip', el('b', '', `${o.element[0].toUpperCase()}${o.element.slice(1)} combines with what you hold`), ...(combos.length ? combos.map((c) => el('div', 'combo', `${c.with[0].toUpperCase()}${c.with.slice(1)}: ${c.text}`)) : [el('div', 'combo', 'No reaction with your three elements yet.')])));
+        }
+        return button('card', '', click, ...kids);
       });
       this.show('reward', el('h2', '', 'Room cleared. Choose a reward'), el('div', 'row', ...cards));
     };
@@ -95,7 +101,7 @@ export class RunScreens {
       el('h1', '', s.headline),
       ...s.lines.map((l) => el('p', '', l)),
       ...achievementLines(earned, data).map((l) => el('p', 'earned', l)),
-      el('div', 'row', button('go', 'New run', () => (this.onResume(), onAgain()))),
+      el('div', 'row', button('go', 'Main menu', onAgain)),
     );
   }
 }

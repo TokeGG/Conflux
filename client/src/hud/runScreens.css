@@ -30,3 +30,10 @@
 #runscreen .earned { color: #9be28f; }
 #runscreen .scroll { max-height: 60vh; overflow-y: auto; text-align: left; padding: 0 16px; border: 1px solid #3a3226; background: #0a0b10cc; border-radius: 3px; }
 #runscreen button.go + p, #runscreen .hint { font-size: 13px; color: #7d7058; }
+
+/* the element tooltip: shown while the card is hovered or focused */
+#runscreen .card { position: relative; }
+#runscreen .card .tip { display: none; position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%); width: 280px; padding: 10px 12px; text-align: left; background: #14110f; border: 1px solid #5a4a38; box-shadow: 0 6px 24px #000a; z-index: 5; }
+#runscreen .card:hover .tip, #runscreen .card:focus-visible .tip { display: block; }
+#runscreen .card .tip b { display: block; margin-bottom: 6px; }
+#runscreen .card .tip .combo { font-size: 0.85em; opacity: 0.9; margin-top: 4px; }

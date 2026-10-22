@@ -154,3 +154,26 @@ test('the bot command plays the player: it moves and fights with no input sent, 
   b.command({ op: 'bot', on: false });
   b.advance(TICK);
 });
+
+test('an element swap pressed on a frame that runs no tick is not lost when the next frame sends a plain input', () => {
+  const sim = makeSim();
+  const b = new LocalBridge(sim);
+  b.send(input({ swapTo: 2 }));
+  b.advance(TICK / 3); // a fast frame: no tick yet
+  b.send(idle());
+  b.advance(TICK); // the tick runs with the later input, which has no swap
+  assert.equal(sim.snapshot().players[0].element, 'earth');
+});
+
+test('a swap is applied once: a later request for another key still works', () => {
+  const sim = makeSim();
+  const b = new LocalBridge(sim);
+  b.send(input({ swapTo: 2 }));
+  b.advance(TICK);
+  b.send(idle());
+  b.advance(TICK);
+  assert.equal(sim.snapshot().players[0].element, 'earth');
+  b.send(input({ swapTo: 1 }));
+  b.advance(TICK);
+  assert.equal(sim.snapshot().players[0].element, 'water');
+});

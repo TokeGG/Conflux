@@ -1,9 +1,6 @@
 #hud { position: fixed; inset: 0; pointer-events: none; font: 600 13px/1.2 system-ui, sans-serif; color: #fff; text-shadow: 0 1px 2px #000a; user-select: none; }
-#hud .crosshair { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; }
-#hud .crosshair::before, #hud .crosshair::after { content: ''; position: absolute; background: #fffd; box-shadow: 0 0 2px #000a; }
-#hud .crosshair::before { left: 10px; top: 0; width: 2px; height: 22px; clip-path: polygon(0 0, 100% 0, 100% 36%, 0 36%, 0 64%, 100% 64%, 100% 100%, 0 100%); }
-#hud .crosshair::after { top: 10px; left: 0; height: 2px; width: 22px; clip-path: polygon(0 0, 36% 0, 36% 100%, 0 100%, 64% 0, 100% 0, 100% 100%, 64% 100%); }
-#hud .crosshair.hot::before, #hud .crosshair.hot::after { background: #ff5a4a; }
+#hud .crosshair { position: absolute; left: 50%; top: 50%; width: 24px; height: 24px; margin: -12px 0 0 -12px; pointer-events: none; }
+#hud .crosshair svg { display: block; }
 #hud .bottom { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; }
 #hud .elements { display: flex; gap: 6px; }
 #hud .element { width: 38px; padding: 3px 0; text-align: center; border-radius: 6px; background: #0007; border: 2px solid #fff3; opacity: .6; }

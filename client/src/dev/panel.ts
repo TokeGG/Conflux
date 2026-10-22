@@ -3,6 +3,7 @@ import type { SimBridge } from '@conflux/shared';
 import { el } from './dom.ts';
 import type { DevPage } from './page.ts';
 import type { DevState } from './devstate.ts';
+import { makeWindow } from './window.ts';
 import './dev.css';
 
 export class DevPanel {
@@ -25,16 +26,17 @@ export class DevPanel {
     private onDataChanged: () => void = () => {},
   ) {
     this.root = el('div', { id: 'devpanel', hidden: '' });
+    // the top strip: the pages as tabs, then a search and the close button; dragging the strip moves the window
     const head = el('header', { class: 'dev-head' });
-    head.append(el('b', {}, 'Dev'));
+    this.nav = el('nav', { class: 'dev-nav' });
     const search = el('input', { type: 'search', placeholder: 'Search pages', class: 'dev-search' });
     search.addEventListener('input', () => {
       this.filter = search.value.toLowerCase();
       this.drawNav();
     });
-    const close = el('button', { title: 'Close (F2)' }, '✕');
+    const close = el('button', { title: 'Close (F2)', class: 'dev-close' }, '✕');
     close.addEventListener('click', () => this.hide());
-    head.append(search, close);
+    head.append(this.nav, el('span', { class: 'dev-grow' }), search, close);
 
     const bar = el('div', { class: 'dev-bar' });
     const button = (label: string, title: string, fn: () => void) => {
@@ -61,12 +63,12 @@ export class DevPanel {
 
     this.msg = el('div', { class: 'dev-msg', id: 'dev-msg' });
     this.drawer = el('div', { class: 'dev-drawer', hidden: '' });
-    this.nav = el('nav', { class: 'dev-nav' });
     this.body = el('section', { class: 'dev-body', id: 'devpage' });
-    this.root.append(head, bar, this.msg, this.drawer, this.nav, this.body);
+    this.root.append(head, bar, this.msg, this.drawer, this.body);
     document.body.append(this.root);
+    makeWindow(this.root, head, { key: 'dev', minW: 380, minH: 300, initial: () => ({ x: 12, y: 70, w: Math.min(1000, window.innerWidth - 24), h: Math.min(720, window.innerHeight - 90) }) });
 
-    const openBtn = el('button', { id: 'devbtn', title: 'Dev panel (F2)' }, '🛠 Dev');
+    const openBtn = el('button', { id: 'devbtn', title: 'Dev tools (F2)' }, '🛠');
     openBtn.addEventListener('click', () => this.toggle());
     document.body.append(openBtn);
     window.addEventListener('keydown', (e) => {

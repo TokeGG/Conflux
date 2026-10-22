@@ -1,6 +1,7 @@
 // The heads-up display: a crosshair, the held element and its three skills with cooldowns, health, and above each enemy its
 // health and a ring icon per status. Plain HTML over the canvas; the game reads nothing back from it.
 import * as THREE from 'three';
+import { crosshairSvg, defaultCrosshair, type CrosshairCfg } from '../crosshair.ts';
 import { ELEMENTS, MARK_IDS, STATUS_IDS, type GameData, type MarkId, type Snapshot, type Vec3 } from '@conflux/shared';
 import { formatCooldown, skillLabel, statusRing } from './format.ts';
 import { MARK_ICONS, STATUS_ICONS, type Icon } from './statusIcons.ts';
@@ -29,6 +30,8 @@ interface Tag {
 export class Hud {
   readonly root: HTMLDivElement;
   private crosshair = div('crosshair');
+  private crosshairCfg: CrosshairCfg = defaultCrosshair();
+  private crosshairHot: boolean | null = null;
   private elementChips: HTMLDivElement[] = [];
   private slotBoxes: { box: HTMLDivElement; name: HTMLElement; cd: HTMLElement; text: HTMLElement; key: HTMLElement }[] = [];
   private bonus = div('bonus', 'Swap bonus: +25% and a sure status');
@@ -85,6 +88,22 @@ export class Hud {
   }
 
   /** The camera the enemy tags are projected through. */
+  /** Changes how the crosshair looks (from the dev panel or the saved setting). */
+  setCrosshair(cfg: CrosshairCfg): void {
+    this.crosshairCfg = cfg;
+    this.crosshairHot = null;
+    this.drawCrosshair(false);
+  }
+
+  private drawCrosshair(hot: boolean): void {
+    if (hot === this.crosshairHot) return;
+    this.crosshairHot = hot;
+    const c = this.crosshairCfg;
+    this.crosshair.style.width = this.crosshair.style.height = `${c.size}px`;
+    this.crosshair.style.margin = `${-c.size / 2}px 0 0 ${-c.size / 2}px`;
+    this.crosshair.innerHTML = crosshairSvg(c, hot);
+  }
+
   setCamera(camera: THREE.Camera): void {
     this.camera = camera;
   }
@@ -109,7 +128,7 @@ export class Hud {
     this.bonus.classList.toggle('on', p.bonusRemaining > 0);
     this.hpFill.style.width = `${Math.max(0, (p.hp / p.maxHp) * 100)}%`;
     this.hpText.textContent = `${Math.ceil(p.hp)} / ${p.maxHp}`;
-    this.crosshair.classList.toggle('hot', aimTarget !== null);
+    this.drawCrosshair(aimTarget !== null);
     this.updateTags(s, aimTarget, showAi);
     this.updateNumbers();
   }

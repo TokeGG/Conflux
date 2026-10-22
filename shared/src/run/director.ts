@@ -44,6 +44,11 @@ export class RunDirector {
   onEnter: ((plan: RoomPlan) => void) | null = null;
   private mode: RunMode;
 
+  /** In the endless run the reward is picked at the entrance of the next room (so loading hides behind it); in the old mode, on clearing. */
+  private get rewardAtEntrance(): boolean {
+    return this.mode.id === 'endless';
+  }
+
   constructor(data: GameData, seed: number, ledger: UnlockLedger, tuned = false, mode: RunMode = ROOM_TO_ROOM) {
     this.ledger = ledger;
     this.mode = mode;
@@ -74,7 +79,13 @@ export class RunDirector {
       } else {
         this.offers = offerRewards(this.run, this.run.data, makeStreams(this.run.seed).reward.fork(`room/${this.run.roomIndex}`));
         this.run = recordOffers(this.run, this.offers);
-        this.phase = 'reward';
+        if (this.rewardAtEntrance) {
+          // the gates open at once; the reward waits at the entrance of the next room, where the game pauses until it is picked
+          this.doors = this.mode.nextChoices(this.run);
+          this.phase = 'doors';
+        } else {
+          this.phase = 'reward';
+        }
       }
       return;
     }
@@ -111,6 +122,11 @@ export class RunDirector {
       const s = this.run.data.skills[offer.id];
       this.run = { ...this.run, skills: swapIn(this.run.skills, s.element, s.slot, offer.id, this.run.data) };
     }
+    this.offers = [];
+    if (this.rewardAtEntrance) {
+      this.phase = 'fighting';
+      return;
+    }
     this.doors = this.mode.nextChoices(this.run);
     this.phase = 'doors';
   }
@@ -119,9 +135,13 @@ export class RunDirector {
   enter(i: number): RoomPlan {
     if (this.phase !== 'doors' || !this.doors[i]) throw new Error('there is no door to enter');
     this.run = chooseDoor(this.run, this.doors[i]);
-    this.offers = [];
     this.doors = [];
-    this.phase = 'fighting';
+    if (this.rewardAtEntrance && this.offers.length > 0) {
+      this.phase = 'reward';
+    } else {
+      this.offers = [];
+      this.phase = 'fighting';
+    }
     return this.run.current;
   }
 }

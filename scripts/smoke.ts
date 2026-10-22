@@ -360,16 +360,9 @@ try {
     await page.waitForFunction(() => !(window as any).__conflux.menuOpen(), null, { timeout: 5000 });
     check(true, 'Esc closes the menu again');
     await page.evaluate(() => (window as any).__conflux.command({ op: 'killAll' }));
-    await page.waitForSelector('#runscreen.open button.card', { timeout: 60000 });
-    const offers: number = await page.locator('#runscreen button.card').count();
-    check(offers === 3, `clearing the room offers three rewards (${offers})`);
-    await page.screenshot({ path: join(shots, 'run-reward.png') });
-    const locksBefore: number = await page.evaluate(() => (window as any).__conflux.lockRequests());
-    await page.click('#runscreen button.card >> nth=0');
-    check((await page.evaluate(() => (window as any).__conflux.lockRequests())) > locksBefore, 'picking a reward asks for the mouse again');
-    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 20000 });
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 60000 });
     const gates: number = await page.evaluate(() => (window as any).__conflux.run().gates.length);
-    check(gates >= 1 && gates <= 3, `picking a reward opens the room's gates (${gates})`);
+    check(gates >= 1 && gates <= 3, `clearing the room opens its gates at once (${gates})`);
     check((await page.locator('#runscreen.open').count()) === 0, 'no screen covers the room while the gates are open');
     await page.screenshot({ path: join(shots, 'run-doors.png') });
     await page.evaluate(() => {
@@ -377,8 +370,19 @@ try {
       const g = c.run().gates[0];
       c.command({ op: 'teleport', x: g.x, z: g.z });
     });
-    await page.waitForFunction(() => (window as any).__conflux.run()?.roomIndex === 1 && (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
-    check(true, 'walking into a gate leads to the next room with its enemies');
+    await page.waitForSelector('#runscreen.open button.card', { timeout: 90000 });
+    const offers: number = await page.locator('#runscreen button.card').count();
+    check(offers === 3, `the reward is offered at the entrance of the next room (${offers})`);
+    check((await page.evaluate(() => (window as any).__conflux.run()?.roomIndex)) === 1, 'the reward screen is in room 2');
+    await page.screenshot({ path: join(shots, 'run-reward.png') });
+    const tickAtReward: number = await page.evaluate(() => (window as any).__conflux.tick);
+    await page.waitForTimeout(700);
+    check((await page.evaluate(() => (window as any).__conflux.tick)) === tickAtReward, 'the game is paused while the reward is chosen');
+    const locksBefore: number = await page.evaluate(() => (window as any).__conflux.lockRequests());
+    await page.click('#runscreen button.card >> nth=0');
+    check((await page.evaluate(() => (window as any).__conflux.lockRequests())) > locksBefore, 'picking a reward asks for the mouse again');
+    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
+    check(true, 'picking starts the room with its enemies');
     const run: { tuned: boolean; unlocked: string[]; counters: Record<string, number> } = await page.evaluate(() => (window as any).__conflux.run());
     check(run.tuned, 'a dev command marks the run tuned');
     check((run.counters['rooms.cleared'] ?? 0) === 0, 'a tuned run records nothing in the ledger');
@@ -395,17 +399,11 @@ try {
     await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'fighting' && (window as any).__conflux.snapshot()?.enemies.length > 0, null, { timeout: 90000 });
     await page.evaluate(() => (window as any).__conflux.command({ op: 'bot', on: true }));
     await page.waitForFunction(() => (window as any).__conflux.run()?.screen === 'reward', null, { timeout: 400000, polling: 1000 });
-    check(true, 'the bot cleared room 1 and the reward screen opened');
+    check(true, 'the bot cleared room 1, walked out through a gate and the reward opened at the entrance of room 2');
+    await page.evaluate(() => (window as any).__conflux.command({ op: 'bot', on: false }));
     await page.click('#runscreen button.card >> nth=0');
-    await page.waitForFunction(() => (window as any).__conflux.run()?.phase === 'doors', null, { timeout: 20000 });
-    await page.evaluate(() => {
-      const c = (window as any).__conflux;
-      c.command({ op: 'bot', on: false });
-      const g = c.run().gates[0];
-      c.command({ op: 'teleport', x: g.x, z: g.z });
-    });
     await page.waitForFunction(() => (window as any).__conflux.run()?.roomIndex === 1 && (window as any).__conflux.run()?.phase === 'fighting', null, { timeout: 90000 });
-    check(true, 'a reward and a door later the run is in room 2');
+    check(true, 'a reward later the run is fighting in room 2');
     check(errors.length === 0, `the bot-driven run has no console errors${errors.length ? `: ${errors.join(' | ').slice(0, 300)}` : ''}`);
     await page.close();
   }

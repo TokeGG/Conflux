@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { defaultData, ROOM_TO_ROOM, emptyLedger } from '@conflux/shared';
-import { describeDoor, describeOffer, endSummary, achievementLines } from '../src/hud/runFormat.ts';
+import { describeDoor, describeOffer, elementCombos, endSummary, achievementLines } from '../src/hud/runFormat.ts';
 
 const data = defaultData();
 
@@ -50,4 +50,17 @@ test('an element offer names the element and says it takes a key', () => {
   assert.equal(t.title, 'Wind');
   assert.match(t.tag, /element/i);
   assert.match(t.detail, /key/i);
+});
+
+test('elementCombos lists the reaction of a benched element with each element you hold, in either order', () => {
+  const lines = elementCombos('wind', ['fire', 'water', 'earth'], data);
+  assert.deepEqual(lines.map((l) => l.with), ['fire', 'water', 'earth']);
+  assert.match(lines[0].text, /Firestorm/);
+  assert.match(lines[1].text, /Rain Cloud/);
+  assert.match(lines[2].text, /Sandstorm/);
+});
+
+test('elementCombos skips an element that has no reaction with it', () => {
+  const lines = elementCombos('fire', ['fire', 'water', 'earth'], data);
+  assert.deepEqual(lines.map((l) => l.with), ['water', 'earth']);
 });

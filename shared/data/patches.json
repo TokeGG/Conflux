@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.61",
+    "date": "2026-10-22",
+    "at": "2026-10-22T16:42:34Z",
+    "notes": [
+      "Switching element can no longer be lost on a fast frame. Rewards now appear at the entrance of the next room with the game paused until you pick, and the next rooms are prepared while you walk to a gate. Hovering an element reward shows what it combines into with the elements you hold. Dying takes you back to the main menu. The crosshair can be edited and the dev tools are now a draggable, resizable window."
+    ]
+  },
+  {
     "version": "0.1.60",
     "date": "2026-10-22",
     "at": "2026-10-22T14:48:03Z",

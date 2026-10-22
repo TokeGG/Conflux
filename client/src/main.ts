@@ -8,6 +8,8 @@ import { AssetLoader, assetBase, fetchManifest } from './assets/loader.ts';
 import { loadPlayer } from './anim/player.ts';
 import type { LocoState } from './anim/locomotion.ts';
 import { Hud } from './hud/hud.ts';
+import { loadCrosshair, saveCrosshair } from './crosshair.ts';
+import { CrosshairPage } from './dev/pages/crosshair.ts';
 import { RoomLights } from './renderer/roomLights.ts';
 import { disposeCopies } from './renderer/skins.ts';
 import { RunScreens } from './hud/runScreens.ts';
@@ -97,6 +99,8 @@ async function boot(): Promise<void> {
     state.tick = snapshot.tick;
   });
   const hud = new Hud(() => layers.current());
+  let crosshair = loadCrosshair(storage);
+  hud.setCrosshair(crosshair);
   const debugFlags = noDebug();
   const play = new Game({ scene: game.scene, camera: game.camera, canvas: renderer.domElement, loader, bridge, data: () => layers.current(), room, playerModel: player, rig, fx, hud, profile, flags: debugFlags });
 
@@ -123,6 +127,7 @@ async function boot(): Promise<void> {
     panel.registerPage(new ModelsPage({ store, layers, loader, bridge, data: () => layers.current(), sendData, refresh }));
     panel.registerPage(new ToolsPage(bridge, () => layers.current(), debugFlags));
     panel.registerPage(new AnimViewerPage(loader));
+    panel.registerPage(new CrosshairPage(() => crosshair, (c) => ((crosshair = c), saveCrosshair(storage, c), hud.setCrosshair(c))));
     perf = new PerfPage({
       renderer,
       profileId: profile.id,
@@ -231,7 +236,18 @@ async function boot(): Promise<void> {
   screens.onResume = () => play.input.requestLock();
   let director: RunDirector | null = null;
   let shown: RunPhase | null = null;
+  let showMenu: () => void = () => undefined;
   const seedOf = () => Number(params.get('seed')) || Date.now() % 1_000_000;
+
+  /** Scenes of the rooms behind the open gates, built ahead one at a time between frames. */
+  const prebuilt = new Map<string, Awaited<ReturnType<typeof buildRoomScene>>>();
+  const prebuild = async (plans: RoomPlan[]): Promise<void> => {
+    for (const plan of plans) {
+      await new Promise((r) => setTimeout(r, 120));
+      if (!plan.def || prebuilt.has(plan.roomId) || director?.phase !== 'doors') continue;
+      prebuilt.set(plan.roomId, await buildRoomScene(plan.def, loader));
+    }
+  };
 
   /** Loads a room's scene and swaps the sim to it. The sim's swap is asked for first, so frames of the old room are dropped. */
   const loadPlan = async (plan: RoomPlan): Promise<void> => {
@@ -239,7 +255,10 @@ async function boot(): Promise<void> {
     play.inputEnabled = false;
     const swapped = bridge.enter({ seed: run.seed, current: plan, skills: run.skills, augments: run.augments, hp: run.hp, tuned: run.tuned });
     const next = plan.def ?? layers.current().rooms[plan.roomId];
-    const group = await buildRoomScene(next, loader);
+    // the scene was built while the gates were open when it could be, so stepping through does not stall
+    const group = prebuilt.get(plan.roomId) ?? (await buildRoomScene(next, loader));
+    prebuilt.delete(plan.roomId);
+    for (const [id, g] of prebuilt) (disposeCopies(g), prebuilt.delete(id));
     game.scene.remove(roomGroup);
     disposeCopies(roomGroup);
     roomGroup = group;
@@ -250,7 +269,8 @@ async function boot(): Promise<void> {
     roomLights.setRoom(next.lights ?? []);
     play.loadRoom(next);
     await swapped;
-    play.inputEnabled = true;
+    // a reward waiting at the entrance keeps the game paused and the controls off until it is picked
+    play.inputEnabled = director!.phase === 'fighting';
   };
 
   const sync = (): void => {
@@ -259,13 +279,32 @@ async function boot(): Promise<void> {
     saveLedger(storage, director.ledger);
     const d = director;
     const data = layers.current();
-    if (d.phase === 'reward') screens.rewards(d.offers, data, d.run.skills.equipped, (i, slot) => (d.pick(i, slot), sync()));
+    if (d.phase === 'reward') {
+      const atEntrance = d.run.mode === 'endless';
+      if (atEntrance) (bridge.command({ op: 'pause', on: true }), (play.inputEnabled = false));
+      screens.rewards(d.offers, data, d.run.skills.equipped, (i, slot) => {
+        d.pick(i, slot);
+        if (atEntrance) void startRoom();
+        else sync();
+      });
+    }
     else if (d.phase === 'doors') {
       // endless: the gates are walked through, so no screen; the player steps up to one and the next room loads
-      if (d.run.mode === 'endless') (screens.hide(), (play.inputEnabled = true));
+      if (d.run.mode === 'endless') (screens.hide(), (play.inputEnabled = true), void prebuild(d.doors.map((c) => c.room)));
       else screens.doors(d.doors, data, d.run.roomIndex + 1, (i) => void enterDoor(i));
     }
-    else if (d.phase === 'dead' || d.phase === 'won') screens.end(d.run, d.earned, data, () => void beginRun());
+    else if (d.phase === 'dead' || d.phase === 'won') screens.end(d.run, d.earned, data, () => (bridge.command({ op: 'pause', on: true }), showMenu()));
+  };
+
+  /** After a reward at the entrance: the room starts again with what was picked (new skills, augments, health) and the game runs. */
+  const startRoom = async (): Promise<void> => {
+    const d = director!;
+    const run = d.run;
+    screens.hide();
+    shown = d.phase;
+    await bridge.enter({ seed: run.seed, current: run.current, skills: run.skills, augments: run.augments, hp: run.hp, tuned: run.tuned });
+    bridge.command({ op: 'pause', on: false });
+    play.inputEnabled = true;
   };
 
   const enterDoor = async (i: number): Promise<void> => {
@@ -279,11 +318,13 @@ async function boot(): Promise<void> {
     const ledger = director?.ledger ?? loadLedger(storage);
     director = new RunDirector(layers.current(), seedOf(), ledger, layers.isModified(), ENDLESS);
     director.onEnter = (plan) => {
-      shown = director!.phase;
-      void loadPlan(plan);
+      // the reward of the room just left (if any) appears as soon as the new room is in place
+      shown = null;
+      void loadPlan(plan).then(sync);
     };
     shown = director.phase;
     screens.hide();
+    bridge.command({ op: 'pause', on: false });
     play.cameraOverride = null;
     hud.root.style.display = '';
     await loadPlan(director.run.current);
@@ -297,14 +338,6 @@ async function boot(): Promise<void> {
       director.onPlayerHp(snapshot.players[0].hp);
       sync();
     });
-    play.inputEnabled = false;
-    // behind the menu: the dark room, a slow orbit, no crosshair or bars
-    hud.root.style.display = 'none';
-    play.cameraOverride = (camera) => {
-      const c = menuCamera(performance.now() / 1000, room.size);
-      camera.position.set(c.pos.x, c.pos.y, c.pos.z);
-      camera.lookAt(c.look.x, c.look.y, c.look.z);
-    };
     const credits = async (): Promise<string[]> => {
       try {
         const res = await fetch(`${assetBase()}licenses.json`);
@@ -313,7 +346,21 @@ async function boot(): Promise<void> {
         return [];
       }
     };
-    screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits });
+    /** The main menu: the dark room behind it, a slow orbit, no crosshair or bars. A run ends here, whether it was won or lost. */
+    showMenu = () => {
+      director = null;
+      shown = null;
+      play.inputEnabled = false;
+      hud.root.style.display = 'none';
+      play.cameraOverride = (camera) => {
+        const c = menuCamera(performance.now() / 1000, room.size);
+        camera.position.set(c.pos.x, c.pos.y, c.pos.z);
+        camera.lookAt(c.look.x, c.look.y, c.look.z);
+      };
+      document.exitPointerLock?.();
+      screens.start(loadLedger(storage), layers.current(), () => void beginRun(), { patches: PATCHES, credits });
+    };
+    showMenu();
   }
 
   // ---- the Esc menu: settings and keys, applied at once and saved ----

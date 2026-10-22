@@ -92,23 +92,25 @@ test('a skill taken as a reward is equipped on its slot at once, and the old one
   assert.ok(d.run.skills.pool.includes(offer.id!));
 });
 
-test('endless: clearing a room, picking a reward and walking into gate 1 enters the room that gate showed', async () => {
+test('endless: clearing a room opens the gates at once, and the reward is offered at the entrance of the room the gate leads to', async () => {
   const { ENDLESS } = await import('../src/run/endless.ts');
   const d = new RunDirector(data, 1, emptyLedger(), false, ENDLESS);
   const seen: number[] = [];
   d.onEnter = (plan) => seen.push(plan.index);
   d.onEvents([{ t: 0, type: 'room_cleared' }]);
-  assert.equal(d.phase, 'reward');
-  d.pick(0);
-  assert.equal(d.phase, 'doors');
+  assert.equal(d.phase, 'doors', 'no reward screen before the gates');
+  assert.equal(d.offers.length, 3, 'the rewards are ready');
   const gate = Math.min(1, d.doors.length - 1);
   const shown = d.doors[gate].room;
   d.onEvents([{ t: 1, type: 'door_entered', door: gate }]);
-  assert.equal(d.phase, 'fighting');
+  assert.equal(d.phase, 'reward', 'in the new room, the reward of the one just cleared waits to be picked');
   assert.equal(d.run.current.roomId, shown.roomId);
   assert.deepEqual(seen, [1]);
   d.onEvents([{ t: 2, type: 'door_entered', door: 0 }]);
-  assert.equal(d.run.roomIndex, 1, 'a second door_entered while fighting changes nothing');
+  assert.equal(d.run.roomIndex, 1, 'a second door_entered while choosing changes nothing');
+  d.pick(0);
+  assert.equal(d.phase, 'fighting', 'picking starts the room');
+  assert.equal(d.offers.length, 0);
 });
 
 test('createRunRoomSim builds a generated room from the plan\'s own definition', async () => {

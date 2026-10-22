@@ -33,6 +33,41 @@ export function describeOffer(o: RewardOffer, data: GameData): OfferText {
   return { title: 'Heal', tag: `${cap(o.rarity ?? 'common')} heal`, detail: `Restores ${pct}% of your health.` };
 }
 
+export interface ComboLine {
+  /** The element you hold that this one combines with. */
+  with: string;
+  text: string;
+}
+
+/** The statuses an element can put on an enemy: the one its hits apply and the ones its skills apply. */
+function statusesOf(element: string, data: GameData): Set<string> {
+  const out = new Set<string>();
+  const base = (data.elements.status as Record<string, string | null>)[element];
+  if (base) out.add(base);
+  for (const s of Object.values(data.skills)) if (s.element === element && s.applies) out.add(s.applies);
+  return out;
+}
+
+const words = (id: string) => id.split('_').map(cap).join(' ');
+
+/** What `element` combines into with each element in `held`, so the player can see what to mix. Either order reacts; each pair is one line. */
+export function elementCombos(element: string, held: readonly string[], data: GameData): ComboLine[] {
+  const lines: ComboLine[] = [];
+  for (const other of held) {
+    if (other === element) continue;
+    const found = new Map<string, string[]>();
+    for (const r of data.reactions) {
+      let order: string | null = null;
+      if (r.hitBy === element && statusesOf(other, data).has(r.existing)) order = `${cap(other)} then ${cap(element)}`;
+      else if (r.hitBy === other && statusesOf(element, data).has(r.existing)) order = `${cap(element)} then ${cap(other)}`;
+      if (order) found.set(r.effect, [...(found.get(r.effect) ?? []), order]);
+    }
+    if (found.size === 0) continue;
+    lines.push({ with: other, text: [...found].map(([effect, orders]) => `${words(effect)} (${[...new Set(orders)].join(', or ')})`).join('; ') });
+  }
+  return lines;
+}
+
 export interface DoorText {
   reward: string;
   biome: string;
