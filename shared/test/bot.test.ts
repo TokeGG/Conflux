@@ -116,3 +116,17 @@ test('a bot that holds each element, with two others, plays all three and reache
     if (el !== 'wind') assert.ok(cast.has(el), `${el} was played`); // wind adds no status of its own, so the bot may leave it on the key
   }
 });
+
+test('a lost run reports where it ended: the room, its type and theme, and what dealt the last hit', () => {
+  let lost = 0;
+  for (let seed = 1; seed <= 12; seed++) {
+    const r = playRun(data, seed, 900);
+    if (r.seconds >= 899) continue;
+    lost++;
+    assert.ok(r.death, `seed ${seed} died without a death report`);
+    assert.equal(r.death.room, r.rooms, 'the room it died in is the one after the rooms it cleared');
+    assert.ok(['combat', 'elite', 'boss'].includes(r.death.type) && r.death.theme in data.themes);
+    assert.ok(r.death.killer === '' || r.death.killer === 'timeout' || r.death.killer === 'zone' || r.death.killer.startsWith('elite.') || r.death.killer in data.enemies, `killer ${r.death.killer}`);
+  }
+  assert.ok(lost > 0, 'some run in twelve should end in a death');
+});

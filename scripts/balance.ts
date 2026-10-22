@@ -31,3 +31,20 @@ function usage(title: string, all: string[], pick: (r: RunReport) => Record<stri
 usage('Skills cast', Object.keys(data.skills), (r) => r.skillUse);
 usage('Augments owned at the end of a run', Object.keys(data.augments), (r) => r.augmentUse);
 usage('Reactions', [...new Set(data.reactions.map((x) => x.effect))], (r) => r.reactions);
+
+// where and how runs end (the room's number counts from 1; every fifth room is a boss room)
+{
+  const lost = reports.filter((r) => r.death);
+  const tally = (key: (d: NonNullable<RunReport['death']>) => string) => {
+    const m: Record<string, number> = {};
+    for (const r of lost) m[key(r.death!)] = (m[key(r.death!)] ?? 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([k, v]) => `${k} ${v}`).join(', ') || 'none';
+  };
+  console.log(`\nDeaths by room: ${tally((d) => String(d.room + 1).padStart(2, '0'))}`);
+  console.log(`Deaths by room type: ${tally((d) => d.type)}`);
+  console.log(`Deaths by theme: ${tally((d) => d.theme)}`);
+  console.log(`Deaths by last attacker: ${tally((d) => d.killer || 'status')}`);
+  // the share of runs that reach room N
+  const reach = (n: number) => pct(reports.filter((r) => r.rooms >= n).length, seeds);
+  console.log(`Reached room 3 / 5 (first boss cleared) / 8 / 10 (second boss cleared): ${[3, 5, 8, 10].map(reach).join(' / ')}`);
+}

@@ -81,6 +81,7 @@ export function stepProjectiles(sim: Sim, dt: number): void {
     const target = enemyId === null ? null : sim.enemies.find((e) => e.id === enemyId);
     const skill = sim.skill(q.skillId);
     const attack = sim.data.attacks[q.skillId];
+    if (hitsPlayer && attack) sim.lastHurtBy = sim.enemies.find((o) => o.id === q.ownerId)?.def.id ?? 'projectile';
     if (hitsPlayer && attack) dealDamage(sim, sim.player, attack.damage * outgoingOf(sim, q.ownerId), 'none', { applies: attack.applies ?? null });
     else if (target && q.reflectDamage) dealDamage(sim, target, q.reflectDamage, 'none', { skillId: `reflect.${q.skillId}`, point });
     else if (target && skill) skillHit(sim, target, skill, skill.damage, point, q.bonus);
@@ -115,7 +116,7 @@ export function stepZones(sim: Sim): void {
       if (z.ownerId > 0) {
         // an enemy's ground fire hurts the player standing in it
         const p = sim.player;
-        if (Math.hypot(p.pos.x - z.pos.x, p.pos.z - z.pos.z) <= z.radius) dealDamage(sim, p, z.damage, 'none', { applies: z.effects?.burn ? 'burning' : null });
+        if (Math.hypot(p.pos.x - z.pos.x, p.pos.z - z.pos.z) <= z.radius) ((sim.lastHurtBy = 'zone'), dealDamage(sim, p, z.damage, 'none', { applies: z.effects?.burn ? 'burning' : null }));
         continue;
       }
       for (const h of hitEnemies(sim, { type: 'zone', radius: z.radius }, z.pos, { x: 0, y: 0, z: 1 })) {

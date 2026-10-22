@@ -135,6 +135,9 @@ export class Sim {
   }
 
   /** Applies damage to the player unless a dodge makes them invulnerable. True when it landed. */
+  /** The enemy id whose attack last hurt the player (for balance reports; '' for a status). */
+  lastHurtBy = '';
+
   hurtPlayer(amount: number): boolean {
     const p = this.player;
     if (this.god || this.time < p.invulnUntil || p.hp <= 0) return false;

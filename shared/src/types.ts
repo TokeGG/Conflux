@@ -260,6 +260,8 @@ export interface RoomLook {
   floorTex: string;
   wallTex: string;
   tint: string;
+  /** How far the floor texture replaces the kit's own floor colour, 0 (just shades it, the default) to 1 (the texture's colours, tinted). */
+  floorPaint?: number;
 }
 
 export interface RoomDef {
@@ -307,6 +309,14 @@ export interface PoolItem {
   turn?: 'quarter' | 'none';
   /** The light it carries: a brazier, a candle, or a mushroom glow. */
   light?: 'brazier' | 'candle' | 'glow';
+  /** A row of this many copies side by side (a run of bookshelves, a block of pews); `clear` then covers the whole row. */
+  row?: number;
+  /** Which way the row runs in the prop's own frame: along its width (the default) or its depth. */
+  rowAxis?: 'x' | 'z';
+  /** Metres between the copies of a row. */
+  gap?: number;
+  /** A candle stands at this height on the prop (a table, a lectern) instead of the default spot. */
+  top?: number;
 }
 
 /** A room style as data: the generator is the same for every theme. */
@@ -318,7 +328,7 @@ export interface ThemeDef {
   cells: [number, number];
   cutChance: number;
   detailChance: number;
-  floor: { kit: string; tile: string; detail: string; tex: string[] };
+  floor: { kit: string; tile: string; detail: string; tex: string[]; paint?: number };
   wall: { kit: string; plain: string; detail: string; corner: string; gates: string[]; tex: string[] };
   tint: string;
   lighting: LightingPreset;
@@ -344,6 +354,8 @@ export interface RewardsCfg {
   rarity: { early: { until: number; weights: Record<Rarity, number> }; late: { weights: Record<Rarity, number> } };
   healFraction: number;
   guaranteeSkillByRoom: number;
+  /** The enemy budget of a room is `base + perRoom x its number`. */
+  budget: { base: number; perRoom: number };
   /** How much stronger every enemy gets per room entered: health and damage are multiplied by 1 + this x the room number. */
   scaling: { hpPerRoom: number; damagePerRoom: number };
   /** Souls, prices and the quiet rooms. */

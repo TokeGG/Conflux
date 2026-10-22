@@ -826,6 +826,17 @@
    ],
    "medium": [
     {
+     "kit": "proc",
+     "id": "crate",
+     "scale": 0.9,
+     "count": [
+      6,
+      10
+     ],
+     "clear": 0.9,
+     "turn": "any"
+    },
+    {
      "kit": "minidungeon",
      "id": "barrel",
      "scale": 2.8,
@@ -981,15 +992,16 @@
   "pools": {
    "set": [
     {
-     "kit": "graveyard",
-     "id": "stone-wall",
-     "scale": 3.2,
+     "kit": "proc",
+     "id": "cell-bars",
+     "scale": 1,
      "count": [
-      2,
-      3
+      3,
+      5
      ],
-     "clear": 2.4,
-     "turn": "quarter"
+     "clear": 2.2,
+     "turn": "quarter",
+     "row": 2
     },
     {
      "kit": "graveyard",
@@ -1004,6 +1016,28 @@
     }
    ],
    "medium": [
+    {
+     "kit": "proc",
+     "id": "cot",
+     "scale": 1.2,
+     "count": [
+      3,
+      5
+     ],
+     "clear": 1.4,
+     "turn": "quarter"
+    },
+    {
+     "kit": "proc",
+     "id": "crate",
+     "scale": 0.9,
+     "count": [
+      2,
+      4
+     ],
+     "clear": 0.9,
+     "turn": "quarter"
+    },
     {
      "kit": "graveyard",
      "id": "pillar-square",
@@ -1119,7 +1153,8 @@
     "tex.sbs128.grass.grass_01_128x128",
     "tex.sbs128.grass.grass_03_128x128",
     "tex.sbs128.grass.grass_05_128x128"
-   ]
+   ],
+   "paint": 1
   },
   "wall": {
    "kit": "dungeon",
@@ -1336,6 +1371,28 @@
   "pools": {
    "set": [
     {
+     "kit": "proc",
+     "id": "bone-pile",
+     "scale": 1.6,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 2.2,
+     "turn": "any"
+    },
+    {
+     "kit": "proc",
+     "id": "skull-heap",
+     "scale": 1.8,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 1.6,
+     "turn": "any"
+    },
+    {
      "kit": "graveyard",
      "id": "crypt-small",
      "scale": 2.2,
@@ -1345,17 +1402,6 @@
      ],
      "clear": 2.4,
      "turn": "quarter"
-    },
-    {
-     "kit": "graveyard",
-     "id": "rocks-tall",
-     "scale": 3,
-     "count": [
-      2,
-      3
-     ],
-     "clear": 2.0,
-     "turn": "any"
     },
     {
      "kit": "nature",
@@ -1371,6 +1417,28 @@
    ],
    "medium": [
     {
+     "kit": "proc",
+     "id": "bone-pile",
+     "scale": 1,
+     "count": [
+      5,
+      8
+     ],
+     "clear": 1.2,
+     "turn": "any"
+    },
+    {
+     "kit": "proc",
+     "id": "skull-heap",
+     "scale": 1,
+     "count": [
+      3,
+      5
+     ],
+     "clear": 1.1,
+     "turn": "any"
+    },
+    {
      "kit": "graveyard",
      "id": "coffin-old",
      "scale": 2.4,
@@ -1380,16 +1448,6 @@
      ],
      "clear": 1.4,
      "turn": "any"
-    },
-    {
-     "kit": "graveyard",
-     "id": "trunk",
-     "scale": 2.4,
-     "count": [
-      3,
-      5
-     ],
-     "clear": 1.4
     },
     {
      "kit": "graveyard",
@@ -1432,6 +1490,17 @@
       8
      ],
      "clear": 0.5
+    },
+    {
+     "kit": "proc",
+     "id": "skull-heap",
+     "scale": 0.5,
+     "count": [
+      6,
+      12
+     ],
+     "clear": 0.5,
+     "turn": "any"
     }
    ],
    "wall": [
@@ -1505,6 +1574,20 @@
   "pools": {
    "set": [
     {
+     "kit": "proc",
+     "id": "pew",
+     "scale": 1.2,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 1.6,
+     "turn": "quarter",
+     "row": 3,
+     "rowAxis": "z",
+     "gap": 0.55
+    },
+    {
      "kit": "graveyard",
      "id": "altar-stone",
      "scale": 2.4,
@@ -1531,8 +1614,8 @@
      "id": "pillar-large",
      "scale": 2.6,
      "count": [
-      4,
-      6
+      1,
+      2
      ],
      "clear": 1.8,
      "turn": "none"
@@ -1540,14 +1623,14 @@
    ],
    "medium": [
     {
-     "kit": "minidungeon",
-     "id": "chair",
-     "scale": 3,
+     "kit": "proc",
+     "id": "lectern",
+     "scale": 1.3,
      "count": [
-      8,
-      14
+      1,
+      2
      ],
-     "clear": 0.8,
+     "clear": 1.2,
      "turn": "quarter"
     },
     {
@@ -1826,7 +1909,7 @@
   },
   "tint": "#6a8fb8",
   "lighting": {
-   "ambient": "#10283c",
+   "ambient": "#1a3a54",
    "light": "#4a8ac0",
    "intensity": 0.17,
    "fogColor": "#030a12",
@@ -2000,36 +2083,83 @@
   "pools": {
    "set": [
     {
-     "kit": "minidungeon",
-     "id": "wood-structure",
-     "scale": 2.8,
-     "count": [
-      5,
-      8
-     ],
-     "clear": 1.8,
-     "turn": "quarter"
-    },
-    {
-     "kit": "minidungeon",
-     "id": "table",
-     "scale": 3.4,
+     "kit": "proc",
+     "id": "bookshelf",
+     "scale": 1,
      "count": [
       2,
       3
      ],
-     "clear": 1.7,
+     "clear": 3.4,
+     "turn": "quarter",
+     "row": 2
+    },
+    {
+     "kit": "proc",
+     "id": "bookshelf",
+     "scale": 1,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 2.6,
      "turn": "quarter"
+    },
+    {
+     "kit": "proc",
+     "id": "reading-table",
+     "scale": 1.3,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 1.9,
+     "turn": "quarter",
+     "light": "candle",
+     "top": 1.15
     }
    ],
    "medium": [
+    {
+     "kit": "proc",
+     "id": "lectern",
+     "scale": 1.3,
+     "count": [
+      2,
+      3
+     ],
+     "clear": 1.2,
+     "turn": "quarter"
+    },
+    {
+     "kit": "proc",
+     "id": "bookshelf-low",
+     "scale": 1,
+     "count": [
+      3,
+      5
+     ],
+     "clear": 1.6,
+     "turn": "quarter"
+    },
+    {
+     "kit": "proc",
+     "id": "crate",
+     "scale": 0.9,
+     "count": [
+      1,
+      2
+     ],
+     "clear": 0.9,
+     "turn": "quarter"
+    },
     {
      "kit": "minidungeon",
      "id": "chair",
      "scale": 3,
      "count": [
-      6,
-      10
+      4,
+      6
      ],
      "clear": 0.7,
      "turn": "any"
@@ -2055,28 +2185,19 @@
      ],
      "clear": 1.2,
      "turn": "none"
-    },
-    {
-     "kit": "minidungeon",
-     "id": "barrel",
-     "scale": 2.6,
-     "count": [
-      2,
-      4
-     ],
-     "clear": 0.9
     }
    ],
    "small": [
     {
-     "kit": "minidungeon",
-     "id": "pot",
-     "scale": 2.6,
+     "kit": "proc",
+     "id": "book-stack",
+     "scale": 1.4,
      "count": [
-      15,
-      30
+      10,
+      18
      ],
-     "clear": 0.5
+     "clear": 0.5,
+     "turn": "any"
     },
     {
      "kit": "graveyard",

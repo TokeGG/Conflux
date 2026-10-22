@@ -131,7 +131,7 @@ export function generateRoom(data: GameData, seed: number, depth: number, roomIn
       lighting: theme.lighting,
       cells: fp.cells,
       lights: [...exitLights, ...ctx.props.flatMap((p) => p.lights)],
-      look: { floorTex, wallTex, tint: theme.tint },
+      look: { floorTex, wallTex, tint: theme.tint, ...(theme.floor.paint ? { floorPaint: theme.floor.paint } : {}) },
       theme: theme.id,
     };
   };

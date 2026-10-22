@@ -69,10 +69,36 @@ function lightFor(ctx: PlaceCtx, kind: NonNullable<PoolItem['light']>, x: number
   return { x, y: 0.8, z, color: '#7fffd0', intensity: 4, dist: 6 };
 }
 
+/** Half the length of a prop's row along its row axis, in metres (0 for a single prop). */
+export function rowHalf(item: PoolItem): number {
+  const n = item.row ?? 1;
+  if (n <= 1) return 0;
+  const b = pieceBounds(item.kit, item.id);
+  return ((n * b.size[item.rowAxis === 'z' ? 2 : 0] * item.scale) + (n - 1) * (item.gap ?? 0)) / 2;
+}
+
 function propAt(ctx: PlaceCtx, item: PoolItem, x: number, z: number): Prop {
-  const parts = [piece(item.kit, item.id, x, z, angleFor(ctx.rng, item.turn), item.scale)];
+  const rot = angleFor(ctx.rng, item.turn);
+  const n = item.row ?? 1;
+  const parts: RoomPiece[] = [];
+  if (n <= 1) parts.push(piece(item.kit, item.id, x, z, rot, item.scale));
+  else {
+    // a row runs along the prop's own x (or z) axis, which the turn maps onto the floor
+    const b = pieceBounds(item.kit, item.id);
+    const step = b.size[item.rowAxis === 'z' ? 2 : 0] * item.scale + (item.gap ?? 0);
+    const c = Math.cos(rot);
+    const s = Math.sin(rot);
+    const axis = item.rowAxis === 'z' ? { x: s, z: c } : { x: c, z: -s };
+    for (let k = 0; k < n; k++) {
+      const off = (k - (n - 1) / 2) * step;
+      parts.push(piece(item.kit, item.id, x + axis.x * off, z + axis.z * off, rot, item.scale));
+    }
+  }
   const lights: LightDef[] = [];
-  if (item.light === 'candle' && !item.id.startsWith('candle')) {
+  if (item.light === 'candle' && item.top !== undefined) {
+    parts.push(piece('graveyard', 'candle-multiple', x, z, ctx.rng.next() * 6, 2.4, item.top));
+    lights.push(lightFor(ctx, 'candle', x, z, item.top));
+  } else if (item.light === 'candle' && !item.id.startsWith('candle')) {
     // a candle stands on the prop (an altar, a coffin) and lights it
     parts.push(piece('graveyard', 'candle-multiple', x + 0.5, z + 0.4, ctx.rng.next() * 6, 2.4, 0.55));
     lights.push(lightFor(ctx, 'candle', x + 0.5, z + 0.4, 0.55));
@@ -97,7 +123,7 @@ export function placeLayer(ctx: PlaceCtx, items: PoolItem[], cap: number, pack =
   for (const item of order) {
     const n = Math.round((item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1)) * ctx.scale);
     for (let k = 0; k < n && placed < cap; k++) {
-      const p = freeSpot(ctx, item.clear, Math.max(pack < 1 ? 1.0 : 1.4, item.clear * 0.6), pack);
+      const p = freeSpot(ctx, item.clear, Math.max(pack < 1 ? 1.0 : 1.4, item.clear * 0.6, rowHalf(item) + 0.5), pack);
       if (!p) break;
       ctx.props.push(propAt(ctx, item, p.x, p.z));
       placed++;

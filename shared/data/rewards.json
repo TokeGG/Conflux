@@ -17,11 +17,15 @@
       }
     }
   },
-  "healFraction": 0.3,
+  "healFraction": 0.7,
   "guaranteeSkillByRoom": 3,
+  "budget": {
+    "base": 10,
+    "perRoom": 2.5
+  },
   "scaling": {
     "hpPerRoom": 0.1,
-    "damagePerRoom": 0.06
+    "damagePerRoom": 0.02
   },
   "economy": {
     "pickupRadius": 2.4,

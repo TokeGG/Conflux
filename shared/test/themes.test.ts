@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { loadData, validateData } from '../src/data.ts';
 import { DATA_FILES, defaultData } from '../src/files.ts';
 import { USED_PIECES } from '../../scripts/gen-pieces.ts';
+import { PROC_KIT, PROC_PIECES } from '../src/gen/proc.ts';
 
 const manifest = new Set<string>((JSON.parse(readFileSync(new URL('../../client/public/assets/assets.json', import.meta.url), 'utf8')) as { id: string }[]).map((a) => a.id));
 const data = defaultData();
@@ -20,7 +21,7 @@ test('every piece a theme names is one the generator has bounds for', () => {
       ...t.wall.gates.map((g) => [t.wall.kit, g]),
       ...Object.values(t.pools).flat().map((p) => [p.kit, p.id]),
     ];
-    for (const [kit, id] of named) assert.ok(USED_PIECES[kit]?.includes(id), `${t.id}: ${kit}/${id} is not in USED_PIECES`);
+    for (const [kit, id] of named) assert.ok(kit === PROC_KIT ? !!PROC_PIECES[id] : USED_PIECES[kit]?.includes(id), `${t.id}: ${kit}/${id} is not a known piece`);
   }
 });
 

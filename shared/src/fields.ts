@@ -140,6 +140,8 @@ const EXACT: Record<string, FieldInfo> = {
   'rewards.offers': n('Offers per reward', '', 1, 6, 1),
   'rewards.healFraction': n('Heal reward', 'of max health', 0, 1, 0.05),
   'rewards.guaranteeSkillByRoom': n('A skill offer by room', '', 1, 20, 1),
+  'rewards.budget.base': n('Enemy budget, first room', 'cost', 1, 100, 1),
+  'rewards.budget.perRoom': n('Enemy budget per room', 'cost / room', 0, 30, 0.5),
   'rewards.scaling.hpPerRoom': n('Enemy health per room', '× per room', 0, 1, 0.01),
   'rewards.scaling.damagePerRoom': n('Enemy damage per room', '× per room', 0, 1, 0.01),
   'rewards.economy.pickupRadius': n('Soul pickup radius', 'm', 0.5, 10, 0.1),

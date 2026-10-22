@@ -1,4 +1,5 @@
 // Turns the raw JSON files into GameData and checks it. Entries keyed by id in their file get that id as a field.
+import { PROC_KIT, PROC_PIECES } from './gen/proc.ts';
 import { ELEMENTS, STATUS_IDS, SLOTS, SHAPE_TYPES, CAST_ARCHETYPES, AI_ARCHETYPES, RIG_TYPES, ATTACK_TEMPLATES, type GameData } from './types.ts';
 
 const KEYED = ['skills', 'augments', 'enemies', 'attacks', 'rooms', 'biomes', 'elites', 'unlocks', 'themes'] as const;
@@ -183,7 +184,11 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     if (!t.wall.tex.length) bad('the walls need at least one texture');
     if (!t.wall.gates.length) bad('it needs at least one gate piece');
     for (const pool of ['set', 'medium', 'small', 'wall'] as const) if (!t.pools[pool]?.length) bad(`its ${pool} pool is empty`);
-    for (const p of Object.values(t.pools).flat()) if (!(p.scale > 0) || !(p.count[1] >= p.count[0]) || p.count[0] < 0) bad(`${p.kit}/${p.id} has a bad scale or count`);
+    for (const p of Object.values(t.pools).flat()) {
+      if (!(p.scale > 0) || !(p.count[1] >= p.count[0]) || p.count[0] < 0) bad(`${p.kit}/${p.id} has a bad scale or count`);
+      if (p.kit === PROC_KIT && !PROC_PIECES[p.id]) bad(`procedural prop "${p.id}" does not exist`);
+      if (p.row !== undefined && !(Number.isInteger(p.row) && p.row >= 1 && p.row <= 8)) bad(`${p.kit}/${p.id} has a row of ${p.row}`);
+    }
     if (!Object.keys(t.mobs).length) bad('it needs mobs');
     for (const b of t.boss ?? []) if (!d.enemies[b]) bad(`boss "${b}" does not exist`);
     for (const [m, w] of Object.entries(t.mobs)) {
@@ -203,6 +208,7 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
   for (const [key, e] of Object.entries(d.enemies)) if (e.souls !== undefined && !(e.souls >= 0)) err(`enemy ${key}: souls must be 0 or more`);
   if (!(d.rewards.offers > 0)) err('rewards.offers must be above 0');
   if (!(d.rewards.scaling.hpPerRoom >= 0) || !(d.rewards.scaling.damagePerRoom >= 0)) err('rewards.scaling needs hpPerRoom and damagePerRoom of 0 or more');
+  if (!(d.rewards.budget?.base > 0) || !(d.rewards.budget.perRoom >= 0)) err('rewards.budget needs a base above 0 and a perRoom of 0 or more');
   return errors;
 }
 

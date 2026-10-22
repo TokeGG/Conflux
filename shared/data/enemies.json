@@ -501,7 +501,7 @@
         "idle": "mixamo.com"
       }
     },
-    "hp": 1800,
+    "hp": 2900,
     "speed": 2.6,
     "cost": 0,
     "souls": 60,
@@ -559,7 +559,7 @@
       "type": "procedural",
       "preset": "part_sway"
     },
-    "hp": 1500,
+    "hp": 2400,
     "speed": 2.4,
     "cost": 0,
     "souls": 60,

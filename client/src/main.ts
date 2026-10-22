@@ -54,7 +54,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[]; souls: number; depth: number; roomType: string; wares: number; stalls: { x: number; z: number }[] } | null; buyNearest(slot?: number): string; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[]; souls: number; depth: number; roomType: string; wares: number; stalls: { x: number; z: number }[] } | null; buyNearest(slot?: number): string; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number; renderInfo(): { calls: number; triangles: number; geometries: number; textures: number; parts: string[] } };
   }
 }
 
@@ -215,6 +215,14 @@ async function boot(): Promise<void> {
     enemyViews: () => play.enemyViews,
     enemyPoses: () => play.enemyPoses(),
     damageShown: () => hud.damageShown,
+    /** What the last frame cost the renderer (test hook for the performance checks). */
+    renderInfo: () => {
+      const shown = (o: THREE.Object3D): boolean => {
+        for (let p: THREE.Object3D | null = o; p; p = p.parent) if (!p.visible) return false;
+        return true;
+      };
+      return { calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, parts: game.scene.children.map((c) => { let n = 0; c.traverse((o) => ((o as THREE.Mesh).isMesh && shown(o) ? n++ : 0)); return `${c.name || c.type}:${n}`; }).filter((s) => !s.endsWith(':0')) };
+    },
     lockRequests: () => play.input.lockRequests,
     /** How many point lights are lit in the scene (test hook). */
     lights: () => {
@@ -350,7 +358,10 @@ async function boot(): Promise<void> {
     for (const plan of plans) {
       await new Promise((r) => setTimeout(r, 120));
       if (!plan.def || prebuilt.has(plan.roomId) || director?.phase !== 'doors') continue;
-      prebuilt.set(plan.roomId, await buildRoomScene(plan.def, loader));
+      const built = await buildRoomScene(plan.def, loader);
+      // the player may have walked through a gate while this was building: nobody would ever free it then
+      if (director?.phase === 'doors' && !prebuilt.has(plan.roomId)) prebuilt.set(plan.roomId, built);
+      else disposeCopies(built);
     }
   };
 

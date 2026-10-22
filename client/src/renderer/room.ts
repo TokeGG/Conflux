@@ -1,8 +1,10 @@
 // Builds the visible side of a room: floor tiles and the kit pieces, from the room data and the asset manifest.
 import * as THREE from 'three';
-import { pieceAssetId, slugId, type RoomDef } from '@conflux/shared';
+import { isProc, pieceAssetId, slugId, type RoomDef } from '@conflux/shared';
 import type { AssetLoader } from '../assets/loader.ts';
 import { applyTextureFilters, CHUNKY } from './profile.ts';
+import { mergeStatic } from './staticMerge.ts';
+import { buildProcGroup } from './procProps.ts';
 import { addDetail, skinFor, tintMaterials } from './skins.ts';
 
 export async function buildRoomScene(room: RoomDef, loader: AssetLoader): Promise<THREE.Group> {
@@ -42,6 +44,7 @@ export async function buildRoomScene(room: RoomDef, loader: AssetLoader): Promis
   group.add(propsGroup);
   const cache = new Map<string, THREE.Object3D>();
   for (const p of room.pieces) {
+    if (isProc(p.kit)) continue; // procedural props are instanced below
     const id = pieceAssetId(p);
     let src = cache.get(id);
     if (!src) cache.set(id, (src = (await loader.loadModel(id)).scene));
@@ -60,17 +63,23 @@ export async function buildRoomScene(room: RoomDef, loader: AssetLoader): Promis
     const floorTex = await loader.loadTexture(skin.floorTex, 'linear');
     const wallTex = await loader.loadTexture(skin.wallTex, 'linear');
     const detailed = new Set<THREE.Material>();
-    const lay = (root: THREE.Object3D, tex: THREE.Texture, strength: number) =>
+    const lay = (root: THREE.Object3D, tex: THREE.Texture, strength: number, paint = 0) =>
       root.traverse((n) => {
         const m = (n as THREE.Mesh).material as THREE.Material | undefined;
-        if (m && !detailed.has(m)) (detailed.add(m), addDetail(m, tex, 0.5, strength));
+        if (m && !detailed.has(m)) (detailed.add(m), addDetail(m, tex, 0.5, strength, paint));
       });
-    lay(floorTiles, floorTex, 0.9);
+    lay(floorTiles, floorTex, 0.9, skin.floorPaint);
     for (const o of propsGroup.children) {
-      if (o.userData.surface === 'floor') lay(o, floorTex, 0.9);
+      if (o.userData.surface === 'floor') lay(o, floorTex, 0.9, skin.floorPaint);
       else if (o.userData.surface === 'wall') lay(o, wallTex, 0.75);
     }
   }
   applyTextureFilters(group, CHUNKY);
+  if (!new URLSearchParams(globalThis.location?.search ?? '').has('nomerge')) mergeStatic(group);
+  // the procedural props: instanced, tinted like the rest, a wood texture on the planks (built last: they own their materials)
+  if (room.pieces.some((p) => isProc(p.kit))) {
+    const wood = await loader.loadTexture('tex.sbs256.wood.wood_05_256x256', 'linear');
+    group.add(buildProcGroup(room.pieces, wood, skin?.tint ?? null));
+  }
   return group;
 }
