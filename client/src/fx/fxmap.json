@@ -1,38 +1,98 @@
 {
   "events": {
     "cast": null,
-    "hit": { "by": "skill", "slot": "hit", "at": "pos" },
+    "hit": {
+      "by": "skill",
+      "slot": "hit",
+      "at": "pos"
+    },
     "status_applied": null,
     "reaction": {
       "by": "reaction",
       "at": "pos",
       "ids": {
-        "burning.water": "fx.steam_puff",
-        "soaked.fire": "fx.steam_puff",
-        "burning.earth": "fx.crystal_eruption",
-        "burning.wind": "fx.ember_burst",
-        "soaked.earth": "fx.root_eruption",
-        "rocked.water": "fx.root_eruption",
-        "soaked.wind": "fx.chain_lightning",
-        "rocked.fire": "fx.lava_geyser",
-        "rocked.wind": "fx.sand_swirl",
-        "gusted.fire": "fx.fire_tornado",
-        "gusted.water": "fx.rain_circle",
-        "gusted.earth": "fx.meteor_fall"
+        "steam": "fx.steam_puff",
+        "magma": "fx.lava_geyser",
+        "firestorm": "fx.fire_tornado",
+        "plasma": "fx.plasma_disc",
+        "overheat": "fx.ember_burst",
+        "toxic_blaze": "fx.fireball_impact",
+        "solar_flare": "fx.phoenix_wings",
+        "hellfire": "fx.meteor_fall",
+        "forge": "fx.flame_jet",
+        "mud": "fx.root_eruption",
+        "rain_cloud": "fx.rain_circle",
+        "chain_lightning": "fx.chain_lightning",
+        "stasis": "fx.rune_seal",
+        "toxic_flood": "fx.geyser",
+        "prism": "fx.celestial_orbit",
+        "whirlpool": "fx.whirlpool",
+        "rust": "fx.stone_impact",
+        "sandstorm": "fx.sand_swirl",
+        "fulgurite": "fx.crystal_eruption",
+        "petrify": "fx.earth_fissure",
+        "spore_bloom": "fx.blossom_shower",
+        "crystal": "fx.crystal_shield",
+        "sinkhole": "fx.sand_geyser",
+        "ore_shards": "fx.ice_shatter",
+        "thunderstorm": "fx.thundercloud",
+        "time_rift": "fx.arcane_portal",
+        "miasma": "fx.poison_cloud",
+        "aurora": "fx.healing_bloom",
+        "vacuum": "fx.gravity_well",
+        "razor_wind": "fx.cross_slash",
+        "overclock": "fx.electric_orb",
+        "toxic_arc": "fx.lightning_cage",
+        "radiant_bolt": "fx.holy_ray",
+        "void_arc": "fx.soul_chain",
+        "conduction": "fx.lightning_strike",
+        "wither": "fx.soul_release",
+        "haste_aura": "fx.mana_charge",
+        "rewind_curse": "fx.teleport_departure",
+        "fatigue": "fx.spark_shower",
+        "purge": "fx.healing_tree",
+        "plague": "fx.shadow_grasp",
+        "corrosion": "fx.toxic_bubble",
+        "eclipse": "fx.storm_ring",
+        "mirror": "fx.magic_shield",
+        "cursed_steel": "fx.spectral_blade"
       }
     },
-    "guard_broken": { "id": "fx.crystal_shield", "at": "target" },
+    "guard_broken": {
+      "id": "fx.crystal_shield",
+      "at": "target"
+    },
     "telegraph": null,
-    "enemy_died": { "id": "fx.soul_release", "at": "pos" },
+    "enemy_died": {
+      "id": "fx.soul_release",
+      "at": "pos"
+    },
     "room_cleared": null,
     "reward_offered": null,
     "swap": {
       "by": "to",
       "at": "target",
-      "ids": { "fire": "fx.ember_burst", "water": "fx.water_splash", "earth": "fx.stone_impact", "wind": "fx.dust_step" }
+      "ids": {
+        "fire": "fx.ember_burst",
+        "water": "fx.water_splash",
+        "earth": "fx.stone_impact",
+        "wind": "fx.dust_step",
+        "lightning": "fx.spark_shower",
+        "light": "fx.celestial_orbit",
+        "dark": "fx.shadow_grasp",
+        "metal": "fx.cross_slash",
+        "poison": "fx.toxic_bubble",
+        "time": "fx.arcane_portal"
+      }
     },
-    "dodge": { "id": "fx.dust_step", "at": "pos" },
-    "shield_pop": { "id": "fx.water_splash", "at": "pos" },
+    "dodge": {
+      "id": "fx.dust_step",
+      "at": "pos"
+    },
+    "shield_pop": {
+      "id": "fx.water_splash",
+      "at": "pos"
+    },
     "door_entered": null
   }
 }

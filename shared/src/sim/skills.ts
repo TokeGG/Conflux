@@ -6,6 +6,7 @@ import type { Sim } from './sim.ts';
 import { enemyHurtboxes, type Bonus, type EnemyState, type PlayerState } from './state.ts';
 import { consumeSwapBonus } from './swap.ts';
 import { dealDamage } from './damage.ts';
+import { spreadOnDeath } from './deaths.ts';
 
 export interface CastResult {
   ok: boolean;
@@ -21,6 +22,9 @@ export interface EnemyHit {
 /** How far apart extra streams fan, in radians. */
 const STREAM_FAN = 0.25;
 
+/** How many seconds of damage an enemy remembers (the Rewind curse replays them). */
+export const DAMAGE_MEMORY = 4;
+
 /** Chest height: where spells leave the caster. */
 const CHEST = 1.4;
 
@@ -30,10 +34,13 @@ const chest = (p: PlayerState): Vec3 => ({ x: p.pos.x, y: p.pos.y + CHEST, z: p.
 export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3): void {
   if (e.hp <= 0 || e.aiState === 'buried') return;
   e.hp = Math.max(0, e.hp - amount);
+  e.dmgLog.push({ t: sim.time, a: amount });
+  while (e.dmgLog.length > 0 && e.dmgLog[0].t < sim.time - DAMAGE_MEMORY) e.dmgLog.shift();
   sim.emit('hit', { target: 'enemy', id: e.id, amount, skillId, x: point.x, y: point.y, z: point.z });
   if (e.hp <= 0) {
     sim.emit('enemy_died', { id: e.id, defId: e.def.id, x: e.pos.x, y: e.pos.y, z: e.pos.z });
     sim.enemies = sim.enemies.filter((x) => x !== e);
+    spreadOnDeath(sim, e);
   }
 }
 
@@ -172,7 +179,7 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
         for (let d = 0; d <= travel + 1e-9; d += step) {
           const gx = p.pos.x + flat.x * d;
           const gz = p.pos.z + flat.z * d;
-          sim.zones.push({ id: sim.allocId(), kind: skill.id, pos: { x: gx, y: sim.world.groundAt(gx, gz), z: gz }, radius: s.trailRadius, until: now + (s.trailSeconds ?? 3), ownerId: 0, skillId: skill.id, yaw: 0, width: 0, height: 0, damage: skill.damage, tick: 0.5, nextTick: now, bonus, effects: skill.applies === 'burning' ? { burn: true } : skill.applies === 'soaked' ? { soak: true } : undefined });
+          sim.zones.push({ id: sim.allocId(), kind: skill.id, pos: { x: gx, y: sim.world.groundAt(gx, gz), z: gz }, radius: s.trailRadius, until: now + (s.trailSeconds ?? 3), ownerId: 0, skillId: skill.id, yaw: 0, width: 0, height: 0, damage: skill.damage, tick: 0.5, nextTick: now, bonus, effects: skill.applies === 'burning' ? { burn: true } : skill.applies === 'soaked' ? { soak: true } : skill.applies ? { status: skill.applies } : undefined });
         }
       }
       // carried along at the dash speed, not moved in one tick; stepPlayer does the moving and stops at colliders

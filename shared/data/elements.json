@@ -1,11 +1,124 @@
 {
-  "order": ["fire", "water", "earth", "wind"],
+  "order": [
+    "fire",
+    "water",
+    "earth",
+    "wind",
+    "lightning",
+    "light",
+    "dark",
+    "metal",
+    "poison",
+    "time"
+  ],
   "cycle": {
-    "fire": { "weak": ["water"], "resist": ["wind"] },
-    "water": { "weak": ["earth"], "resist": ["fire"] },
-    "earth": { "weak": ["wind"], "resist": ["water"] },
-    "wind": { "weak": ["fire"], "resist": ["earth"] }
+    "fire": {
+      "weak": [
+        "water"
+      ],
+      "resist": [
+        "wind"
+      ]
+    },
+    "water": {
+      "weak": [
+        "earth"
+      ],
+      "resist": [
+        "fire"
+      ]
+    },
+    "earth": {
+      "weak": [
+        "wind"
+      ],
+      "resist": [
+        "water"
+      ]
+    },
+    "wind": {
+      "weak": [
+        "fire"
+      ],
+      "resist": [
+        "earth"
+      ]
+    },
+    "lightning": {
+      "weak": [
+        "earth"
+      ],
+      "resist": [
+        "metal"
+      ]
+    },
+    "light": {
+      "weak": [
+        "dark"
+      ],
+      "resist": [
+        "lightning"
+      ]
+    },
+    "dark": {
+      "weak": [
+        "light"
+      ],
+      "resist": [
+        "poison"
+      ]
+    },
+    "metal": {
+      "weak": [
+        "fire"
+      ],
+      "resist": [
+        "wind"
+      ]
+    },
+    "poison": {
+      "weak": [
+        "wind"
+      ],
+      "resist": [
+        "dark"
+      ]
+    },
+    "time": {
+      "weak": [
+        "poison"
+      ],
+      "resist": [
+        "light"
+      ]
+    }
   },
-  "multipliers": { "weak": 1.5, "resist": 0.5 },
-  "status": { "fire": "burning", "water": "soaked", "earth": "rocked", "wind": null }
+  "multipliers": {
+    "weak": 1.5,
+    "resist": 0.5
+  },
+  "status": {
+    "fire": "burning",
+    "water": "soaked",
+    "earth": "rocked",
+    "wind": null,
+    "lightning": "shocked",
+    "light": "exposed",
+    "dark": "cursed",
+    "metal": "rent",
+    "poison": "poisoned",
+    "time": "dilated"
+  },
+  "reacts": {
+    "fire": "burning",
+    "water": "soaked",
+    "earth": "rocked",
+    "wind": "gusted",
+    "lightning": "shocked",
+    "light": "exposed",
+    "dark": "cursed",
+    "metal": "rent",
+    "poison": "poisoned",
+    "time": "dilated"
+  }
 }

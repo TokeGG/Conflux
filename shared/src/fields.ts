@@ -53,6 +53,26 @@ const REACTION_PARAM: Record<string, FieldInfo> = {
   stunSeconds: n('Stun time', 's', 0, 10, 0.1),
   healPercentPerSecond: n('Healing', '% of health per s', 0, 50, 0.5),
   spreadBurning: n('Spreads burning', '0 or 1', 0, 1, 1),
+  perStack: n('Extra damage per poison stack', '× hit', 0, 5, 0.05),
+  rate: n('Speed-up', '×', 1, 10, 0.1),
+  armourSeconds: n('Armour break time', 's', 0, 30, 0.5),
+  grow: n('Growth', 'm/s', 0, 5, 0.1),
+  count: n('Targets', '', 1, 10, 1),
+  pull: n('Pull', 'm/s', 0, 20, 0.5),
+  cloudRadius: n('Cloud radius', 'm', 0, 30, 0.5),
+  strikeEvery: n('Bolt every', 's', 0.1, 10, 0.1),
+  strikeDamage: n('Bolt damage', 'hp', 0, 200, 1),
+  passes: n('Times the arc fires', '', 1, 5, 1),
+  hits: n('Hits per target', '', 1, 10, 1),
+  length: n('Beam length', 'm', 0, 60, 1),
+  width: n('Beam width', 'm', 0, 10, 0.1),
+  fraction: n('Share replayed', 'of damage', 0, 5, 0.05),
+  ramp: n('Extra damage taken per second', '×/s', 0, 1, 0.01),
+  cap: n('Most extra damage taken', '×', 0, 5, 0.05),
+  healPerStack: n('Healing per poison stack', 'hp', 0, 100, 0.5),
+  damageTakenPerStack: n('Damage taken per stack', '×', 0, 1, 0.01),
+  maxStacks: n('Most stacks', '', 1, 20, 1),
+  heal: n('Healed of damage dealt', '', 0, 2, 0.01),
 };
 
 const STATUS: Record<string, FieldInfo> = {
@@ -62,6 +82,8 @@ const STATUS: Record<string, FieldInfo> = {
   spreadRadius: n('Spread radius', 'm', 0, 20, 0.5),
   speedMul: n('Move speed', '×', 0, 3, 0.05),
   damageTakenMul: n('Damage taken', '×', 0.1, 5, 0.05),
+  damageDealtMul: n('Damage dealt', '×', 0, 3, 0.05),
+  maxStacks: n('Most stacks', '', 1, 20, 1),
   canAct: yesNo('Can act'),
 };
 
@@ -104,7 +126,7 @@ const EXACT: Record<string, FieldInfo> = {
 };
 
 const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
-  [/^statuses\.(?:burning|soaked|rocked|gusted)\.(\w+)$/, (m) => STATUS[m[1]]],
+  [/^statuses\.[a-z]+\.(\w+)$/, (m) => STATUS[m[1]]],
   [/^reactions\..+\.params\.(\w+)$/, (m) => REACTION_PARAM[m[1]]],
   [/^skills\..+\.damage$/, () => n('Damage', 'hp', 0, 1000, 1)],
   [/^skills\..+\.statusChance$/, () => n('Status chance', '', 0, 1, 0.05)],

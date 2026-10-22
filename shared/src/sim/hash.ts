@@ -20,9 +20,9 @@ function fnv(s: string, seed: number): number {
   return h >>> 0;
 }
 
-const statuses = (m: StatusMap) => Object.keys(m).sort().map((k) => `${k}:${r4((m as Record<string, { until: number }>)[k].until)}`).join(',');
+const statuses = (m: StatusMap) => Object.keys(m).sort().map((k) => { const v = (m as Record<string, { until: number; stacks?: number }>)[k]; return `${k}:${r4(v.until)}${v.stacks ? `x${v.stacks}` : ''}`; }).join(',');
 const vec = (v: { x: number; y: number; z: number }) => `${r4(v.x)},${r4(v.y)},${r4(v.z)}`;
-const marks = (m: MarkMap) => Object.keys(m).sort().map((k) => { const v = (m as Record<string, { until: number; speedMul?: number; damageTakenMul?: number; canAct?: boolean }>)[k]; return `${k}:${r4(v.until)}:${r4(v.speedMul ?? 1)}:${r4(v.damageTakenMul ?? 1)}:${+(v.canAct ?? true)}`; }).join(',');
+const marks = (m: MarkMap) => Object.keys(m).sort().map((k) => { const v = (m as Record<string, { until: number; speedMul?: number; damageTakenMul?: number; canAct?: boolean; stacks?: number }>)[k]; return `${k}:${r4(v.until)}:${r4(v.speedMul ?? 1)}:${r4(v.damageTakenMul ?? 1)}:${+(v.canAct ?? true)}${v.stacks ? `x${v.stacks}` : ''}`; }).join(',');
 const rec = (o: Record<string, number>) => Object.keys(o).sort().map((k) => `${k}:${r4(o[k])}`).join(',');
 
 export function stateHash(s: HashState): string {

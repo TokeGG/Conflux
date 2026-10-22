@@ -57,7 +57,7 @@ export class RunScreens {
     this.show(
       'start',
       el('div', 'title', 'CONFLUX'),
-      el('div', 'tagline', 'Fire, water, earth and wind. Combine them. Descend.'),
+      el('div', 'tagline', 'Ten elements. Combine them. Descend.'),
       el('div', 'menu', ...menu),
       el('div', 'foot', `${ledger.unlocked.length} of ${total} unlocks earned   |   WASD move   mouse aim   click cast   1 2 3 element   Space jump   Shift dash   Q utility`),
     );

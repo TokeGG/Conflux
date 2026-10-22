@@ -177,7 +177,7 @@ export class Sim {
 
   snapshot(): Snapshot {
     const now = this.time;
-    const list = (m: StatusMap): StatusSnap[] => (Object.keys(m) as (keyof StatusMap)[]).filter((id) => m[id]!.until > now).map((id) => ({ id, remaining: m[id]!.until - now }));
+    const list = (m: StatusMap): StatusSnap[] => (Object.keys(m) as (keyof StatusMap)[]).filter((id) => m[id]!.until > now).map((id) => ({ id, remaining: m[id]!.until - now, ...(m[id]!.stacks ? { stacks: m[id]!.stacks } : {}) }));
     const p = this.player;
     return {
       tick: this.tick,

@@ -18,7 +18,7 @@ export interface CastState {
   bonus?: Bonus;
 }
 
-export const MARK_IDS = ['blind', 'rooted', 'slowed', 'brittle', 'stunned', 'airborne'] as const;
+export const MARK_IDS = ['blind', 'rooted', 'slowed', 'brittle', 'stunned', 'airborne', 'stasis', 'petrified', 'corroded', 'fatigue', 'overheat', 'hellfire', 'plague', 'leech', 'haste', 'swift'] as const;
 export type MarkId = (typeof MARK_IDS)[number];
 
 /** A timed effect from a reaction. It carries its own numbers, so reactions can be tuned in data. */
@@ -27,6 +27,21 @@ export interface Mark {
   speedMul?: number;
   damageTakenMul?: number;
   canAct?: boolean;
+  /** Stacking marks (corrosion). */
+  stacks?: number;
+  /** Damage over time: hp per second, landing every half second at `nextTick`. */
+  dps?: number;
+  nextTick?: number;
+  /** Fatigue: damage taken rises by `ramp` per second since `since`, up to `cap` extra. */
+  ramp?: number;
+  since?: number;
+  cap?: number;
+  /** Overheat: burning ticks this many times as fast. Haste: skill cooldowns run this many times as fast. */
+  rate?: number;
+  /** Leech: the share of the damage dealt to the target that heals the player. */
+  heal?: number;
+  /** Plague and hellfire: how far they spread when the target dies. */
+  radius?: number;
 }
 export type MarkMap = Partial<Record<MarkId, Mark>>;
 
@@ -99,6 +114,8 @@ export interface EnemyState {
   /** The last look for a clear line to the player: until when it stands, and what it found. */
   losUntil: number;
   losClear: boolean;
+  /** The damage it took lately (time and amount), for the Rewind curse. */
+  dmgLog: { t: number; a: number }[];
 }
 
 /** An attack in progress: telegraphed, then landing at hitAt. */
@@ -123,6 +140,8 @@ export interface Projectile {
   ownerId: number;
   diesAt: number;
   bonus?: Bonus;
+  /** An enemy shot turned back by a mirror or crystal: the damage it now deals to enemies. */
+  reflectDamage?: number;
   /** From augments: explode in this radius on impact, pass through this many more enemies, and which have been hit. */
   explode?: number;
   pierce?: number;
@@ -155,6 +174,22 @@ export interface ZoneEffects {
   soak?: boolean;
   burn?: boolean;
   healPercentPerSecond?: number;
+  /** Any status the zone leaves on whoever stands in it. */
+  status?: StatusId;
+  /** The zone's radius grows by this much every second. */
+  growPerSecond?: number;
+  /** Enemies inside are drawn toward the centre at this speed (m/s). */
+  pull?: number;
+  /** Enemies inside cannot move for 0.6 s after each tick. */
+  hold?: boolean;
+  /** Enemies inside move at this share of their speed. */
+  slowMul?: number;
+  /** A storm: every `strikeEvery` seconds a bolt of `strikeDamage` hits a random enemy inside. */
+  strikeEvery?: number;
+  strikeDamage?: number;
+  strikeNext?: number;
+  /** Enemy shots that enter are turned back at their shooter. */
+  reflect?: boolean;
 }
 
 export interface HurtCapsule {
@@ -169,6 +204,8 @@ export interface HurtCapsule {
 export interface StatusSnap {
   id: StatusId;
   remaining: number;
+  /** Stacks of a stacking status (poison); omitted for the others. */
+  stacks?: number;
 }
 
 export interface SlotSnap {
@@ -259,6 +296,7 @@ export function spawnEnemy(sim: Sim, id: string, pos: Vec3, level = 0): EnemySta
     damageMul: 1 + damagePerRoom * level,
     losUntil: 0,
     losClear: true,
+    dmgLog: [],
     statuses: {},
     marks: {},
     aiState: 'idle',

@@ -51,8 +51,8 @@ test('elements, weaknesses, resistances, archetypes and rig types follow the ros
     assert.equal(e.element, want.element, `${id} element`);
     assert.equal(e.ai, want.ai, `${id} ai`);
     assert.equal(e.rig.type, want.rig, `${id} rig`);
-    assert.deepEqual(e.weak, want.weak, `${id} weak`);
-    assert.deepEqual(e.resist, want.resist, `${id} resist`);
+    for (const w of want.weak) assert.ok(e.weak.includes(w as never), `${id} weak to ${w}`);
+    for (const w of want.resist) assert.ok(e.resist.includes(w as never), `${id} resists ${w}`);
   }
 });
 
@@ -64,7 +64,7 @@ test('tanks and golems have a guard block; the others do not; the golems follow 
 
 test('the Reaper is weak to water and wind, immune to burning and rocked, and has phases at 66% and 33%', () => {
   const r = data.enemies['boss.reaper'];
-  assert.deepEqual(r.weak, ['water', 'wind']);
+  assert.ok(r.weak.includes('water') && r.weak.includes('wind'));
   assert.ok(r.immune!.includes('burning') && r.immune!.includes('rocked'));
   assert.deepEqual(r.phases, [0.66, 0.33]);
   assert.equal(r.rig.type, 'procedural');

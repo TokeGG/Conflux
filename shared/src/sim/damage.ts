@@ -52,6 +52,8 @@ export function dealDamage(sim: Sim, target: Combatant, base: number, element: E
     target.guard.until = target.guard.staggeredUntil; // it goes back up as soon as the stagger ends
     sim.emit('guard_broken', { enemyId: target.id, x: target.pos.x, y: target.pos.y, z: target.pos.z });
   }
+  const leech = target.marks.leech;
+  if (leech && dealt > 0 && now < leech.until) sim.player.hp = Math.min(sim.data.player.health, sim.player.hp + dealt * (leech.heal ?? 0));
   if (target.hp > 0) {
     if (element !== 'none') triggerReaction(sim, target, element, dealt, now);
     if (opts.applies) applyStatus(sim, target, opts.applies, now);

@@ -2,10 +2,10 @@
 import type { Vec3 } from './math.ts';
 import type { Collider } from './world.ts';
 
-export const ELEMENTS = ['fire', 'water', 'earth', 'wind'] as const;
+export const ELEMENTS = ['fire', 'water', 'earth', 'wind', 'lightning', 'light', 'dark', 'metal', 'poison', 'time'] as const;
 export type Element = (typeof ELEMENTS)[number];
 
-export const STATUS_IDS = ['burning', 'soaked', 'rocked', 'gusted'] as const;
+export const STATUS_IDS = ['burning', 'soaked', 'rocked', 'gusted', 'shocked', 'exposed', 'cursed', 'rent', 'poisoned', 'dilated'] as const;
 export type StatusId = (typeof STATUS_IDS)[number];
 
 export const SLOTS = ['basic', 'secondary', 'utility'] as const;
@@ -52,7 +52,7 @@ export interface SimEvent {
   [k: string]: unknown;
 }
 
-export type StatusMap = Partial<Record<StatusId, { until: number }>>;
+export type StatusMap = Partial<Record<StatusId, { until: number; stacks?: number }>>;
 
 export interface GuardState {
   on: boolean;
@@ -91,6 +91,8 @@ export interface ElementsCfg {
   multipliers: { weak: number; resist: number };
   /** The status each element's hits apply (wind applies none by default). */
   status: Record<Element, StatusId | null>;
+  /** The status that makes a target react to this element's hits: the same as `status`, except wind, whose skills leave gusted. */
+  reacts: Record<Element, StatusId>;
 }
 
 export interface StatusDef {
@@ -100,13 +102,17 @@ export interface StatusDef {
   spreadRadius?: number;
   speedMul?: number;
   damageTakenMul?: number;
+  /** What an enemy's attacks are multiplied by while it carries this (a curse weakens them). */
+  damageDealtMul?: number;
   canAct?: boolean;
+  /** Stacking: applying it again adds a stack (up to this many); damage per tick is multiplied by the stacks. */
+  maxStacks?: number;
 }
 
+/** One reaction: two elements, in either order (one's status on the target, then the other's hit). */
 export interface ReactionDef {
   id: string;
-  existing: StatusId;
-  hitBy: Element;
+  pair: [Element, Element];
   effect: string;
   params: Record<string, number>;
 }

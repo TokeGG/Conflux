@@ -33,11 +33,20 @@ test('an enemy weak entry that is not an element is flagged', () => {
   assert.ok(errors.some((e) => e.includes('enemy.dummy') && e.includes('lava')), errors.join('\n'));
 });
 
-test('a reaction table missing the ordered pair (soaked, wind) is flagged', () => {
+test('a reaction table missing the pair water and wind is flagged', () => {
   const d = fresh();
-  d.reactions = d.reactions.filter((r) => !(r.existing === 'soaked' && r.hitBy === 'wind'));
+  d.reactions = d.reactions.filter((r) => !(r.pair.includes('water') && r.pair.includes('wind')));
   const errors = validateData(d, ctx);
-  assert.ok(errors.some((e) => e.includes('soaked') && e.includes('wind')), errors.join('\n'));
+  assert.ok(errors.some((e) => e.includes('water') && e.includes('wind')), errors.join('\n'));
+});
+
+test('two reactions for the same pair, or a pair of one element, are flagged', () => {
+  const d = fresh();
+  d.reactions.push({ ...d.reactions[0], id: 'again', pair: ['water', 'fire'] });
+  d.reactions.push({ ...d.reactions[0], id: 'lonely', pair: ['fire', 'fire'] });
+  const errors = validateData(d, ctx);
+  assert.ok(errors.some((e) => e.includes('duplicate reaction') && e.includes('water')), errors.join('\n'));
+  assert.ok(errors.some((e) => e.includes('lonely')), errors.join('\n'));
 });
 
 test('an enemy whose model id is not in ctx.modelIds is flagged', () => {
@@ -111,15 +120,27 @@ test('the weakness cycle is fire to water, water to earth, earth to wind, wind t
   assert.deepEqual([c.fire.resist, c.water.resist, c.earth.resist, c.wind.resist], [['wind'], ['fire'], ['water'], ['earth']]);
 });
 
-test('there are 12 reaction rows and 10 distinct effects', () => {
-  const rows = defaultData().reactions;
-  assert.equal(rows.length, 12);
-  assert.equal(new Set(rows.map((r) => r.effect)).size, 10);
+test('every one of the ten elements has a weakness cycle entry and a status that makes a target react to it', () => {
+  const d = defaultData();
+  assert.deepEqual(d.elements.order, [...ELEMENTS]);
+  for (const el of ELEMENTS) {
+    assert.ok(d.elements.cycle[el], el);
+    assert.ok(d.elements.cycle[el].weak.length > 0 && d.elements.cycle[el].resist.length > 0, `${el} has a weakness and a resistance`);
+    assert.ok(d.statuses[d.elements.reacts[el]], `${el} reacts through a real status`);
+  }
+  assert.equal(new Set(ELEMENTS.map((el) => defaultData().elements.reacts[el])).size, 10, 'ten elements, ten different statuses');
 });
 
-test('constants: four elements, four statuses, button bits are distinct', () => {
-  assert.deepEqual([...ELEMENTS], ['fire', 'water', 'earth', 'wind']);
-  assert.deepEqual([...STATUS_IDS], ['burning', 'soaked', 'rocked', 'gusted']);
+test('there are 45 reaction rows, one for every pair of the ten elements, with 45 distinct effects', () => {
+  const rows = defaultData().reactions;
+  assert.equal(rows.length, 45);
+  assert.equal(new Set(rows.map((r) => r.effect)).size, 45);
+  assert.equal(new Set(rows.map((r) => [...r.pair].sort().join('+'))).size, 45);
+});
+
+test('constants: ten elements, ten statuses, button bits are distinct', () => {
+  assert.deepEqual([...ELEMENTS], ['fire', 'water', 'earth', 'wind', 'lightning', 'light', 'dark', 'metal', 'poison', 'time']);
+  assert.deepEqual([...STATUS_IDS], ['burning', 'soaked', 'rocked', 'gusted', 'shocked', 'exposed', 'cursed', 'rent', 'poisoned', 'dilated']);
   const bits = Object.values(BTN);
   assert.equal(new Set(bits).size, bits.length);
   assert.deepEqual(bits, [1, 2, 4, 8, 16, 32]);

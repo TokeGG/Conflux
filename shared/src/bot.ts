@@ -1,6 +1,6 @@
 // A scripted player: picks a target, swaps to the element that hurts it most, aims, keeps its distance, and rolls out of
 // attacks that are about to land. It reads the simulation directly, so it is a stand-in for a person in headless fights.
-import { BTN, ELEMENTS, idleInput, type Input } from './types.ts';
+import { BTN, ELEMENTS, idleInput, type Element, type Input, type SkillDef } from './types.ts';
 import { TICK, type Sim } from './sim/sim.ts';
 import { RunDirector, createRunRoomSim } from './run/director.ts';
 import { ENDLESS } from './run/endless.ts';
@@ -32,7 +32,21 @@ function pickTarget(sim: Sim): EnemyState | null {
   return best;
 }
 
-/** The element index to hold against the current target: its weakness if there is a skill for it, never one it resists. */
+/** How much a reaction is worth when choosing an element: more than a weakness, so the bot mixes elements. */
+const REACTION_BONUS = 2.2;
+
+/** True when a hit of `el` would set off a reaction on `t`: it carries the status of some other element. */
+function reactsWith(sim: Sim, t: EnemyState, el: Element): boolean {
+  return ELEMENTS.some((o) => o !== el && (t.statuses[sim.data.elements.reacts[o]]?.until ?? 0) > sim.time + 1e-9);
+}
+
+/** True when the element's basic skill would put its status on a target that does not carry it yet, to set up a reaction. */
+function marksTarget(sim: Sim, t: EnemyState, el: Element): boolean {
+  const status = sim.data.skills[sim.player.loadout[el].basic]?.applies;
+  return !!status && (t.statuses[status]?.until ?? 0) <= sim.time + 1e-9;
+}
+
+/** The element index to hold against the current target: its weakness if there is a skill for it and an element that will react with what it carries, never one it resists. */
 export function chooseElement(sim: Sim): number {
   const p = sim.player;
   const t = pickTarget(sim);
@@ -41,7 +55,8 @@ export function chooseElement(sim: Sim): number {
   let bestScore = -Infinity;
   ELEMENTS.forEach((el, i) => {
     if (!p.loadout[el].basic || !p.equipped.includes(el)) return;
-    const score = (t.def.weak.includes(el) ? 3 : t.def.resist.includes(el) ? 0 : 1.5) + (i === p.element ? 0.3 : 0);
+    const resisted = t.def.resist.includes(el);
+    const score = (t.def.weak.includes(el) ? 3 : resisted ? 0 : 1.5) + (i === p.element ? 0.3 : 0) + (!resisted && reactsWith(sim, t, el) ? REACTION_BONUS : 0) + (!resisted && marksTarget(sim, t, el) ? 0.8 : 0);
     if (score > bestScore) {
       best = i;
       bestScore = score;
@@ -123,6 +138,13 @@ function leaveRoom(sim: Sim, input: Input): Input {
   return input;
 }
 
+/** How close the target must be for the bot to use a secondary skill: inside a cone's or stream's range, otherwise a throw away. */
+function reach(skill: SkillDef | undefined): number {
+  if (!skill) return 0;
+  if (skill.shape.type === 'cone' || skill.shape.type === 'stream') return Math.min(7.5, (skill.shape.range ?? 5) - 0.5);
+  return 7.5;
+}
+
 export function botInput(sim: Sim): Input {
   const p = sim.player;
   const eye = { x: p.pos.x, y: p.pos.y + 1.6, z: p.pos.z };
@@ -198,8 +220,10 @@ export function botInput(sim: Sim): Input {
   const secondary = p.loadout[el].secondary;
   const utility = p.loadout[el].utility;
   if (!input.buttons) {
-    if (p.hp < 60 && ready(utility) && sim.data.skills[utility]?.shape.type === 'self') input.buttons |= BTN.UTIL;
-    else if (ready(secondary) && d < 7.5) input.buttons |= BTN.RMB;
+    const util = sim.data.skills[utility];
+    if (p.hp < 60 && ready(utility) && util?.shape.type === 'self') input.buttons |= BTN.UTIL;
+    else if (ready(utility) && util?.shape.type === 'dash' && d > KEEP_DISTANCE + 4) input.buttons |= BTN.UTIL; // a dash closes a gap
+    else if (ready(secondary) && d < reach(sim.data.skills[secondary])) input.buttons |= BTN.RMB;
     else input.buttons |= BTN.LMB;
   } else {
     input.buttons |= 0; // rolling: no casting this tick
