@@ -98,8 +98,9 @@ Performance rules: repeated props are instanced; a room's meshes are merged by m
 Existing roster (golem, treefellow, stump, wisp, gust, fire sprite, treegolem, and the bosses) stays and gets theme affinity weights.
 
 New mobs, as data plus rigs through the existing importer and `procedural` rig type:
-- **Skeleton** (basic melee swarmer), **skeleton mage** (ranged), **bone giant** (elite, guard stance). Models: the supplied graveyard `character-skeleton`, animated by the procedural rig.
-- **Ghost** and **zombie**, **vampire** (elite): the graveyard character models, same method.
+- **Skeleton** (basic melee swarmer), **skeleton mage** (ranged), **bone giant** (elite, guard stance). Placeholder model: the graveyard `character-skeleton`, which already carries 32 clips (idle, walk, sprint, attack-melee, die and more). A bone giant is the same model scaled up and tinted.
+- **Ghost**, **zombie** and **vampire** (elite): the graveyard character models, which are animated in the same way.
+- **Final models:** the owner wants properly rigged models in the style of the mobs they supplied (detailed, sculpted, Mixamo-style rigs). The Kenney characters are small and cartoony, so they are placeholders. Every mob is data pointing at a model id, so a rigged GLB the owner supplies replaces a placeholder without code changes (the importer already handles it).
 - **Book** (flying, swoops and shoots pages), **tome guardian** (elite, big book with guard stance). No model exists in the supplied kits: the first version builds a book from boxes with a cover texture and a flap animation. If the owner supplies a model, the importer replaces it.
 
 Each new mob gets: element and weaknesses, an attack template from the existing five, cost for the encounter budget, soul value, and a bot-test entry.
