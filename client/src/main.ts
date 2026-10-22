@@ -256,7 +256,10 @@ async function boot(): Promise<void> {
     for (const plan of plans) {
       await new Promise((r) => setTimeout(r, 120));
       if (!plan.def || prebuilt.has(plan.roomId) || director?.phase !== 'doors') continue;
-      prebuilt.set(plan.roomId, await buildRoomScene(plan.def, loader));
+      const built = await buildRoomScene(plan.def, loader);
+      // the player may have walked through a gate while this was building: nobody would ever free it then
+      if (director?.phase === 'doors' && !prebuilt.has(plan.roomId)) prebuilt.set(plan.roomId, built);
+      else disposeCopies(built);
     }
   };
 
