@@ -24,6 +24,10 @@ import { FxSystem } from './fx/sprites.ts';
 import { WorkerBridge } from './worker/workerBridge.ts';
 import { loadSettings, profileFromSettings, safeStorage, saveSettings, type Settings } from './settings.ts';
 import { devEnabled } from './dev/access.ts';
+import { AccountSession, apiBase } from './account/session.ts';
+import { adminPageAllowed, devPanelAllowed } from './account/logic.ts';
+import { AccountChip } from './account/accountUi.ts';
+import { AdminPage, TuningPage } from './dev/pages/accountPages.ts';
 import { DevState } from './dev/devstate.ts';
 import { DevPanel } from './dev/panel.ts';
 import { PerfPage } from './dev/perf.ts';
@@ -51,8 +55,15 @@ async function boot(): Promise<void> {
   const storage = safeStorage();
   let settings: Settings = loadSettings(storage);
   const profile = profileFromSettings(settings);
-  const dev = devEnabled(new URL(location.href), storage);
+  // who is playing: a signed-in account (the server decides who gets the dev panel), or a guest when there is no account server
+  const session = new AccountSession(storage, (u, i) => fetch(u, i), apiBase(import.meta.env));
+  const [, health] = await Promise.all([session.resume(), session.call<{ store: string }>('GET', 'health')]);
+  const serverThere = health.ok && health.value.store !== 'none';
+  // the old ?dev shortcut only exists in local development, never in a production build
+  const dev = devPanelAllowed(session.account, import.meta.env.DEV, import.meta.env.DEV && devEnabled(new URL(location.href), storage));
   const layers = new DataLayers(defaultData());
+  // tuning the dev accounts published applies for everyone, and marks runs as tuned
+  if (serverThere) layers.setServer(await session.fetchTuning());
   const devState = new DevState(layers, storage);
   // mobs the owner uploaded earlier come back first, so saved numbers for them still apply
   const store = dev ? await CustomContentStore.open() : null;
@@ -145,6 +156,8 @@ async function boot(): Promise<void> {
       height: 4,
     });
     panel.registerPage(perf);
+    if (serverThere && session.account?.dev) panel.registerPage(new TuningPage(session, layers, refresh, sendData));
+    if (adminPageAllowed(session.account)) panel.registerPage(new AdminPage(session));
     const p = perf;
     window.__confluxDev = {
       get sampling() {
@@ -239,6 +252,7 @@ async function boot(): Promise<void> {
   let director: RunDirector | null = null;
   let shown: RunPhase | null = null;
   let showMenu: () => void = () => undefined;
+  const chip = runMode ? new AccountChip(session, serverThere) : null;
   let todays: Daily | null = null;
   const seedOf = () => Number(params.get('seed')) || Date.now() % 1_000_000;
 
@@ -339,6 +353,7 @@ async function boot(): Promise<void> {
     };
     shown = director.phase;
     screens.hide();
+    chip?.setVisible(false);
     bridge.command({ op: 'pause', on: false });
     play.cameraOverride = null;
     hud.root.style.display = '';
@@ -364,6 +379,7 @@ async function boot(): Promise<void> {
     /** The main menu: the dark room behind it, a slow orbit, no crosshair or bars. A run ends here, whether it was won or lost. */
     showMenu = () => {
       director = null;
+      chip?.setVisible(true);
       hud.setGates([]);
       shown = null;
       play.inputEnabled = false;
