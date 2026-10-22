@@ -1,5 +1,6 @@
 // The playable game in the page: reads the player's controls, sends them to the sim worker, and draws what comes back
 // (the player and enemies, effects, the HUD). The sim decides everything; this only shows it.
+import { FxKeeper, statusFxFor, zoneFxFor, type KeptFx } from './fx/keeper.ts';
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { buildWorld, hurtboxesFor, idleInput, resolveAim, type GameData, type Input, type RoomDef, type SimEvent, type SimBridge, type Snapshot, type Vec3, type World } from '@conflux/shared';
@@ -34,6 +35,9 @@ export interface GameDeps {
 
 const LOG_LIMIT = 300;
 
+/** The width in metres of an effect frame at scale 1 (192 px at 64 px a metre), so a zone effect can be sized to its radius. */
+const ZONE_FX_METRES = 3;
+
 export class Game {
   readonly input: InputController;
   world: World;
@@ -62,7 +66,10 @@ export class Game {
   private lastYaw = 0;
   private lastCamOrigin: Vec3 = { x: 0, y: 1.6, z: 0 };
 
+  private keeper: FxKeeper;
+
   constructor(private d: GameDeps) {
+    this.keeper = new FxKeeper((id, pos, opts) => d.fx.spawn(id, pos, opts));
     this.room = d.room;
     this.world = buildWorld(d.room);
     this.cam = new ThirdPersonCamera(this.world);
@@ -115,6 +122,7 @@ export class Game {
       if (pos) void this.d.fx.spawn(at.id, pos).catch(() => undefined);
     }
     this.syncProjectiles(s);
+    this.syncPersistentFx(s);
   }
 
   /** A hit on an enemy: flash it and float the number up. A weakness hit shows bigger. */
@@ -136,6 +144,23 @@ export class Game {
     }
     const enemy = s.enemies.find((x) => x.id === (e.enemyId ?? e.id));
     return enemy ? enemy.pos : s.players[0].pos;
+  }
+
+  /** Ground fire, cyclones and tornadoes while their zones last, and a swirl, flames or drops round enemies carrying a status. */
+  private syncPersistentFx(s: Snapshot): void {
+    const skills = this.d.data().skills;
+    const active = new Map<string, KeptFx>();
+    for (const z of s.zones) {
+      const fx = zoneFxFor(z.kind, skills);
+      if (fx) active.set(`z${z.id}`, { id: fx.id, pos: { x: z.pos.x, y: z.pos.y + 0.05, z: z.pos.z }, scale: Math.max(0.5, (z.radius * 2) / ZONE_FX_METRES) });
+    }
+    for (const e of s.enemies) {
+      for (const st of e.statuses) {
+        const fx = statusFxFor(st.id);
+        if (fx) active.set(`s${e.id}.${st.id}`, { id: fx.id, pos: { x: e.pos.x, y: e.pos.y + fx.y, z: e.pos.z }, scale: fx.scale });
+      }
+    }
+    void this.keeper.sync(active);
   }
 
   private syncProjectiles(s: Snapshot): void {

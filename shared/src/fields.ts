@@ -49,6 +49,8 @@ const REACTION_PARAM: Record<string, FieldInfo> = {
   rootSeconds: n('Root time', 's', 0, 30, 0.5),
   jumps: n('Chain jumps', '', 0, 10, 1),
   seconds: n('Duration', 's', 0, 30, 0.1),
+  liftSeconds: n('Time the target is lifted', 's', 0, 10, 0.1),
+  drift: n('Drift speed', 'm/s', 0, 20, 0.5),
   dps: n('Damage per second', 'hp/s', 0, 500, 1),
   stunSeconds: n('Stun time', 's', 0, 10, 0.1),
   healPercentPerSecond: n('Healing', '% of health per s', 0, 50, 0.5),

@@ -1,7 +1,11 @@
 {
   "events": {
     "cast": null,
-    "hit": { "by": "skill", "slot": "hit", "at": "pos" },
+    "hit": {
+      "by": "skill",
+      "slot": "hit",
+      "at": "pos"
+    },
     "status_applied": null,
     "reaction": {
       "by": "reaction",
@@ -21,18 +25,69 @@
         "gusted.earth": "fx.meteor_fall"
       }
     },
-    "guard_broken": { "id": "fx.crystal_shield", "at": "target" },
+    "guard_broken": {
+      "id": "fx.crystal_shield",
+      "at": "target"
+    },
     "telegraph": null,
-    "enemy_died": { "id": "fx.soul_release", "at": "pos" },
+    "enemy_died": {
+      "id": "fx.soul_release",
+      "at": "pos"
+    },
     "room_cleared": null,
     "reward_offered": null,
     "swap": {
       "by": "to",
       "at": "target",
-      "ids": { "fire": "fx.ember_burst", "water": "fx.water_splash", "earth": "fx.stone_impact", "wind": "fx.dust_step" }
+      "ids": {
+        "fire": "fx.ember_burst",
+        "water": "fx.water_splash",
+        "earth": "fx.stone_impact",
+        "wind": "fx.dust_step"
+      }
     },
-    "dodge": { "id": "fx.dust_step", "at": "pos" },
-    "shield_pop": { "id": "fx.water_splash", "at": "pos" },
+    "dodge": {
+      "id": "fx.dust_step",
+      "at": "pos"
+    },
+    "shield_pop": {
+      "id": "fx.water_splash",
+      "at": "pos"
+    },
     "door_entered": null
+  },
+  "zones": {
+    "steam": "fx.steam_puff",
+    "sandstorm": "fx.sand_swirl",
+    "mud": "fx.root_eruption",
+    "rain_cloud": "fx.rain_circle",
+    "firestorm": "fx.fire_tornado",
+    "fire_tornado": "fx.fire_tornado",
+    "magma": "fx.lava_geyser",
+    "obsidian": "fx.crystal_eruption",
+    "wall": "fx.glacial_wall",
+    "burning_trail": "fx.burning_ground"
+  },
+  "statuses": {
+    "gusted": {
+      "id": "fx.leaf_cyclone",
+      "scale": 1.7,
+      "y": 1.0
+    },
+    "burning": {
+      "id": "fx.campfire_loop",
+      "scale": 1.1,
+      "y": 0.5
+    },
+    "soaked": {
+      "id": "fx.water_splash",
+      "scale": 0.9,
+      "y": 1.0
+    },
+    "rocked": {
+      "id": "fx.stone_impact",
+      "scale": 1.0,
+      "y": 0.3
+    }
   }
 }

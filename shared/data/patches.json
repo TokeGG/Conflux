@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.64",
+    "date": "2026-10-22",
+    "at": "2026-10-22T19:08:29Z",
+    "notes": [
+      "Ground fire now shows along a fire dash, cyclones and tornadoes are drawn, and enemies show a swirl of leaves while gusted (flames, drops and rock for the other statuses). Wind shots are crescent blades. The fire tornado is bigger, lasts longer and drifts toward other enemies."
+    ]
+  },
+  {
     "version": "0.1.63",
     "date": "2026-10-22",
     "at": "2026-10-22T17:32:34Z",

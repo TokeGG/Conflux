@@ -10,7 +10,7 @@
     { "id": "soaked.wind", "existing": "soaked", "hitBy": "wind", "effect": "shock_chain", "params": { "jumps": 3, "radius": 8, "damageMul": 0.7 } },
     { "id": "rocked.fire", "existing": "rocked", "hitBy": "fire", "effect": "magma", "params": { "radius": 4, "seconds": 4, "dps": 6 } },
     { "id": "rocked.wind", "existing": "rocked", "hitBy": "wind", "effect": "sandstorm", "params": { "radius": 4, "seconds": 3, "dps": 5, "blindSeconds": 3 } },
-    { "id": "gusted.fire", "existing": "gusted", "hitBy": "fire", "effect": "fire_tornado", "params": { "damageMul": 1.5, "seconds": 1.5, "spreadBurning": 1 } },
+    { "id": "gusted.fire", "existing": "gusted", "hitBy": "fire", "effect": "fire_tornado", "params": { "damageMul": 1.5, "seconds": 3.5, "liftSeconds": 1.5, "radius": 3.5, "drift": 3, "spreadBurning": 1 } },
     { "id": "gusted.water", "existing": "gusted", "hitBy": "water", "effect": "rain_cloud", "params": { "radius": 5, "seconds": 5, "healPercentPerSecond": 2 } },
     { "id": "gusted.earth", "existing": "gusted", "hitBy": "earth", "effect": "meteor_slam", "params": { "damageMul": 2, "radius": 3, "stunSeconds": 1 } }
   ]

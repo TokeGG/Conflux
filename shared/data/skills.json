@@ -264,8 +264,8 @@
       "move": 0.7
     },
     "fx": {
-      "travel": "fx.sand_swirl",
-      "hit": "fx.spark_shower"
+      "travel": "fx.sword_crescent",
+      "hit": "fx.dust_step"
     },
     "tags": [
       "projectile",
@@ -510,7 +510,7 @@
     },
     "fx": {
       "travel": "fx.sword_crescent",
-      "hit": "fx.spark_shower"
+      "hit": "fx.dust_step"
     },
     "tags": [
       "projectile",

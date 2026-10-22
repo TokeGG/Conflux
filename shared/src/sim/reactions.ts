@@ -30,7 +30,7 @@ function burst(sim: Sim, e: EnemyState, id: string, radius: number, amount: numb
   return total;
 }
 
-function pool(sim: Sim, e: EnemyState, kind: string, radius: number, seconds: number, dps: number, effects?: ZoneEffects): void {
+function pool(sim: Sim, e: EnemyState, kind: string, radius: number, seconds: number, dps: number, effects?: ZoneEffects, drift?: number): void {
   const z: Zone = {
     id: sim.allocId(),
     kind,
@@ -46,6 +46,8 @@ function pool(sim: Sim, e: EnemyState, kind: string, radius: number, seconds: nu
     tick: REACTION_ZONE_TICK,
     nextTick: sim.time,
     effects,
+    drift,
+    driftFrom: drift ? e.id : undefined,
   };
   sim.zones.push(z);
 }
@@ -94,9 +96,10 @@ const HANDLERS: Record<string, Handler> = {
     return 0;
   },
   fire_tornado(sim, e, dmg, p, now) {
-    e.marks.airborne = { until: now + p.seconds, canAct: false };
-    const ticks = Math.round(p.seconds / REACTION_ZONE_TICK);
-    pool(sim, e, 'fire_tornado', 2, p.seconds, (dmg * p.damageMul) / ticks / REACTION_ZONE_TICK, p.spreadBurning ? { burn: true } : undefined);
+    // the target is lifted for `liftSeconds`; the tornado itself is a wide cloud that goes on for `seconds`, drifting toward the other enemies
+    e.marks.airborne = { until: now + p.liftSeconds, canAct: false };
+    const ticks = Math.round(p.liftSeconds / REACTION_ZONE_TICK);
+    pool(sim, e, 'fire_tornado', p.radius, p.seconds, (dmg * p.damageMul) / ticks / REACTION_ZONE_TICK, p.spreadBurning ? { burn: true } : undefined, p.drift);
     return dmg * p.damageMul;
   },
   rain_cloud(sim, e, _dmg, p) {

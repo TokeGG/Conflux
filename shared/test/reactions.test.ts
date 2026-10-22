@@ -244,3 +244,19 @@ test('marks leave the snapshot when they run out', () => {
   run(sim, 200);
   assert.deepEqual(sim.snapshot().enemies[0].marks, []);
 });
+
+test('Fire Tornado is a big cloud that drifts across the room toward the other enemies while it lasts', () => {
+  const { sim, target } = setup();
+  const far = spawnEnemy(sim, 'enemy.dummy', at(0, 20));
+  applyStatus(sim, target, 'gusted', sim.time);
+  triggerReaction(sim, target, 'fire', 10, sim.time);
+  const z = sim.zones.find((q) => q.kind === 'fire_tornado')!;
+  assert.ok(z.radius >= 3.5, `radius ${z.radius}`);
+  const start = z.pos.z;
+  run(sim, 120);
+  const moved = sim.zones.find((q) => q.kind === 'fire_tornado')!.pos.z - start;
+  assert.ok(moved > 4, `moved ${moved.toFixed(1)} m toward the far enemy`);
+  run(sim, 180);
+  assert.ok(far.hp < 1000 || far.statuses.burning, 'it reached the far enemy');
+  assert.ok(sim.zones.every((q) => q.kind !== 'fire_tornado'), 'and ended');
+});

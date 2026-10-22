@@ -68,7 +68,7 @@ Reactions of the same enemy wait 0.75 s between triggers.
 | `soaked.wind` | soaked | wind | shock_chain | jumps 3, radius 8, damageMul 0.7 |
 | `rocked.fire` | rocked | fire | magma | radius 4, seconds 4, dps 6 |
 | `rocked.wind` | rocked | wind | sandstorm | radius 4, seconds 3, dps 5, blindSeconds 3 |
-| `gusted.fire` | gusted | fire | fire_tornado | damageMul 1.5, seconds 1.5, spreadBurning 1 |
+| `gusted.fire` | gusted | fire | fire_tornado | damageMul 1.5, seconds 3.5, liftSeconds 1.5, radius 3.5, drift 3, spreadBurning 1 |
 | `gusted.water` | gusted | water | rain_cloud | radius 5, seconds 5, healPercentPerSecond 2 |
 | `gusted.earth` | gusted | earth | meteor_slam | damageMul 2, radius 3, stunSeconds 1 |
 

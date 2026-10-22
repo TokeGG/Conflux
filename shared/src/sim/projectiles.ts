@@ -99,6 +99,7 @@ function explode(sim: Sim, skill: SkillDef, point: Vec3, radius: number, spare: 
 export function stepZones(sim: Sim): void {
   const now = sim.time;
   for (const z of sim.zones) {
+    if (z.drift && now < z.until) driftToward(sim, z);
     if (z.tick > 0 && (z.damage > 0 || z.effects) && now >= z.nextTick && now < z.until) {
       z.nextTick += z.tick;
       if (z.ownerId > 0) {
@@ -117,6 +118,21 @@ export function stepZones(sim: Sim): void {
     }
   }
   sim.zones = sim.zones.filter((z) => now < z.until);
+}
+
+/** A drifting zone moves toward the nearest living enemy other than the one it began on, and stops on top of it. */
+function driftToward(sim: Sim, z: Zone): void {
+  let best: EnemyState | null = null;
+  let bestD = Infinity;
+  for (const e of sim.enemies) {
+    if (e.hp <= 0 || e.id === z.driftFrom) continue;
+    const d = Math.hypot(e.pos.x - z.pos.x, e.pos.z - z.pos.z);
+    if (d > 0.6 && d < bestD) (best = e), (bestD = d);
+  }
+  if (!best) return;
+  const step = Math.min(bestD, (z.drift ?? 0) / 60);
+  z.pos.x += ((best.pos.x - z.pos.x) / bestD) * step;
+  z.pos.z += ((best.pos.z - z.pos.z) / bestD) * step;
 }
 
 function zoneEffects(sim: Sim, z: Zone, e: EnemyState): void {

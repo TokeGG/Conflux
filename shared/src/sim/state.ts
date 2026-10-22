@@ -147,6 +147,10 @@ export interface Zone {
   nextTick: number;
   bonus?: Bonus;
   effects?: ZoneEffects;
+  /** Metres a second the zone travels toward the nearest enemy (a tornado). */
+  drift?: number;
+  /** The enemy a drifting zone began on, which it leaves behind instead of circling back to. */
+  driftFrom?: number;
 }
 
 /** What a zone does to whoever stands in it, besides damage. */
