@@ -107,6 +107,10 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     if (!has(RIG_TYPES, e.rig?.type)) err(`enemy ${key}: rig type "${e.rig?.type}" is not a rig type`);
     if (!(e.hp > 0)) err(`enemy ${key}: hp must be above 0`);
     if (!(e.cost >= 0)) err(`enemy ${key}: cost must be 0 or more`);
+    if (e.aura) {
+      const why = auraError(e.aura);
+      if (why) err(`enemy ${key}: aura ${why}`);
+    }
     for (const a of e.attacks) if (!d.attacks[a]) err(`enemy ${key}: attack "${a}" does not exist`);
     if (ctx.modelIds && !ctx.modelIds.has(e.model)) err(`enemy ${key}: model "${e.model}" does not exist`);
   }
@@ -169,3 +173,11 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
   return errors;
 }
 
+
+/** Why a boss aura is not usable, or null: a hex colour, a light that is faint (0 to 30) and a reach of 1 to 20 m. */
+export function auraError(a: { color?: unknown; intensity?: unknown; radius?: unknown }): string | null {
+  if (typeof a.color !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(a.color)) return 'colour must be a #rrggbb string';
+  if (typeof a.intensity !== 'number' || !(a.intensity >= 0 && a.intensity <= 30)) return 'intensity must be 0 to 30';
+  if (typeof a.radius !== 'number' || !(a.radius >= 1 && a.radius <= 20)) return 'radius must be 1 to 20';
+  return null;
+}

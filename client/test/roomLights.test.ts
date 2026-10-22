@@ -32,10 +32,16 @@ test('the live lights never exceed the cap, the torch is always there and follow
   lights.setRoom(twenty);
   lights.update(1, { x: 30, y: 0, z: 0 });
   const point = scene.children.filter((c): c is THREE.PointLight => c instanceof THREE.PointLight);
-  assert.equal(point.length, 8, 'seven room lights and the torch: eight in all');
+  assert.equal(point.length, 8, 'six room lights, the torch and the boss slot: eight in all');
   assert.ok(point.filter((p) => p.intensity > 0).length <= 8);
   assert.equal(lights.torch.position.x, 30);
-  assert.ok(lights.torch.visible && point.every((p) => p.visible), 'a lit room uses the whole pool and the torch');
+  assert.ok(lights.torch.visible && point.filter((p) => p !== lights.aura).every((p) => p.visible), 'a lit room uses the whole pool and the torch');
+  assert.equal(lights.aura.visible, false, 'the boss slot is dark with no boss');
+  lights.setAura({ x: 1, y: 2, z: 3, color: '#c8641a', intensity: 5, radius: 8 });
+  assert.equal(point.filter((p) => p.visible).length, 8, 'a boss lights the reserved slot and the count stays at eight');
+  assert.equal(lights.aura.position.y, 2);
+  lights.setAura(null);
+  assert.equal(lights.aura.visible, false);
   lights.setRoom([]);
   lights.update(2, { x: 0, y: 0, z: 5 });
   assert.equal(point.filter((p) => p.visible).length, 0, 'a room with no lights (the bright sandbox) adds no lights to the scene, so it costs nothing');

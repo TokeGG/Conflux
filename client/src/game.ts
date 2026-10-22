@@ -267,6 +267,20 @@ export class Game {
     }
   }
 
+  /** The light of the first boss on screen, for the room's reserved aura slot. */
+  bossAura(): ReturnType<EnemyView['auraLight']> {
+    for (const v of this.enemies.values()) {
+      const a = v.auraLight();
+      if (a) return a;
+    }
+    return null;
+  }
+
+  /** The body pose of every enemy on screen (test hook). */
+  enemyPoses(): (ReturnType<EnemyView['debugPose']> & { sim: number })[] {
+    return [...this.enemies].map(([sim, v]) => ({ sim, ...v.debugPose() }));
+  }
+
   /** How many enemies have a model on screen (test hook). */
   get enemyViews(): number {
     return this.enemies.size;

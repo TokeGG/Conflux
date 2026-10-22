@@ -212,6 +212,8 @@ export class Sim {
         aiState: e.aiState,
         guardOn: !!e.guard?.on,
         attack: e.attack?.attackId ?? null,
+        attackPhase: e.attack?.phase ?? null,
+        attackProgress: attackProgress(this, e),
         elite: e.elite,
         level: e.level,
         marks: MARK_IDS.filter((id) => (e.marks[id]?.until ?? 0) > now).map((id) => ({ id, remaining: e.marks[id]!.until - now })),
@@ -226,4 +228,14 @@ export class Sim {
     const s = this.streams;
     return stateHash({ tick: this.tick, rng: [s.map.state(), s.encounter.state(), s.reward.state(), s.combat.state()], player: this.player, enemies: this.enemies, projectiles: this.projectiles, zones: this.zones, augments: this.augments });
   }
+}
+
+/** How far an enemy is through its attack: the share of the windup gone (1 at the hit moment), or of a charge's run; 0 with no attack. */
+function attackProgress(sim: Sim, e: EnemyState): number {
+  const act = e.attack;
+  if (!act) return 0;
+  const a = sim.data.attacks[act.attackId];
+  if (!a) return 0;
+  const u = act.phase === 'windup' ? 1 - (act.hitAt - sim.time) / Math.max(a.windup, 1e-6) : 1 - act.remaining / Math.max(a.range, 1e-6);
+  return Math.max(0, Math.min(1, u));
 }

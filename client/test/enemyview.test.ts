@@ -68,7 +68,7 @@ test('dying shrinks and sinks the enemy and then reports it finished', () => {
   assert.ok(v.root.scale.x < 0.01);
 });
 
-test('a procedural enemy moves its body each frame and a lunge pushes it forward while it attacks', () => {
+test('a procedural enemy moves its body each frame, rears back through its wind-up and thrusts forward on the strike', () => {
   const { root } = model();
   const v = new EnemyView(data.enemies['enemy.stump'], root);
   const body = v.root.children[0];
@@ -79,9 +79,17 @@ test('a procedural enemy moves its body each frame and a lunge pushes it forward
   }
   assert.ok(ys.size > 5, 'it hops');
   const w = new EnemyView(data.enemies['enemy.stump'], model().root);
-  w.update(snap({ attack: 'atk.stump_bite' }), 0.3);
-  w.update(snap({ attack: 'atk.stump_bite' }), 0.3);
-  assert.ok(w.root.children[0].position.z > 0.01, 'it lunges');
+  const bite = { attack: 'atk.stump_bite', attackPhase: 'windup' as const };
+  w.update(snap({ ...bite, attackProgress: 0.1 }), 1 / 60);
+  w.update(snap({ ...bite, attackProgress: 0.95 }), 1 / 60);
+  assert.ok(w.root.children[0].rotation.x < -0.1, 'it rears back at the end of the wind-up');
+  assert.ok(w.root.children[0].position.z < -0.05, 'and draws back');
+  w.update(snap(), 0.001); // the attack landed: the strike begins
+  w.update(snap(), 0.11);
+  assert.ok(w.root.children[0].position.z > 0.05, 'it thrusts forward on the hit');
+  assert.ok(w.root.children[0].rotation.x > 0.1, 'and leans into it');
+  for (let i = 0; i < 60; i++) w.update(snap(), 1 / 60);
+  assert.ok(Math.abs(w.root.children[0].rotation.x) < 0.05, 'then it is back at rest');
 });
 
 test('own clips are used for a golem when the model has them, and a model without them does not break', () => {
