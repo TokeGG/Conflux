@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.65",
+    "date": "2026-10-22",
+    "at": "2026-10-22T19:33:22Z",
+    "notes": [
+      "Accounts (sign in on the main menu; the dev tools only for the owner and accounts they grant), live-tunable animation, camera and mob motion with a whole-model animation viewer and a skill animation editor, every mob shows its own attacks, bosses have auras and the reaper is larger, and souls with shops, shrines, rest rooms and stairs between floors."
+    ]
+  },
+  {
     "version": "0.1.64",
     "date": "2026-10-22",
     "at": "2026-10-22T19:08:29Z",
