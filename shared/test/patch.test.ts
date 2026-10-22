@@ -25,8 +25,8 @@ test('applyPatches never mutates its input', () => {
 
 test('paths reach entries with dotted ids and array rows', () => {
   const d = defaultData();
-  const out = applyPatches(d, [P('reactions.burning.water.params.radius', 4.5), P('enemies.enemy.dummy.hurtboxes.0.r', 0.7), P('statuses.gusted.canAct', true)]).data;
-  assert.equal(out.reactions.find((r) => r.id === 'burning.water')!.params.radius, 4.5);
+  const out = applyPatches(d, [P('reactions.steam.params.radius', 4.5), P('enemies.enemy.dummy.hurtboxes.0.r', 0.7), P('statuses.gusted.canAct', true)]).data;
+  assert.equal(out.reactions.find((r) => r.id === 'steam')!.params.radius, 4.5);
   assert.equal(out.enemies['enemy.dummy'].hurtboxes[0].r, 0.7);
   assert.equal(out.statuses.gusted.canAct, true);
 });

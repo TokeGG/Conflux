@@ -60,23 +60,30 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
   }
   for (const s of STATUS_IDS) if (!d.statuses[s]) err(`statuses is missing ${s}`);
 
-  // reactions: valid rows, no duplicates, every ordered pair defined
+  // reactions: one row for every pair of different elements, in either order
   const seenRows = new Set<string>();
   const seenPairs = new Set<string>();
+  for (const el of ELEMENTS) {
+    const r = d.elements.reacts?.[el];
+    if (!has(STATUS_IDS, r)) err(`elements.reacts.${el} is "${r}", which is not a status`);
+    else if (d.elements.status[el] && d.elements.status[el] !== r) err(`elements.reacts.${el} must be the element's own status (${d.elements.status[el]})`);
+  }
   for (const r of d.reactions) {
     if (seenRows.has(r.id)) err(`duplicate reaction row id ${r.id}`);
     seenRows.add(r.id);
-    if (!has(STATUS_IDS, r.existing)) err(`reaction ${r.id}: existing status "${r.existing}" is not a status`);
-    if (!has(ELEMENTS, r.hitBy)) err(`reaction ${r.id}: hitBy "${r.hitBy}" is not an element`);
-    const pair = `${r.existing}|${r.hitBy}`;
-    if (seenPairs.has(pair)) err(`duplicate reaction for (${r.existing}, ${r.hitBy})`);
-    seenPairs.add(pair);
+    const [a, b] = r.pair ?? [];
+    if (!has(ELEMENTS, a) || !has(ELEMENTS, b)) err(`reaction ${r.id}: pair must be two elements`);
+    else if (a === b) err(`reaction ${r.id}: a pair needs two different elements`);
+    else {
+      const key = [a, b].sort().join('|');
+      if (seenPairs.has(key)) err(`duplicate reaction for the pair ${a} and ${b}`);
+      seenPairs.add(key);
+    }
+    if (!r.effect) err(`reaction ${r.id}: it needs an effect`);
   }
-  for (const status of STATUS_IDS) {
-    const source = ELEMENTS.find((e) => d.elements.status[e] === status) ?? 'wind'; // gusted comes from wind skills, not a default hit
-    for (const el of ELEMENTS) {
-      if (el === source) continue;
-      if (!seenPairs.has(`${status}|${el}`)) err(`reaction table is missing (${status}, ${el}): every ordered pair of a status and a different element must be defined`);
+  for (const a of ELEMENTS) {
+    for (const b of ELEMENTS) {
+      if (a < b && !seenPairs.has([a, b].sort().join('|'))) err(`reaction table is missing the pair ${a} and ${b}: every pair of elements needs a reaction`);
     }
   }
 

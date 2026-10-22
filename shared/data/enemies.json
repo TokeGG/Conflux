@@ -37,10 +37,12 @@
     "name": "Tree Stump",
     "element": "earth",
     "weak": [
-      "wind"
+      "wind",
+      "metal"
     ],
     "resist": [
-      "water"
+      "water",
+      "poison"
     ],
     "immune": [],
     "model": "model.stump",
@@ -77,10 +79,12 @@
     "name": "Treefellow",
     "element": "earth",
     "weak": [
-      "wind"
+      "wind",
+      "metal"
     ],
     "resist": [
-      "water"
+      "water",
+      "poison"
     ],
     "immune": [],
     "model": "model.treefellow",
@@ -124,10 +128,12 @@
     "name": "Earth Golem",
     "element": "earth",
     "weak": [
-      "wind"
+      "wind",
+      "metal"
     ],
     "resist": [
-      "water"
+      "water",
+      "poison"
     ],
     "immune": [],
     "model": "model.treegolem",
@@ -171,10 +177,12 @@
     "name": "Fire Golem",
     "element": "fire",
     "weak": [
-      "water"
+      "water",
+      "time"
     ],
     "resist": [
-      "wind"
+      "wind",
+      "light"
     ],
     "immune": [],
     "model": "model.golem",
@@ -230,7 +238,8 @@
     "name": "Water Golem",
     "element": "water",
     "weak": [
-      "earth"
+      "earth",
+      "lightning"
     ],
     "resist": [
       "fire"
@@ -289,7 +298,8 @@
     "name": "Wind Golem",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "metal"
     ],
     "resist": [
       "earth"
@@ -348,7 +358,8 @@
     "name": "Fire Sprite",
     "element": "fire",
     "weak": [
-      "water"
+      "water",
+      "dark"
     ],
     "resist": [
       "wind"
@@ -389,10 +400,12 @@
     "name": "Wisp",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "dark"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "light"
     ],
     "immune": [],
     "model": "model.wisp",
@@ -430,7 +443,8 @@
     "name": "Gust",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "lightning"
     ],
     "resist": [
       "earth"
@@ -471,10 +485,12 @@
     "name": "Maw",
     "element": "earth",
     "weak": [
-      "wind"
+      "wind",
+      "lightning"
     ],
     "resist": [
-      "water"
+      "water",
+      "poison"
     ],
     "immune": [],
     "model": "model.maw",
@@ -526,9 +542,13 @@
     "element": "earth",
     "weak": [
       "water",
-      "wind"
+      "wind",
+      "light"
     ],
-    "resist": [],
+    "resist": [
+      "dark",
+      "poison"
+    ],
     "immune": [
       "burning",
       "rocked"
@@ -578,10 +598,12 @@
     "name": "Skeleton",
     "element": "earth",
     "weak": [
-      "fire"
+      "fire",
+      "light"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "poison"
     ],
     "immune": [],
     "model": "model.skeleton",
@@ -625,10 +647,12 @@
     "name": "Skeleton Mage",
     "element": "earth",
     "weak": [
-      "fire"
+      "fire",
+      "light"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "poison"
     ],
     "immune": [],
     "model": "model.skeleton",
@@ -673,10 +697,13 @@
     "name": "Bone Giant",
     "element": "earth",
     "weak": [
-      "fire"
+      "fire",
+      "light"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "poison",
+      "metal"
     ],
     "immune": [],
     "model": "model.skeleton",
@@ -727,10 +754,12 @@
     "name": "Zombie",
     "element": "earth",
     "weak": [
-      "wind"
+      "wind",
+      "light"
     ],
     "resist": [
-      "water"
+      "water",
+      "dark"
     ],
     "immune": [],
     "model": "model.zombie",
@@ -774,10 +803,12 @@
     "name": "Vampire",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "light"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "dark"
     ],
     "immune": [],
     "model": "model.vampire",
@@ -822,10 +853,13 @@
     "name": "Ghost",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "light"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "dark",
+      "metal"
     ],
     "immune": [
       "rocked"
@@ -871,10 +905,12 @@
     "name": "Fire Elemental",
     "element": "fire",
     "weak": [
-      "water"
+      "water",
+      "time"
     ],
     "resist": [
-      "wind"
+      "wind",
+      "light"
     ],
     "immune": [
       "burning"
@@ -916,7 +952,8 @@
     "name": "Water Elemental",
     "element": "water",
     "weak": [
-      "earth"
+      "earth",
+      "lightning"
     ],
     "resist": [
       "fire"
@@ -961,10 +998,13 @@
     "name": "Wraith",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "light"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "dark",
+      "metal"
     ],
     "immune": [],
     "model": "model.wraith",
@@ -1004,7 +1044,9 @@
     "name": "Book",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "poison",
+      "metal"
     ],
     "resist": [
       "earth"
@@ -1045,10 +1087,12 @@
     "name": "Tome Guardian",
     "element": "wind",
     "weak": [
-      "fire"
+      "fire",
+      "poison"
     ],
     "resist": [
-      "earth"
+      "earth",
+      "time"
     ],
     "immune": [],
     "model": "model.book",

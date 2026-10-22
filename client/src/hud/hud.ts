@@ -7,7 +7,7 @@ import { formatCooldown, skillLabel, statusRing } from './format.ts';
 import { MARK_ICONS, STATUS_ICONS, type Icon } from './statusIcons.ts';
 import './hud.css';
 
-const ELEMENT_COLOUR: Record<string, string> = { fire: '#ff7a30', water: '#4aa8ff', earth: '#b08a5a', wind: '#b8f0e0' };
+const ELEMENT_COLOUR: Record<string, string> = { fire: '#ff7a30', water: '#4aa8ff', earth: '#b08a5a', wind: '#b8f0e0', lightning: '#ffe94a', light: '#fff4c2', dark: '#8a5cc8', metal: '#a9b4c2', poison: '#7bd44a', time: '#e08ad8' };
 const KEYS = ['LMB', 'RMB', 'Q'];
 const NUMBER_LIFE = 0.9;
 

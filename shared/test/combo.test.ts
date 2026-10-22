@@ -66,11 +66,11 @@ test('the owner\'s combo: water on A, earth on B, fire on A steams, wind on B wh
   ev.push(...press(sim, b, 0, 2, 0.5)); // swap to wind
   ev.push(...press(sim, b, BTN.LMB, -1, 1.0)); // gust volley on B
   const reactions = ev.filter((e) => e.type === 'reaction');
-  assert.deepEqual(reactions.map((e) => [e.id, e.enemyId]), [['soaked.fire', a.id], ['rocked.wind', b.id]]);
+  assert.deepEqual(reactions.map((e) => [e.id, e.enemyId]), [['steam', a.id], ['sandstorm', b.id]]);
   const water = ev.findIndex((e) => e.type === 'hit' && String(e.skillId).startsWith('water.') && e.id === a.id);
   const boulder = ev.findIndex((e) => e.type === 'hit' && e.skillId === 'earth.boulder' && e.id === b.id);
-  const steam = ev.findIndex((e) => e.type === 'reaction' && e.id === 'soaked.fire');
-  const sand = ev.findIndex((e) => e.type === 'reaction' && e.id === 'rocked.wind');
+  const steam = ev.findIndex((e) => e.type === 'reaction' && e.id === 'steam');
+  const sand = ev.findIndex((e) => e.type === 'reaction' && e.id === 'sandstorm');
   assert.ok(water >= 0 && water < boulder && boulder < steam && steam < sand, `order water ${water}, boulder ${boulder}, steam ${steam}, sandstorm ${sand}`);
   assert.ok(sim.zones.some((z) => z.kind === 'sandstorm'), 'the sandstorm is on B');
   assert.ok(lost(a) > 0 && lost(b) > 0);

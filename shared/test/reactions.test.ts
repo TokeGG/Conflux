@@ -17,40 +17,52 @@ function setup() {
   return { sim, target };
 }
 
-test('all 12 rows of the reaction table fire, consume the old status and apply the hit element\'s own', () => {
+test('all 45 rows of the reaction table fire in both orders and emit an event', () => {
   const { sim: probe } = setup();
-  assert.equal(probe.data.reactions.length, 12);
+  assert.equal(probe.data.reactions.length, 45);
   for (const row of probe.data.reactions) {
-    const { sim, target } = setup();
-    applyStatus(sim, target, row.existing, sim.time);
-    const res = triggerReaction(sim, target, row.hitBy, 10, sim.time);
-    assert.ok(res, `${row.id} fired`);
-    assert.equal(res.id, row.id);
-    assert.equal(res.effect, row.effect);
-    assert.equal(target.statuses[row.existing], undefined, `${row.id} consumed ${row.existing}`);
-    const own = sim.data.elements.status[row.hitBy];
-    if (own) assert.ok(target.statuses[own], `${row.id} applied ${own}`);
-    else assert.deepEqual(Object.keys(target.statuses), [], `${row.id} (wind) applies nothing`);
-    const ev = sim.step([]).find((e) => e.type === 'reaction');
-    assert.ok(ev, `${row.id} emitted an event`);
-    assert.equal(ev.id, row.id);
-    assert.equal(ev.enemyId, target.id);
-    assert.ok((ev.pos as { x: number }).x === 0);
+    for (const [first, second] of [[row.pair[0], row.pair[1]], [row.pair[1], row.pair[0]]] as const) {
+      // `first` leaves its status, then `second` hits
+      const { sim, target } = setup();
+      applyStatus(sim, target, sim.data.elements.reacts[first], sim.time);
+      const res = triggerReaction(sim, target, second, 10, sim.time);
+      assert.ok(res, `${row.id}: ${first} then ${second} fired`);
+      assert.equal(res.id, row.id);
+      assert.equal(res.effect, row.effect);
+      const ev = sim.step([]).find((e) => e.type === 'reaction');
+      assert.ok(ev, `${row.id} emitted an event`);
+      assert.equal(ev.id, row.id);
+      assert.equal(ev.enemyId, target.id);
+      assert.ok((ev.pos as { x: number }).x === 0);
+    }
   }
 });
 
-test('every ordered pair of a status and a different element is covered by exactly one row', () => {
+test('a reaction consumes the old status and applies the hit element\'s own', () => {
+  const { sim, target } = setup();
+  applyStatus(sim, target, 'soaked', sim.time);
+  triggerReaction(sim, target, 'fire', 10, sim.time);
+  assert.equal(target.statuses.soaked, undefined, 'the soak was used up');
+  assert.ok(target.statuses.burning, 'the fire hit leaves burning');
+  const wind = setup();
+  applyStatus(wind.sim, wind.target, 'burning', wind.sim.time);
+  triggerReaction(wind.sim, wind.target, 'wind', 10, wind.sim.time);
+  assert.deepEqual(Object.keys(wind.target.statuses), [], 'wind applies nothing');
+});
+
+test('every pair of different elements is covered by exactly one row, whichever way round it is written', () => {
   const { sim } = setup();
   let pairs = 0;
-  for (const status of STATUS_IDS) {
-    const source = ELEMENTS.find((e) => sim.data.elements.status[e] === status) ?? 'wind';
-    for (const el of ELEMENTS) {
-      if (el === source) continue;
+  for (const a of ELEMENTS) {
+    for (const b of ELEMENTS) {
+      if (a >= b) continue;
       pairs++;
-      assert.equal(sim.data.reactions.filter((r) => r.existing === status && r.hitBy === el).length, 1, `${status}+${el}`);
+      assert.equal(sim.data.reactions.filter((r) => (r.pair[0] === a && r.pair[1] === b) || (r.pair[0] === b && r.pair[1] === a)).length, 1, `${a}+${b}`);
     }
   }
+  assert.equal(pairs, 45);
   assert.equal(pairs, sim.data.reactions.length);
+  for (const status of STATUS_IDS) assert.ok(ELEMENTS.some((e) => sim.data.elements.reacts[e] === status), `${status} belongs to an element`);
 });
 
 test('a hit of the same element as the status, or on a target with no status, does nothing special', () => {
@@ -75,7 +87,7 @@ test('Steam bursts for 100% of the hit in 3 m and blinds for 3 s', () => {
   assert.equal(far.marks.blind, undefined);
 });
 
-test('Obsidian makes a brittle shell: +30% damage taken and half speed for 4 s', () => {
+test('Magma\'s obsidian crust is brittle: +30% damage taken and half speed for 4 s', () => {
   const { sim, target } = setup();
   applyStatus(sim, target, 'burning', sim.time);
   triggerReaction(sim, target, 'earth', 10, sim.time);
@@ -110,24 +122,6 @@ test('Mud roots for 2 s, then slows 40% for the following 4 s', () => {
   assert.equal(mods(sim, target).speedMul, 1);
 });
 
-test('Shock Chain jumps to at most 3 other Soaked enemies within 8 m at 70%', () => {
-  const { sim, target } = setup();
-  const a = spawnEnemy(sim, 'enemy.dummy', at(2, 8));
-  const b = spawnEnemy(sim, 'enemy.dummy', at(4, 8));
-  const c = spawnEnemy(sim, 'enemy.dummy', at(6, 8));
-  const d = spawnEnemy(sim, 'enemy.dummy', at(7.5, 8));
-  const dry = spawnEnemy(sim, 'enemy.dummy', at(0, 10));
-  const out = spawnEnemy(sim, 'enemy.dummy', at(0, 20));
-  for (const e of [target, a, b, c, d, out]) applyStatus(sim, e, 'soaked', sim.time);
-  triggerReaction(sim, target, 'wind', 10, sim.time);
-  assert.equal(lost(a), 7);
-  assert.equal(lost(b), 7);
-  assert.equal(lost(c), 7);
-  assert.equal(lost(d), 0, 'a fourth jump does not happen');
-  assert.equal(lost(dry), 0, 'dry enemies are skipped');
-  assert.equal(lost(out), 0, 'out of range');
-});
-
 test('Magma leaves a 4 m pool for 4 s that burns whatever stands in it', () => {
   const { sim, target } = setup();
   target.def = { ...target.def, immune: ['burning'] }; // so only the pool's damage is counted
@@ -151,43 +145,17 @@ test('Sandstorm hurts and blinds inside a 4 m area for 3 s', () => {
   assert.ok(lost(target) >= 12 && lost(target) <= 18, `about 5 a second for 3 s (${lost(target)})`);
 });
 
-test('Fire Tornado lifts the target for 1.5 s, deals 150% over that time and spreads burning', () => {
-  const { sim, target } = setup();
-  const near = spawnEnemy(sim, 'enemy.dummy', at(1, 8));
-  applyStatus(sim, target, 'gusted', sim.time);
-  triggerReaction(sim, target, 'fire', 10, sim.time);
-  assert.equal(mods(sim, target).canAct, false, 'airborne');
-  run(sim, 100);
-  assert.equal(mods(sim, target).canAct, true, 'down again after 1.5 s');
-  assert.ok(near.statuses.burning || lost(near) > 0, 'the neighbour was caught');
-  assert.ok(lost(target) >= 15, `150% of 10 at least (${lost(target)})`);
-});
-
 test('Rain Cloud soaks enemies in a 5 m cloud for 5 s and heals the player 2% a second', () => {
   const { sim, target } = setup();
   sim.player.pos = at(0, 6);
   sim.player.hp = 50;
-  applyStatus(sim, target, 'gusted', sim.time);
-  triggerReaction(sim, target, 'water', 10, sim.time);
+  applyStatus(sim, target, 'soaked', sim.time);
+  triggerReaction(sim, target, 'wind', 10, sim.time);
   run(sim, 120);
   assert.ok(target.statuses.soaked);
   assert.ok(sim.player.hp > 51 && sim.player.hp < 56, `hp ${sim.player.hp}`);
   run(sim, 240);
   assert.equal(sim.zones.length, 0);
-});
-
-test('Meteor Slam hits for 200% in 3 m and stuns for 1 s', () => {
-  const { sim, target } = setup();
-  const near = spawnEnemy(sim, 'enemy.dummy', at(2, 8));
-  const far = spawnEnemy(sim, 'enemy.dummy', at(4, 8));
-  applyStatus(sim, target, 'gusted', sim.time);
-  triggerReaction(sim, target, 'earth', 10, sim.time);
-  assert.equal(lost(target), 20);
-  assert.equal(lost(near), 20);
-  assert.equal(lost(far), 0);
-  assert.equal(mods(sim, target).canAct, false);
-  run(sim, 61);
-  assert.equal(mods(sim, target).canAct, true);
 });
 
 test('the same reaction on the same enemy is blocked for 0.75 s and allowed after', () => {

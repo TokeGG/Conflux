@@ -50,8 +50,8 @@ test('buildForm shows the live value next to the file value when a layer changed
 test('buildForm works for the player, a status and a reaction row (ids with dots, array rows)', () => {
   assert.ok(buildForm(base, 'player').flatMap((g) => g.rows).some((r) => r.path === 'player.dodge.cooldown'));
   assert.ok(buildForm(base, 'statuses.burning').flatMap((g) => g.rows).some((r) => r.path === 'statuses.burning.duration'));
-  const rows = buildForm(base, 'reactions.soaked.fire').flatMap((g) => g.rows);
-  assert.ok(rows.some((r) => r.path === 'reactions.soaked.fire.params.radius'), rows.map((r) => r.path).join(', '));
+  const rows = buildForm(base, 'reactions.steam').flatMap((g) => g.rows);
+  assert.ok(rows.some((r) => r.path === 'reactions.steam.params.radius'), rows.map((r) => r.path).join(', '));
 });
 
 test('buildForm for a path that does not exist is empty rather than an error', () => {
@@ -116,9 +116,8 @@ test('scrubTime maps the slider to a time inside the clip', () => {
 });
 
 test('reactionLine turns a reaction event into a log line with the row, the target and the time', () => {
-  const line = reactionLine({ t: 12.34, type: 'reaction', id: 'soaked.fire', effect: 'steam', enemyId: 3, pos: { x: 1, y: 0, z: 2 } });
+  const line = reactionLine({ t: 12.34, type: 'reaction', id: 'steam', effect: 'steam', enemyId: 3, pos: { x: 1, y: 0, z: 2 } });
   assert.match(line, /12\.3/);
-  assert.match(line, /soaked\.fire/);
   assert.match(line, /steam/);
   assert.match(line, /#3/);
 });

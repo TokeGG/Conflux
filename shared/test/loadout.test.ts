@@ -13,11 +13,11 @@ import { makeSim, run } from './helpers.ts';
 
 const data = defaultData();
 
-test('there are 20 skills, 5 for each element, with every slot covered', () => {
-  assert.equal(Object.keys(data.skills).length, 20);
+test('there are 38 skills: 5 for each of the four first elements and 3 for each of the six newer ones, with every slot covered', () => {
+  assert.equal(Object.keys(data.skills).length, 38);
   for (const el of ELEMENTS) {
     const mine = Object.values(data.skills).filter((s) => s.element === el);
-    assert.equal(mine.length, 5, `${el} has 5`);
+    assert.equal(mine.length, ['fire', 'water', 'earth', 'wind'].includes(el) ? 5 : 3, `${el} count`);
     for (const slot of SLOTS) {
       const n = mine.filter((s) => s.slot === slot).length;
       assert.ok(n >= 1 && n <= 3, `${el} ${slot}: ${n}`);
@@ -28,7 +28,7 @@ test('there are 20 skills, 5 for each element, with every slot covered', () => {
 
 test('a starting loadout has one skill per slot per element, each from that element\'s pool', () => {
   const l = startingLoadout(data, new Rng(1));
-  assert.equal(l.pool.length, 12);
+  assert.equal(l.pool.length, 30);
   for (const el of ELEMENTS) {
     for (const slot of SLOTS) {
       const id = l.slots[el][slot];
@@ -72,7 +72,7 @@ test('swapIn rejects a skill of the wrong element, the wrong slot, one that is n
 
 test('a run starts with a loadout whose pool grows when a skill is claimed', () => {
   const s = ROOM_TO_ROOM.start(4, data);
-  assert.equal(s.skills.pool.length, 12);
+  assert.equal(s.skills.pool.length, 30);
   const extra = Object.keys(data.skills).find((id) => !s.skills.pool.includes(id))!;
   const next = claimReward(s, { kind: 'skill', id: extra, element: data.skills[extra].element });
   assert.ok(next.skills.pool.includes(extra));
@@ -84,12 +84,12 @@ test('applyLoadout puts the loadout on the player', () => {
   const l = startingLoadout(data, new Rng(5));
   applyLoadout(sim, l);
   assert.deepEqual(sim.player.loadout, l.slots);
-  assert.deepEqual(sim.snapshot().players[0].slots.map((s) => s.skillId), SLOTS.map((slot) => l.slots.fire[slot]));
+  assert.deepEqual(sim.snapshot().players[0].slots.map((s) => s.skillId), SLOTS.map((slot) => l.slots[l.equipped[0]][slot]));
   l.slots.fire.basic = 'changed';
   assert.notEqual(sim.player.loadout.fire.basic, 'changed', 'the player has its own copy');
 });
 
-const NEW = Object.keys(data.skills).filter((id) => !['fire.fireball', 'fire.flame_cone', 'fire.flame_dash', 'water.water_bolt', 'water.tidal_stream', 'water.bubble_shield', 'earth.boulder', 'earth.spike_field', 'earth.stone_skin', 'wind.gust_volley', 'wind.cyclone', 'wind.air_dash'].includes(id));
+const NEW = Object.keys(data.skills).filter((id) => !['fire.fireball', 'fire.flame_cone', 'fire.flame_dash', 'water.water_bolt', 'water.tidal_stream', 'water.bubble_shield', 'earth.boulder', 'earth.spike_field', 'earth.stone_skin', 'wind.gust_volley', 'wind.cyclone', 'wind.air_dash'].includes(id) && ['fire', 'water', 'earth', 'wind'].includes(id.split('.')[0]));
 
 test('the eight new skills each do something when cast at a dummy', () => {
   assert.equal(NEW.length, 8);

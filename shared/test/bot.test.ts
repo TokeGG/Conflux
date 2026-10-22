@@ -96,3 +96,23 @@ test('in a shop the bot walks to the best ware it can afford, buys it, and leave
     assert.equal(d.run.roomIndex, 7);
   }
 });
+
+test('a bot that holds each element, with two others, plays all three and reaches a reaction against a pair of dummies', () => {
+  for (const el of ELEMENTS) {
+    const i = ELEMENTS.indexOf(el);
+    const sim = createRoomSim(data, 3, 'forest_clearing');
+    sim.player.equipped = [el, ELEMENTS[(i + 4) % 10], ELEMENTS[(i + 7) % 10]];
+    sim.player.element = i;
+    for (const dx of [-2, 2]) spawnEnemy(sim, 'enemy.dummy', { x: sim.player.pos.x + dx, y: 0, z: sim.player.pos.z + 8 });
+    const cast = new Set<string>();
+    let reacted = false;
+    for (let t = 0; t < 60 * 40 && !reacted; t++) {
+      for (const e of sim.step([botInput(sim)])) {
+        if (e.type === 'reaction') reacted = true;
+        if (e.type === 'cast') cast.add(ELEMENTS.find((x) => String(e.skillId).startsWith(`${x}.`))!);
+      }
+    }
+    assert.ok(reacted, `${el}: a reaction within 40 s`);
+    if (el !== 'wind') assert.ok(cast.has(el), `${el} was played`); // wind adds no status of its own, so the bot may leave it on the key
+  }
+});

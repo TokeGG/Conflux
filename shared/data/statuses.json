@@ -1,6 +1,49 @@
 {
-  "burning": { "duration": 5, "tickDamage": 3, "tickInterval": 0.5, "spreadRadius": 3 },
-  "soaked": { "duration": 8, "speedMul": 0.85 },
-  "rocked": { "duration": 8, "damageTakenMul": 1.15 },
-  "gusted": { "duration": 1.2, "canAct": false }
+  "burning": {
+    "duration": 5,
+    "tickDamage": 3,
+    "tickInterval": 0.5,
+    "spreadRadius": 3
+  },
+  "soaked": {
+    "duration": 8,
+    "speedMul": 0.85
+  },
+  "rocked": {
+    "duration": 8,
+    "damageTakenMul": 1.15
+  },
+  "gusted": {
+    "duration": 1.2,
+    "canAct": false
+  },
+  "shocked": {
+    "duration": 4,
+    "tickDamage": 2,
+    "tickInterval": 0.8,
+    "speedMul": 0.9
+  },
+  "exposed": {
+    "duration": 6,
+    "damageTakenMul": 1.25
+  },
+  "cursed": {
+    "duration": 8,
+    "damageDealtMul": 0.75
+  },
+  "rent": {
+    "duration": 5,
+    "tickDamage": 2.5,
+    "tickInterval": 0.5
+  },
+  "poisoned": {
+    "duration": 8,
+    "tickDamage": 1.5,
+    "tickInterval": 1,
+    "maxStacks": 5
+  },
+  "dilated": {
+    "duration": 5,
+    "speedMul": 0.6
+  }
 }

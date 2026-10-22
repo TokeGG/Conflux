@@ -116,6 +116,6 @@ test('a fireball into a Soaked enemy steams it', () => {
   applyStatus(sim, e, 'soaked', sim.time);
   castSkill(sim, sim.player, 'fire.fireball', { x: 0, y: 1.4, z: 30 });
   const events = run(sim, 60);
-  assert.ok(events.some((x) => x.type === 'reaction' && x.id === 'soaked.fire'));
+  assert.ok(events.some((x) => x.type === 'reaction' && x.id === 'steam'));
   assert.ok(e.statuses.burning);
 });

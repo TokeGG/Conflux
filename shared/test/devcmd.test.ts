@@ -128,7 +128,7 @@ test('giveSkill puts a skill on its element\'s slot and setElement switches at o
   sim.player.swapReadyAt = 99;
   applyDevCommand(sim, { op: 'setElement', i: 2 });
   assert.equal(sim.player.element, 2);
-  assert.match(applyDevCommand(sim, { op: 'setElement', i: 9 })!, /element/);
+  assert.match(applyDevCommand(sim, { op: 'setElement', i: 99 })!, /element/);
 });
 
 test('applyStatus lands on the enemy under the crosshair, or on the player when there is none', () => {

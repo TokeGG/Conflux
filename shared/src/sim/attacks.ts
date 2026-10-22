@@ -1,6 +1,7 @@
 // Enemy attacks: five templates driven by attacks.json. Every attack shows a ground telegraph that ends exactly when it lands.
 import { rayVsCapsule, v3, type Vec3 } from '../math.ts';
 import { dealDamage } from './damage.ts';
+import { statusModifiers } from './statuses.ts';
 import { spawnEnemy, type EnemyState } from './state.ts';
 import type { Sim } from './sim.ts';
 import type { AttackDef } from '../types.ts';
@@ -11,6 +12,8 @@ const MUZZLE_Y = 1.0;
 const PLAYER_CHEST = 1.0;
 
 const bodyRadius = (e: EnemyState) => Math.max(0.4, ...e.def.hurtboxes.map((h) => h.r));
+/** What an enemy's attack damage is multiplied by: its depth scaling and any curse on it. */
+export const outgoing = (sim: Sim, e: EnemyState): number => e.damageMul * statusModifiers(e, sim.time, sim.data.statuses).damageDealtMul;
 const flat = (a: Vec3, b: Vec3) => Math.hypot(a.x - b.x, a.z - b.z);
 
 /** Starts an attack aimed at a point. False when the enemy is busy, the attack is cooling down, or it does not exist. */
@@ -78,13 +81,13 @@ function land(sim: Sim, e: EnemyState, a: AttackDef): void {
       const r = sim.data.player.radius;
       const angle = d < 1e-9 ? 0 : Math.acos(Math.max(-1, Math.min(1, (dx * fwd.x + dz * fwd.z) / d)));
       const slack = d > r ? Math.asin(Math.min(1, r / d)) : Math.PI;
-      if (d <= a.range + r && angle <= (((a.angle ?? 90) * Math.PI) / 180) / 2 + slack) hurtPlayer(sim, a, e.damageMul);
+      if (d <= a.range + r && angle <= (((a.angle ?? 90) * Math.PI) / 180) / 2 + slack) hurtPlayer(sim, a, outgoing(sim, e));
       e.attack = null;
       break;
     }
     case 'slam': {
       const centre = { x: e.pos.x + fwd.x * a.range, y: 0, z: e.pos.z + fwd.z * a.range };
-      if (flat(p.pos, centre) <= (a.radius ?? 2)) hurtPlayer(sim, a, e.damageMul);
+      if (flat(p.pos, centre) <= (a.radius ?? 2)) hurtPlayer(sim, a, outgoing(sim, e));
       e.attack = null;
       break;
     }
@@ -129,7 +132,7 @@ function charge(sim: Sim, e: EnemyState, a: AttackDef): void {
   act.remaining -= moved;
   if (!act.hit && flat(e.pos, sim.player.pos) <= (a.radius ?? 0.8) + sim.data.player.radius) {
     act.hit = true;
-    hurtPlayer(sim, a, e.damageMul);
+    hurtPlayer(sim, a, outgoing(sim, e));
   }
   if (stop !== null || act.remaining <= EPS) e.attack = null;
 }
