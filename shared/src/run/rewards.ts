@@ -1,7 +1,7 @@
 // What a cleared room offers: three choices drawn from the reward stream, with rarity rising by depth and a skill guaranteed early.
 import { defaultData } from '../files.ts';
 import type { Rng } from '../rng.ts';
-import { RARITIES, type Element, type GameData, type Rarity, type RewardsCfg } from '../types.ts';
+import { ELEMENTS, RARITIES, type Element, type GameData, type Rarity, type RewardsCfg } from '../types.ts';
 import { canSocket, socketFor } from './augments.ts';
 import type { RewardKind, RunState } from './run.ts';
 
@@ -15,8 +15,9 @@ export interface RewardOffer {
 
 /** How much more a rare or epic heal restores than a common one. */
 const HEAL_RARITY: Record<Rarity, number> = { common: 1, rare: 1.5, epic: 2 };
-const KIND_WEIGHT: Record<RewardKind, number> = { skill: 4, augment: 4, heal: 2 };
+const KIND_WEIGHT: Record<RewardKind, number> = { skill: 4, augment: 4, heal: 2, element: 0 };
 const OFFERS = 3;
+const ELEMENT_EVERY = 3;
 
 /** Rarity odds for the room at `roomIndex` (counted from 0): the early weights up to the configured room, the late ones after. */
 export function rarityWeights(roomIndex: number, cfg: RewardsCfg = defaultData().rewards): Record<Rarity, number> {
@@ -56,6 +57,11 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
       const id = rng.pick(fresh.length ? fresh : pool);
       return { kind, id, element: data.skills[id].element };
     }
+    if (kind === 'element') {
+      // an element off the bench that has skills to play; one at most per set
+      const bench = ELEMENTS.filter((el) => !state.skills.equipped.includes(el) && state.skills.slots[el].basic && !out.some((o) => o.kind === 'element' && o.element === el));
+      return bench.length ? { kind, element: rng.pick(bench) } : null;
+    }
     if (kind === 'augment') {
       // only augments that can be used: a skill augment needs the skill owned and a free socket
       const ids = Object.keys(data.augments)
@@ -86,6 +92,8 @@ export function offerRewards(state: RunState, data: GameData, rng: Rng): RewardO
 
   const first: RewardKind = forceSkill ? 'skill' : state.reward;
   if (!add(first)) add(first === 'augment' ? 'heal' : 'augment');
+  // every third room one of the offers is an element off the bench (until shops sell them)
+  if ((state.roomIndex + 1) % ELEMENT_EVERY === 0) add('element');
   let guard = 0;
   while (out.length < OFFERS && guard++ < 200) {
     const hasSkills = skillPool(state, data, skillIds).length > 0;
@@ -119,6 +127,8 @@ export function claimReward(state: RunState, offer: RewardOffer): RunState {
       const socket = socketFor(state.data.augments[offer.id]);
       if (socket !== '*' && !canSocket(socket, state.augments)) return state; // the skill's sockets are full
       return { ...state, augments: [...state.augments, { id: offer.id, rarity: offer.rarity ?? 'common', skill: socket }] };
+    case 'element':
+      return state; // the director equips it into the slot the player picks
     case 'heal':
       return { ...state, hp: Math.min(max, state.hp + state.data.rewards.healFraction * max * HEAL_RARITY[offer.rarity ?? 'common']) };
   }

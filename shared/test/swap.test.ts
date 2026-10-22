@@ -41,8 +41,8 @@ test('swapping works at any time: on consecutive ticks, with every skill cooling
   sim.player.castState = { skillId: 'fire.fireball', fired: false, until: 99, move: 1 } as never;
   run(sim, 1, input({ swapTo: 2 }));
   run(sim, 1, input({ swapTo: 1 }));
-  run(sim, 1, input({ swapTo: 3 }));
-  assert.equal(sim.player.element, 3);
+  run(sim, 1, input({ swapTo: 2 }));
+  assert.equal(sim.player.element, 2);
   assert.equal(sim.player.castState, null, 'a cast that has not left the caster is cancelled by the swap');
 });
 
@@ -82,7 +82,7 @@ test('the bonus is gone at 3.1 s', () => {
 
 test('consumeSwapBonus hands out the bonus once', () => {
   const sim = makeSim();
-  trySwap(sim, sim.player, 3);
+  trySwap(sim, sim.player, 2);
   const cfg = sim.data.player.swap;
   assert.deepEqual(consumeSwapBonus(sim.player, sim.time, cfg), { damageMul: 1.25, guaranteeStatus: true });
   assert.deepEqual(consumeSwapBonus(sim.player, sim.time, cfg), { damageMul: 1, guaranteeStatus: false });
@@ -91,6 +91,7 @@ test('consumeSwapBonus hands out the bonus once', () => {
 test('a wind skill with no status gets only the damage bonus', () => {
   const data = dataWith(base('wind.gust', 'wind', {}));
   const sim = makeSim(1, { data });
+  sim.player.equipped = ['fire', 'water', 'wind'];
   const dummy = spawnEnemy(sim, 'enemy.dummy', { x: 0, y: 0, z: 6 });
   trySwap(sim, sim.player, 3);
   castSkill(sim, sim.player, 'wind.gust', AHEAD);

@@ -44,3 +44,10 @@ test('earned achievements are listed with the content they unlock', () => {
   assert.deepEqual(achievementLines([], data), []);
   void emptyLedger;
 });
+
+test('an element offer names the element and says it takes a key', () => {
+  const t = describeOffer({ kind: 'element', element: 'wind' }, data);
+  assert.equal(t.title, 'Wind');
+  assert.match(t.tag, /element/i);
+  assert.match(t.detail, /key/i);
+});

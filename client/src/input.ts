@@ -1,5 +1,5 @@
 // Keyboard and mouse to the simulation's Input. Mouse look uses pointer lock, so the crosshair stays at the screen centre.
-import { BTN, idleInput, ELEMENTS, type Input } from '@conflux/shared';
+import { BTN, idleInput, type Input } from '@conflux/shared';
 
 export interface Bindings {
   forward: string;
@@ -11,10 +11,10 @@ export interface Bindings {
   jump: string;
   interact: string;
   cycle: string;
-  elements: [string, string, string, string];
+  elements: [string, string, string];
 }
 
-export const defaultBindings = (): Bindings => ({ forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD', utility: 'KeyQ', dodge: 'ShiftLeft', jump: 'Space', interact: 'KeyE', cycle: 'KeyR', elements: ['Digit1', 'Digit2', 'Digit3', 'Digit4'] });
+export const defaultBindings = (): Bindings => ({ forward: 'KeyW', back: 'KeyS', left: 'KeyA', right: 'KeyD', utility: 'KeyQ', dodge: 'ShiftLeft', jump: 'Space', interact: 'KeyE', cycle: 'KeyR', elements: ['Digit1', 'Digit2', 'Digit3'] });
 
 const PITCH_LIMIT = 1.3;
 
@@ -60,7 +60,7 @@ export class InputController {
     void this.target.requestPointerLock?.();
   }
 
-  /** Tells the controller which element is active so Q can step to the next one. */
+  /** Tells the controller which of the three held elements (0 to 2) is active, so the next-element key can step to the next one. */
   setElement(index: number): void {
     this.element = index;
   }
@@ -80,7 +80,7 @@ export class InputController {
     this.keys.add(e.code);
     const i = this.bindings.elements.indexOf(e.code);
     if (i >= 0) this.swap = i;
-    if (e.code === this.bindings.cycle) this.swap = (this.element + 1) % ELEMENTS.length;
+    if (e.code === this.bindings.cycle) this.swap = (this.element + 1) % this.bindings.elements.length;
   }
 
   poll(camOrigin = idleInput().camOrigin): Input {

@@ -56,8 +56,10 @@ export interface PlayerState {
   dodgeUntil: number;
   invulnUntil: number;
   dodgeReadyAt: number;
-  /** Index into ELEMENTS. */
+  /** Index into ELEMENTS of the element held (always one of `equipped`). */
   element: number;
+  /** The three elements on keys 1 to 3; every other element is on the bench. */
+  equipped: Element[];
   swapReadyAt: number;
   /** Vertical speed of a jump in progress (0 on the ground). */
   vy: number;
@@ -180,6 +182,7 @@ export interface PlayerSnap {
   hp: number;
   maxHp: number;
   element: string;
+  equipped: Element[];
   statuses: StatusSnap[];
   dodging: boolean;
   casting: string | null;

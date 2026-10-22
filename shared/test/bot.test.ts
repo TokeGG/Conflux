@@ -43,6 +43,7 @@ test('the report counts skills used, and an augment once one is owned', () => {
 
 function lone(enemy: string) {
   const sim = createRoomSim(data, 1, 'forest_clearing');
+  sim.player.equipped = ['fire', 'water', 'wind'];
   spawnEnemy(sim, enemy, { x: sim.player.pos.x, y: 0, z: sim.player.pos.z + 8 });
   return sim;
 }

@@ -49,6 +49,7 @@ test('the room announces it is cleared exactly once when the last enemy dies', (
 
 test('chooseElement picks an element the target is weak to when there is a skill for it', () => {
   const sim = createRoomSim(defaultData(), 1, 'forest_clearing');
+  sim.player.equipped = ['fire', 'water', 'wind'];
   spawnEnemy(sim, 'enemy.golem_fire', { x: 0, y: 0, z: sim.player.pos.z + 8 });
   assert.equal(chooseElement(sim), 1, 'water beats the fire golem');
   sim.enemies.length = 0;

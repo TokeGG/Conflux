@@ -13,7 +13,7 @@ test('every action has exactly one key, and no two actions share one, by default
   const keys = ACTIONS.map((a) => keyFor(b, a.id));
   assert.ok(keys.every((k) => typeof k === 'string' && k.length > 0));
   assert.equal(new Set(keys).size, keys.length);
-  assert.equal(ACTIONS.length, 13);
+  assert.equal(ACTIONS.length, 12);
 });
 
 test('rebinding an action sets its key', () => {
@@ -60,4 +60,18 @@ test('keyLabel shows a key the way a player reads it', async () => {
   assert.equal(keyLabel('ArrowUp'), 'Up');
   assert.equal(keyLabel('Numpad5'), 'Num 5');
   assert.equal(keyLabel('Tab'), 'Tab');
+});
+
+test('three element keys, 1 to 3, by default', () => {
+  assert.deepEqual(defaultBindings().elements, ['Digit1', 'Digit2', 'Digit3']);
+  assert.equal(ACTIONS.filter((a) => a.id.startsWith('element')).length, 3);
+});
+
+test('a binding set saved with four element keys loads with the first three', () => {
+  const s = store();
+  const old = { ...defaultBindings(), elements: ['Digit1', 'Digit2', 'Digit3', 'Digit4'], jump: 'KeyX' };
+  s.setItem('conflux.keys', JSON.stringify(old));
+  const b = loadBindings(s);
+  assert.deepEqual(b.elements, ['Digit1', 'Digit2', 'Digit3']);
+  assert.equal(b.jump, 'KeyX');
 });

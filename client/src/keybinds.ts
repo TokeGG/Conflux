@@ -1,7 +1,7 @@
 // Which key does what, and changing it. Pure functions over the controller's `Bindings`, so the Esc menu and the tests share them.
 import { defaultBindings, type Bindings } from './input.ts';
 
-export type ActionId = 'forward' | 'back' | 'left' | 'right' | 'jump' | 'dodge' | 'utility' | 'interact' | 'cycle' | 'element1' | 'element2' | 'element3' | 'element4';
+export type ActionId = 'forward' | 'back' | 'left' | 'right' | 'jump' | 'dodge' | 'utility' | 'interact' | 'cycle' | 'element1' | 'element2' | 'element3';
 
 export const ACTIONS: { id: ActionId; label: string }[] = [
   { id: 'forward', label: 'Move forward' },
@@ -15,12 +15,11 @@ export const ACTIONS: { id: ActionId; label: string }[] = [
   { id: 'element1', label: 'Element 1' },
   { id: 'element2', label: 'Element 2' },
   { id: 'element3', label: 'Element 3' },
-  { id: 'element4', label: 'Element 4' },
   { id: 'cycle', label: 'Next element' },
 ];
 
 const KEY = 'conflux.keys';
-const ELEMENT = /^element([1-4])$/;
+const ELEMENT = /^element([1-3])$/;
 
 export function keyFor(b: Bindings, action: ActionId): string {
   const m = ELEMENT.exec(action);
@@ -62,9 +61,11 @@ export function loadBindings(storage: { getItem(k: string): string | null } | nu
     const raw = storage?.getItem(KEY);
     if (!raw) return d;
     const parsed = JSON.parse(raw) as Partial<Bindings>;
+    // a set saved when there were four element keys keeps its first three
+    if (Array.isArray(parsed.elements) && (parsed.elements as unknown[]).length === 4) parsed.elements = parsed.elements.slice(0, 3) as Bindings['elements'];
     const b: Bindings = { ...d, ...parsed, elements: Array.isArray(parsed.elements) ? (parsed.elements as Bindings['elements']) : d.elements };
     const keys = ACTIONS.map((a) => keyFor(b, a.id));
-    const complete = Object.keys(d).every((k) => k in parsed || k === 'elements') && Array.isArray(parsed.elements) && parsed.elements.length === 4;
+    const complete = Object.keys(d).every((k) => k in parsed || k === 'elements') && Array.isArray(parsed.elements) && parsed.elements.length === 3;
     if (!complete || keys.some((k) => typeof k !== 'string' || !k || k === 'Escape') || new Set(keys).size !== keys.length) return d;
     return b;
   } catch {

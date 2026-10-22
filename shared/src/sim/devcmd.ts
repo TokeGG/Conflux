@@ -83,6 +83,8 @@ export function applyDevCommand(sim: Sim, cmd: DevCommand): string | null {
     case 'setElement': {
       const i = Number(cmd.i);
       if (!Number.isInteger(i) || i < 0 || i >= ELEMENTS.length) return `unknown element ${String(cmd.i)}`;
+      // holding a benched element takes over the slot of the one held now
+      if (!sim.player.equipped.includes(ELEMENTS[i])) sim.player.equipped[sim.player.equipped.indexOf(ELEMENTS[sim.player.element])] = ELEMENTS[i];
       sim.player.element = i;
       return done(null);
     }

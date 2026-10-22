@@ -199,7 +199,7 @@ export class Game {
     this.d.bridge.send({ ...base, camOrigin: cam.origin });
     this.d.bridge.advance(Math.min(dt, 0.25));
     if (!snap || !player) return;
-    this.input.setElement(['fire', 'water', 'earth', 'wind'].indexOf(player.element));
+    this.input.setElement(Math.max(0, player.equipped.indexOf(player.element as never)));
 
     this.holder.position.set(player.pos.x, player.pos.y, player.pos.z);
     this.holder.rotation.y = player.facing;

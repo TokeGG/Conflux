@@ -2,7 +2,7 @@
 import type { GameData, Rarity, RoomDef } from '../types.ts';
 import type { Vec3 } from '../math.ts';
 
-export type RewardKind = 'skill' | 'augment' | 'heal';
+export type RewardKind = 'skill' | 'augment' | 'heal' | 'element';
 export type RoomType = 'combat' | 'elite' | 'boss';
 
 export type { SkillLoadout } from './loadout.ts';

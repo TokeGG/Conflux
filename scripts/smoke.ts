@@ -202,7 +202,9 @@ try {
       await swap(0, 'fire', A);
       look(A, { buttons: 1 });
       await until(() => c.events().some((e) => e.type === 'reaction' && e.enemyId === a), 'steam on A');
-      await swap(3, 'wind', B);
+      look(B); // stop casting at A and aim at B before the element changes
+      c.command({ op: 'setElement', i: 3 }); // wind is on the bench: the dev tool puts it in the slot held
+      await until(() => c.snapshot().players[0].element === 'wind', 'the wind element');
       look(B, { buttons: 1 });
       await until(() => c.events().some((e) => e.type === 'reaction' && e.enemyId === b), 'sandstorm on B');
       c.sendInput(null);
@@ -347,7 +349,7 @@ try {
     check(true, 'beginning the run puts the first room fight on screen');
     await page.keyboard.press('Escape');
     await page.waitForSelector('#escmenu.open', { timeout: 10000 });
-    check((await page.locator('#escmenu .keybtn').count()) === 13, 'Esc opens the menu with all 13 keys listed');
+    check((await page.locator('#escmenu .keybtn').count()) === 12, 'Esc opens the menu with all 12 keys listed');
     await page.screenshot({ path: join(shots, 'esc-menu.png') });
     await page.click('#escmenu .keybtn >> nth=4');
     await page.keyboard.press('KeyX');

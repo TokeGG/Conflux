@@ -40,7 +40,7 @@ export function chooseElement(sim: Sim): number {
   let best = p.element;
   let bestScore = -Infinity;
   ELEMENTS.forEach((el, i) => {
-    if (!p.loadout[el].basic) return;
+    if (!p.loadout[el].basic || !p.equipped.includes(el)) return;
     const score = (t.def.weak.includes(el) ? 3 : t.def.resist.includes(el) ? 0 : 1.5) + (i === p.element ? 0.3 : 0);
     if (score > bestScore) {
       best = i;
@@ -131,7 +131,7 @@ export function botInput(sim: Sim): Input {
   if (!t) return sim.roomCleared ? leaveRoom(sim, input) : input;
 
   const want = chooseElement(sim);
-  input.swapTo = want !== p.element ? want : -1;
+  input.swapTo = want !== p.element ? p.equipped.indexOf(ELEMENTS[want]) : -1;
 
   // aim at the middle of the target
   const cy = t.pos.y + (isFlyer(t) ? 0.6 : 0.9);

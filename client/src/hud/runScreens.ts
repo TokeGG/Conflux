@@ -57,16 +57,25 @@ export class RunScreens {
       el('div', 'title', 'CONFLUX'),
       el('div', 'tagline', 'Fire, water, earth and wind. Combine them. Descend.'),
       el('div', 'menu', ...menu),
-      el('div', 'foot', `${ledger.unlocked.length} of ${total} unlocks earned   |   WASD move   mouse aim   click cast   1 2 3 4 element   Space jump   Shift dash   Q utility`),
+      el('div', 'foot', `${ledger.unlocked.length} of ${total} unlocks earned   |   WASD move   mouse aim   click cast   1 2 3 element   Space jump   Shift dash   Q utility`),
     );
   }
 
-  rewards(offers: RewardOffer[], data: GameData, onPick: (i: number) => void): void {
-    const cards = offers.map((o, i) => {
-      const t = describeOffer(o, data);
-      return button('card', '', () => (this.onResume(), onPick(i)), el('div', 'tag', t.tag), el('div', 'title', t.title), el('p', '', t.detail));
-    });
-    this.show('reward', el('h2', '', 'Room cleared. Choose a reward'), el('div', 'row', ...cards));
+  rewards(offers: RewardOffer[], data: GameData, equipped: string[], onPick: (i: number, slot?: number) => void): void {
+    const choose = (): void => {
+      const cards = offers.map((o, i) => {
+        const t = describeOffer(o, data);
+        // an element is picked in two steps: which one, then which of your three keys it takes over
+        const click = o.kind === 'element' ? () => replaceWhich(o, i) : () => (this.onResume(), onPick(i));
+        return button('card', '', click, el('div', 'tag', t.tag), el('div', 'title', t.title), el('p', '', t.detail));
+      });
+      this.show('reward', el('h2', '', 'Room cleared. Choose a reward'), el('div', 'row', ...cards));
+    };
+    const replaceWhich = (o: RewardOffer, i: number): void => {
+      const keys = equipped.map((name, slot) => button('card', '', () => (this.onResume(), onPick(i, slot)), el('div', 'tag', `Key ${slot + 1}`), el('div', 'title', `Replace ${name[0].toUpperCase()}${name.slice(1)}`), el('p', '', `${name} goes to the bench with its skills and augments.`)));
+      this.show('reward', el('h2', '', `Which element does ${o.element} replace?`), el('div', 'row', ...keys), el('div', 'row', button('plain', 'Back', choose)));
+    };
+    choose();
   }
 
   doors(doors: DoorChoice[], data: GameData, roomNumber: number, onPick: (i: number) => void): void {

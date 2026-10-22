@@ -30,7 +30,7 @@ export function stateHash(s: HashState): string {
   const parts: string[] = [
     `t${s.tick}`,
     `rng${s.rng.map((w) => w.join('.')).join('/')}`,
-    `p|${vec(p.pos)}|${vec(p.vel)}|${r4(p.facing)}|${r4(p.hp)}|${statuses(p.statuses)}|${marks(p.marks)}|${r4(p.dodgeUntil)}|${r4(p.invulnUntil)}|${r4(p.dodgeReadyAt)}|${p.element}|${r4(p.swapReadyAt)}|${p.castState ? `${p.castState.skillId}:${r4(p.castState.until)}:${r4(p.castState.move)}:${r4(p.castState.fireAt ?? 0)}:${+!!p.castState.fired}:${r4(p.castState.nextTick ?? 0)}:${p.castState.aim ? vec(p.castState.aim) : '-'}` : '-'}|${rec(p.cooldowns)}|${r4(p.swapBonusUntil)}|${p.buff ? `${p.buff.skillId}:${r4(p.buff.until)}:${r4(p.buff.absorb)}` : '-'}`,
+    `p|${vec(p.pos)}|${vec(p.vel)}|${r4(p.facing)}|${r4(p.hp)}|${statuses(p.statuses)}|${marks(p.marks)}|${r4(p.dodgeUntil)}|${r4(p.invulnUntil)}|${r4(p.dodgeReadyAt)}|${p.element}|${p.equipped.join(',')}|${r4(p.swapReadyAt)}|${p.castState ? `${p.castState.skillId}:${r4(p.castState.until)}:${r4(p.castState.move)}:${r4(p.castState.fireAt ?? 0)}:${+!!p.castState.fired}:${r4(p.castState.nextTick ?? 0)}:${p.castState.aim ? vec(p.castState.aim) : '-'}` : '-'}|${rec(p.cooldowns)}|${r4(p.swapBonusUntil)}|${p.buff ? `${p.buff.skillId}:${r4(p.buff.until)}:${r4(p.buff.absorb)}` : '-'}`,
   ];
   for (const e of s.enemies) {
     const g = e.guard ? `${+e.guard.on}:${r4(e.guard.until)}:${r4(e.guard.staggeredUntil)}` : '-';

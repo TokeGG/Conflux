@@ -32,7 +32,7 @@ export type Rarity = (typeof RARITIES)[number];
 /** Button bits in Input.buttons. */
 export const BTN = { LMB: 1, RMB: 2, UTIL: 4, DODGE: 8, INTERACT: 16, JUMP: 32 } as const;
 
-/** What a player sends the simulation each tick. swapTo is an index into ELEMENTS, or -1 for none. */
+/** What a player sends the simulation each tick. swapTo is which of the three equipped elements to hold (0 to 2), or -1 for none. */
 export interface Input {
   moveX: number;
   moveZ: number;

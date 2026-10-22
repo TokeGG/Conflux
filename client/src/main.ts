@@ -259,7 +259,7 @@ async function boot(): Promise<void> {
     saveLedger(storage, director.ledger);
     const d = director;
     const data = layers.current();
-    if (d.phase === 'reward') screens.rewards(d.offers, data, (i) => (d.pick(i), sync()));
+    if (d.phase === 'reward') screens.rewards(d.offers, data, d.run.skills.equipped, (i, slot) => (d.pick(i, slot), sync()));
     else if (d.phase === 'doors') {
       // endless: the gates are walked through, so no screen; the player steps up to one and the next room loads
       if (d.run.mode === 'endless') (screens.hide(), (play.inputEnabled = true));

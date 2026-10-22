@@ -1,6 +1,7 @@
 // The camera looks along (sin yaw, cos yaw), and with y up the screen's right-hand side is (-cos yaw, sin yaw) in the world.
 (globalThis as any).window = { addEventListener() {} };
 (globalThis as any).document = { pointerLockElement: null };
+(globalThis as any).HTMLElement = class {};
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { InputController } from '../src/input.ts';
@@ -79,4 +80,23 @@ test('requestLock asks the canvas for the mouse (and counts the ask), and does n
   c.requestLock();
   assert.equal(asked, 2, 'already locked');
   (globalThis as any).document.pointerLockElement = null;
+});
+
+test('the next-element key steps through the three held keys and wraps', () => {
+  const c = make();
+  const press = () => (c as any).down({ code: 'KeyR', repeat: false, target: null });
+  c.setElement(1);
+  press();
+  assert.equal(c.poll().swapTo, 2);
+  c.setElement(2);
+  press();
+  assert.equal(c.poll().swapTo, 0);
+});
+
+test('keys 1 to 3 swap to slots 0 to 2 and 4 does nothing', () => {
+  const c = make();
+  for (const [code, want] of [['Digit1', 0], ['Digit3', 2], ['Digit4', -1]] as const) {
+    (c as any).down({ code, repeat: false, target: null });
+    assert.equal(c.poll().swapTo, want, code);
+  }
 });

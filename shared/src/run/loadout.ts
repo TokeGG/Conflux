@@ -3,7 +3,12 @@ import type { Rng } from '../rng.ts';
 import { ELEMENTS, SLOTS, type Element, type GameData, type Slot } from '../types.ts';
 import type { Sim } from '../sim/sim.ts';
 
+/** How many elements are held at once (keys 1 to 3); the rest wait on the bench. */
+export const EQUIPPED = 3;
+
 export interface SkillLoadout {
+  /** The elements held, one per key. */
+  equipped: Element[];
   /** The equipped skill for each slot of each element ('' when an element has none for that slot). */
   slots: Record<Element, Record<Slot, string>>;
   /** Every skill the player owns, equipped or not. */
@@ -20,7 +25,11 @@ export function startingLoadout(data: GameData, rng: Rng, allowed?: Set<string>)
       slots[el][slot] = options.length ? rng.pick(options) : '';
     }
   }
-  return { slots, pool: ELEMENTS.flatMap((el) => SLOTS.map((slot) => slots[el][slot])).filter(Boolean) };
+  // three different elements that have a basic skill, drawn in turn
+  const bench = ELEMENTS.filter((el) => slots[el].basic);
+  const equipped: Element[] = [];
+  while (equipped.length < EQUIPPED && bench.length > 0) equipped.push(...bench.splice(rng.int(bench.length), 1));
+  return { equipped, slots, pool: ELEMENTS.flatMap((el) => SLOTS.map((slot) => slots[el][slot])).filter(Boolean) };
 }
 
 /** Equips an owned skill on a slot. Throws, with a plain message, when the skill does not belong there. */
@@ -30,10 +39,21 @@ export function swapIn(l: SkillLoadout, element: Element, slot: Slot, skillId: s
   if (skill.element !== element) throw new Error(`${skillId} is a ${skill.element} skill and cannot go on a ${element} slot (wrong element)`);
   if (skill.slot !== slot) throw new Error(`${skillId} is a ${skill.slot} skill and cannot go on the ${slot} slot (wrong slot)`);
   if (!l.pool.includes(skillId)) throw new Error(`${skillId} is not owned yet, so it cannot be equipped`);
-  return { slots: { ...l.slots, [element]: { ...l.slots[element], [slot]: skillId } }, pool: [...l.pool] };
+  return { equipped: [...l.equipped], slots: { ...l.slots, [element]: { ...l.slots[element], [slot]: skillId } }, pool: [...l.pool] };
+}
+
+/** Holds `element` on key `slot` (0 to 2) in place of what was there, which goes to the bench. Its skills and augments stay with it. */
+export function equipElement(l: SkillLoadout, slot: number, element: Element): SkillLoadout {
+  if (!Number.isInteger(slot) || slot < 0 || slot >= EQUIPPED) throw new Error(`there is no element slot ${slot}`);
+  if (l.equipped.includes(element)) throw new Error(`${element} is already held`);
+  const equipped = [...l.equipped];
+  equipped[slot] = element;
+  return { equipped, slots: l.slots, pool: [...l.pool] };
 }
 
 /** Puts the loadout on the player in the simulation (a copy, so the player's slots and the run's stay separate). */
 export function applyLoadout(sim: Sim, l: SkillLoadout): void {
   sim.player.loadout = structuredClone(l.slots);
+  sim.player.equipped = [...l.equipped];
+  sim.player.element = ELEMENTS.indexOf(l.equipped[0]);
 }

@@ -144,7 +144,7 @@ test('the bot command plays the player: it moves and fights with no input sent, 
   const { createRoomSim } = await import('../src/sim/roomSim.ts');
   const { defaultData } = await import('../src/files.ts');
   const sim = createRoomSim(defaultData(), 1, 'forest_clearing');
-  spawnEnemy(sim, 'enemy.treefellow', { x: sim.player.pos.x + 6, y: 0, z: sim.player.pos.z + 6 });
+  spawnEnemy(sim, 'enemy.treefellow', { x: sim.player.pos.x, y: 0, z: sim.player.pos.z + 8 });
   const hp = sim.enemies[0].hp;
   const b = new LocalBridge(sim);
   b.command({ op: 'bot', on: true });

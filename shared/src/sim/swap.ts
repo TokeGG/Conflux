@@ -10,7 +10,7 @@ import type { Sim } from './sim.ts';
 /** Switches the held element. False when it is the same one, not a valid one, or the swap is still cooling down. */
 export function trySwap(sim: Sim, p: PlayerState, to: number): boolean {
   const now = sim.time;
-  if (!Number.isInteger(to) || to < 0 || to >= ELEMENTS.length || to === p.element || now < p.swapReadyAt) return false;
+  if (!Number.isInteger(to) || to < 0 || to >= ELEMENTS.length || to === p.element || now < p.swapReadyAt || !p.equipped.includes(ELEMENTS[to])) return false;
   const from = p.element;
   p.element = to;
   p.swapReadyAt = now + sim.data.player.swap.cooldown;
@@ -40,7 +40,7 @@ export function activeSkillFor(p: PlayerState, slot: Slot): string {
 
 /** Applies this tick's swap request and button presses. A dodge in progress blocks casting. */
 export function handleSwapAndCast(sim: Sim, p: PlayerState, input: Input): void {
-  if (input.swapTo >= 0) trySwap(sim, p, input.swapTo);
+  if (input.swapTo >= 0 && input.swapTo < p.equipped.length) trySwap(sim, p, ELEMENTS.indexOf(p.equipped[input.swapTo]));
   if (sim.time < p.dodgeUntil || !statusModifiers(p, sim.time, sim.data.statuses).canAct) return;
   const slot: Slot | null = input.buttons & BTN.LMB ? 'basic' : input.buttons & BTN.RMB ? 'secondary' : input.buttons & BTN.UTIL ? 'utility' : null;
   if (!slot) return;

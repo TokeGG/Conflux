@@ -62,7 +62,8 @@ test('the owner\'s combo: water on A, earth on B, fire on A steams, wind on B wh
   assert.ok(b.statuses.rocked, 'B is rocked');
   ev.push(...press(sim, a, 0, 0, 0.5)); // swap to fire
   ev.push(...press(sim, a, BTN.LMB, -1, 0.9)); // fireball on A
-  ev.push(...press(sim, b, 0, 3, 0.5)); // swap to wind
+  sim.player.equipped[2] = 'wind'; // the bench: earth is done with, wind takes its key
+  ev.push(...press(sim, b, 0, 2, 0.5)); // swap to wind
   ev.push(...press(sim, b, BTN.LMB, -1, 1.0)); // gust volley on B
   const reactions = ev.filter((e) => e.type === 'reaction');
   assert.deepEqual(reactions.map((e) => [e.id, e.enemyId]), [['soaked.fire', a.id], ['rocked.wind', b.id]]);

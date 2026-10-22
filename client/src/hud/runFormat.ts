@@ -22,6 +22,9 @@ export function describeOffer(o: RewardOffer, data: GameData): OfferText {
     const id = o.id ?? '';
     return { title: skillLabel(id), tag: `${cap(o.element ?? data.skills[id]?.element ?? '')} skill`, detail: data.skills[id] ? `${data.skills[id].slot} slot, ${data.skills[id].shape.type}` : '' };
   }
+  if (o.kind === 'element') {
+    return { title: cap(o.element ?? ''), tag: 'New element', detail: 'Takes over one of your three element keys. The one it replaces waits on the bench, skills and augments kept.' };
+  }
   if (o.kind === 'augment') {
     const a = o.id ? data.augments[o.id] : undefined;
     return { title: a?.name ?? o.id ?? 'Augment', tag: `${cap(o.rarity ?? 'common')} augment`, detail: a ? augmentFor(a.target) : '' };

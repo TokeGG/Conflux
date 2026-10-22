@@ -50,13 +50,13 @@ export class Hud {
     this.root.id = 'hud';
     const bottom = div('bottom');
     const elements = div('elements');
-    ELEMENTS.forEach((el, i) => {
+    // three keys; the element on each is filled in from the snapshot, since rewards change it
+    for (let i = 0; i < 3; i++) {
       const chip = div('element');
-      chip.style.setProperty('--c', ELEMENT_COLOUR[el]);
-      chip.append(div('k', String(i + 1)), div('', el[0].toUpperCase() + el.slice(1)));
+      chip.append(div('k', String(i + 1)), div('name', ''));
       this.elementChips.push(chip);
       elements.append(chip);
-    });
+    }
     const slots = div('slots');
     for (let i = 0; i < 3; i++) {
       const box = div('slot');
@@ -93,7 +93,12 @@ export class Hud {
     const p = s.players[0];
     if (!p) return;
     const colour = ELEMENT_COLOUR[p.element];
-    this.elementChips.forEach((chip, i) => chip.classList.toggle('on', ELEMENTS[i] === p.element));
+    this.elementChips.forEach((chip, i) => {
+      const el = p.equipped[i];
+      chip.style.setProperty('--c', el ? ELEMENT_COLOUR[el] : '#555');
+      (chip.lastElementChild as HTMLElement).textContent = el ? el[0].toUpperCase() + el.slice(1) : '—';
+      chip.classList.toggle('on', el === p.element);
+    });
     p.slots.forEach((slot, i) => {
       const b = this.slotBoxes[i];
       b.box.style.setProperty('--c', colour);
