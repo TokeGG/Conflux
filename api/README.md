@@ -1,15 +1,15 @@
 # Conflux accounts API
 
 Accounts, sessions, the owner and dev access, and shared tuning. One module (`api/src/handler.ts`, Web standards only) runs as a
-Cloudflare Pages Function (`functions/api/[[path]].ts`, same origin as the game, so no CORS) and as a local Node server (`server/dev.ts`).
+Cloudflare Worker (`worker/index.ts`, the live site's entry; `functions/api/[[path]].ts` is the same thing for a Pages project; same origin as the game, so no CORS) and as a local Node server (`server/dev.ts`).
 The game works as a guest when `/api` does not answer.
 
 ## Set it up (Cloudflare dashboard, about five minutes)
 
 1. **Create the KV namespace.** Cloudflare dashboard, Storage and databases, KV, Create a namespace, name it `conflux-accounts`.
-2. **Bind it.** Workers and Pages, your Pages project (the one built from `main`), Settings, Bindings (or Functions), Add, KV namespace.
-   Variable name `CONFLUX_KV`, pick `conflux-accounts`. Do this for Production (and Preview if you use it).
-3. **Set the owner code.** Same project, Settings, Variables and Secrets, Add, type **Secret**, name `OWNER_CODE`, value a long phrase only you know.
+2. **Bind it.** Copy the namespace ID, then in `wrangler.jsonc` uncomment `kv_namespaces` and put the ID in (the project is wrangler-managed, so the binding lives in the file, not the dashboard).
+   On a Pages project instead: Settings, Bindings, Add, KV namespace, variable name `CONFLUX_KV`.
+3. **Set the owner code.** Workers and Pages, the project, Settings, Variables and Secrets, Add, type **Secret**, name `OWNER_CODE`, value a long phrase only you know.
 4. (Optional) add a plain variable `OWNER_NAMES` with the reserved names, comma separated. Default is `toke`.
 5. **Redeploy** (Deployments, Retry, or push to `main`): bindings only apply to a new deployment.
 6. **Become the owner.** Open the game, Sign in, Register, type a reserved name (e.g. `toke`), a password and the owner code. That account is
