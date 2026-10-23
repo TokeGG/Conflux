@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.77",
+    "date": "2026-10-23",
+    "at": "2026-10-23T15:58:13Z",
+    "notes": [
+      "Poison and other debuffs now show as a small aura around the mob's feet so you can still see it, and a new Element reactions screen in the menus shows every element crossover as a grid and a filterable list"
+    ]
+  },
+  {
     "version": "0.1.76",
     "date": "2026-10-23",
     "at": "2026-10-23T15:31:45Z",
