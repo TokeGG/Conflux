@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.71",
+    "date": "2026-10-23",
+    "at": "2026-10-23T01:47:00Z",
+    "notes": [
+      "Spells now leave from the casting hand instead of the hat, every skill plays its own cast effect and animation, and cones, streams, shields and buffs are drawn"
+    ]
+  },
+  {
     "version": "0.1.70",
     "date": "2026-10-23",
     "at": "2026-10-23T01:28:21Z",
