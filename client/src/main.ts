@@ -46,6 +46,7 @@ import { playerPage } from './dev/pages/player.ts';
 import { skillsPage } from './dev/pages/skills.ts';
 import { statusesPage } from './dev/pages/statuses.ts';
 import { reactionsPage } from './dev/pages/reactions.ts';
+import { ElementsPage } from './dev/pages/elements.ts';
 import { enemiesPage } from './dev/pages/enemies.ts';
 import { ModelsPage } from './dev/pages/models.ts';
 import { CustomContentStore } from './dev/import/store.ts';
@@ -149,6 +150,7 @@ async function boot(): Promise<void> {
     panel.registerPage(statusesPage(devState, base, refresh));
     panel.registerPage(reactionsPage(devState, base, refresh));
     panel.registerPage(enemiesPage(devState, base, refresh));
+    panel.registerPage(new ElementsPage({ state: devState, base, bridge, applyNow: sendData, changed: refresh }));
     panel.registerPage(new ModelsPage({ store, layers, loader, bridge, data: () => layers.current(), sendData, refresh }));
     panel.registerPage(new ToolsPage(bridge, () => layers.current(), debugFlags));
     panel.registerPage(new AnimationPage({ loader, state: devState, base, changed: refresh }));

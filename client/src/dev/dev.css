@@ -82,3 +82,12 @@ body.dev-dragging iframe, body.dev-dragging canvas { pointer-events: none; }
 #devpanel .dev-castrow > select, #devpanel .dev-cliprow > select { flex: 1 1 180px; }
 #devpanel .dev-castnum { flex: 1 1 220px; }
 #devpanel .dev-stage { max-height: 50vh; }
+
+/* the Elements page */
+#devpanel .el-grid { display: grid; grid-template-columns: 56px repeat(10, minmax(52px, 1fr)); gap: 2px; margin-bottom: 8px; }
+#devpanel .el-head { font-size: 10px; text-transform: uppercase; opacity: .7; align-self: center; text-align: center; }
+#devpanel .el-cell { font-size: 9px; line-height: 1.1; padding: 3px 1px; min-height: 28px; overflow: hidden; }
+#devpanel .el-cell:disabled { opacity: .15; }
+#devpanel .el-cell.on { outline: 2px solid #ffd54a; }
+#devpanel .el-detail { margin-bottom: 10px; }
+#devpanel .el-element summary { cursor: pointer; text-transform: capitalize; padding: 3px 0; }

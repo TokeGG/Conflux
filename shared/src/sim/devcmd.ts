@@ -3,10 +3,11 @@
 import { resolveAim } from '../aim.ts';
 import { validateData } from '../data.ts';
 import type { SimRunner, DevCommand } from '../bridge.ts';
-import { ELEMENTS, RARITIES, STATUS_IDS, type GameData, type Rarity, type StatusId } from '../types.ts';
+import { ELEMENTS, RARITIES, STATUS_IDS, type Element, type GameData, type Rarity, type StatusId } from '../types.ts';
 import { canSocket, socketFor } from '../run/augments.ts';
 import { aimDir, v3, type Vec3 } from '../math.ts';
 import { damageEnemy } from './skills.ts';
+import { dealDamage } from './damage.ts';
 import { applyStatus } from './statuses.ts';
 import { enemyHurtboxes, spawnEnemy } from './state.ts';
 import type { Sim } from './sim.ts';
@@ -43,6 +44,25 @@ function spawnAt(sim: Sim, enemy: string, count: number, at: unknown): string | 
   return null;
 }
 
+const isElement = (v: unknown): v is Element => (ELEMENTS as readonly unknown[]).includes(v);
+
+/** A dummy beside the player that carries element a's status and is then hit by element b: the pair's reaction plays. */
+function tryReaction(sim: Sim, a: unknown, b: unknown): string | null {
+  if (!isElement(a)) return `unknown element ${String(a)}`;
+  if (!isElement(b)) return `unknown element ${String(b)}`;
+  if (a === b) return 'pick two different elements';
+  const p = sim.player;
+  const yaw = sim.lastInput?.aimYaw ?? 0;
+  const side = v3.add(p.pos, v3.scale(aimDir(yaw, 0), 3.5));
+  const err = spawnAt(sim, 'enemy.dummy', 1, { x: side.x, y: p.pos.y, z: side.z });
+  if (err) return err;
+  const dummy = sim.enemies[sim.enemies.length - 1];
+  const status = sim.data.elements.reacts[a];
+  if (status) applyStatus(sim, dummy, status, sim.time);
+  dealDamage(sim, dummy, 20, b);
+  return null;
+}
+
 const isStatus = (v: unknown): v is StatusId => (STATUS_IDS as readonly unknown[]).includes(v);
 
 /** Applies one sim-level dev command. Returns null, or why it was refused. */
@@ -62,6 +82,8 @@ export function applyDevCommand(sim: Sim, cmd: DevCommand): string | null {
       if (cmd.status) applyStatus(sim, sim.enemies[before], cmd.status, sim.time);
       return done(null);
     }
+    case 'tryReaction':
+      return done(tryReaction(sim, cmd.a, cmd.b));
     case 'killAll':
       for (const e of [...sim.enemies]) damageEnemy(sim, e, e.hp, 'dev.killAll', e.pos);
       return done(null);
