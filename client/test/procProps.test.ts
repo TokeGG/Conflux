@@ -29,7 +29,7 @@ test('a prop merges into one wood and one plain geometry whose bounds match its 
   assert.ok(g.wood && g.plain, 'a bookshelf has wood and coloured books');
   assert.equal(g.wood!.getAttribute('position').count + g.plain!.getAttribute('position').count, def.boxes.length * 24);
   const box = new THREE.Box3().union(g.wood!.boundingBox!).union(g.plain!.boundingBox!);
-  assert.ok(Math.abs(box.max.x - 2.44) < 1e-3 && box.max.y > 2.5);
+  assert.ok(Math.abs(box.max.x - 2.44) < 1e-3 && box.max.y > 2.1 && box.max.y < 2.4);
   for (const v of g.plain!.getAttribute('position').array) assert.ok(Number.isFinite(v));
 });
 

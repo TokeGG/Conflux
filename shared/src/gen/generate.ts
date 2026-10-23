@@ -100,6 +100,9 @@ export function generateRoom(data: GameData, seed: number, depth: number, roomIn
   const scale = Math.max(1, fp.cells.length / REFERENCE_CELLS);
   const enemySpots = Math.min(28, Math.round(8 + fp.cells.length / 4));
   const ctx: PlaceCtx = { rng, theme, fp, scale, taken: [{ ...start, r: 4, hard: true }, ...doorSpots.map((d) => ({ ...d, r: 3.2, hard: true }))], props: [] };
+  // the theme's signature row of furniture (shelves, pews) is laid before the enemy spots, which otherwise fill the floor and leave it no room
+  const anchor = theme.pools.set.find((i) => (i.row ?? 1) > 1);
+  if (anchor) placeLayer(ctx, [{ ...anchor, count: [1, 1] }], Math.max(1, Math.round(scale)));
   const spots: { x: number; z: number }[] = [];
   for (let k = 0; k < enemySpots; k++) {
     const p = freeSpot(ctx, 2.4, 1.8, 1, true) ?? (spots.length < 5 ? (freeSpot(ctx, 1.4, 1.4, 1, true) ?? freeSpot(ctx, 0.9, 1.0, 1, true)) : null);

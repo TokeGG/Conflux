@@ -189,9 +189,9 @@ function pew(): ProcDef {
   const boxes: ProcBox[] = [];
   const w = 2.2;
   boxes.push(box(0, 0.42, 0.18, w, 0.08, 0.5, WOOD, 1)); // seat
-  boxes.push(box(0, 0.5, 0.0, w, 0.7, 0.08, WOOD, 1)); // back
-  boxes.push(box(0, 0.0, 0.0, 0.1, 1.2, 0.7, WOOD_DARK, 1)); // ends
-  boxes.push(box(w - 0.1, 0.0, 0.0, 0.1, 1.2, 0.7, WOOD_DARK, 1));
+  boxes.push(box(0, 0.5, 0.0, w, 0.45, 0.08, WOOD, 1)); // back
+  boxes.push(box(0, 0.0, 0.0, 0.1, 0.95, 0.7, WOOD_DARK, 1)); // ends
+  boxes.push(box(w - 0.1, 0.0, 0.0, 0.1, 0.95, 0.7, WOOD_DARK, 1));
   boxes.push(box(0.1, 0.12, 0.2, w - 0.2, 0.3, 0.06, WOOD_DARK, 1)); // seat front board
   boxes.push(box(0.1, 0.0, 0.62, w - 0.2, 0.12, 0.3, WOOD_DARK, 1)); // kneeler
   return { boxes };
@@ -208,7 +208,7 @@ function cot(): ProcDef {
 }
 
 export const PROC_DEFS: Record<string, ProcDef> = {
-  bookshelf: bookshelf(5, 101),
+  bookshelf: bookshelf(4, 101),
   'bookshelf-low': bookshelf(2, 202),
   'reading-table': readingTable(),
   lectern: lectern(),

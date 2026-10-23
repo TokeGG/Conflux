@@ -36,12 +36,12 @@
   },
   "tint": "#8e9bb8",
   "lighting": {
-   "ambient": "#2a2f4a",
+   "ambient": "#393f64",
    "light": "#6677aa",
    "intensity": 0.15,
    "fogColor": "#05060a",
-   "fogNear": 6,
-   "fogFar": 26
+   "fogNear": 8,
+   "fogFar": 34
   },
   "lights": {
    "brazier": "#ff9a3c",
@@ -319,12 +319,12 @@
   },
   "tint": "#9aa3b8",
   "lighting": {
-   "ambient": "#262c44",
+   "ambient": "#333b5c",
    "light": "#5f6f9f",
    "intensity": 0.15,
    "fogColor": "#05060a",
-   "fogNear": 6,
-   "fogFar": 28
+   "fogNear": 8,
+   "fogFar": 36
   },
   "lights": {
    "brazier": "#ff9a3c",
@@ -537,12 +537,12 @@
   },
   "tint": "#8a9aa8",
   "lighting": {
-   "ambient": "#222b3a",
+   "ambient": "#2e3a4e",
    "light": "#5a6c8a",
    "intensity": 0.15,
    "fogColor": "#04060a",
-   "fogNear": 5,
-   "fogFar": 24
+   "fogNear": 8,
+   "fogFar": 32
   },
   "lights": {
    "brazier": "#ff9a3c",
@@ -788,12 +788,12 @@
   },
   "tint": "#b09878",
   "lighting": {
-   "ambient": "#3b2a1c",
+   "ambient": "#503926",
    "light": "#a8794a",
    "intensity": 0.15,
    "fogColor": "#0b0604",
-   "fogNear": 5,
-   "fogFar": 22
+   "fogNear": 8,
+   "fogFar": 30
   },
   "lights": {
    "brazier": "#ff8a2a",
@@ -978,12 +978,12 @@
   },
   "tint": "#8996a6",
   "lighting": {
-   "ambient": "#20283a",
+   "ambient": "#2b364e",
    "light": "#5c6a8a",
    "intensity": 0.15,
    "fogColor": "#04060a",
-   "fogNear": 5,
-   "fogFar": 24
+   "fogNear": 8,
+   "fogFar": 32
   },
   "lights": {
    "brazier": "#ff7a30",
@@ -1125,6 +1125,17 @@
      ],
      "clear": 1.2,
      "light": "brazier"
+    },
+    {
+     "kit": "proc",
+     "id": "cell-bars",
+     "scale": 1,
+     "count": [
+      3,
+      5
+     ],
+     "clear": 1.4,
+     "turn": "wall"
     }
    ]
   },
@@ -1173,12 +1184,12 @@
   },
   "tint": "#86b08a",
   "lighting": {
-   "ambient": "#1c3326",
+   "ambient": "#264533",
    "light": "#6f9f8a",
    "intensity": 0.15,
    "fogColor": "#050f0a",
-   "fogNear": 6,
-   "fogFar": 26
+   "fogNear": 8,
+   "fogFar": 34
   },
   "lights": {
    "brazier": "#ffb84a",
@@ -1357,12 +1368,12 @@
   },
   "tint": "#b5a98a",
   "lighting": {
-   "ambient": "#33281f",
+   "ambient": "#45362a",
    "light": "#8a6a4a",
    "intensity": 0.15,
    "fogColor": "#0a0705",
-   "fogNear": 5,
-   "fogFar": 22
+   "fogNear": 8,
+   "fogFar": 30
   },
   "lights": {
    "brazier": "#ff5a2a",
@@ -1560,12 +1571,12 @@
   },
   "tint": "#c0bcd0",
   "lighting": {
-   "ambient": "#2c2c46",
+   "ambient": "#3b3b5e",
    "light": "#8a8ac0",
    "intensity": 0.15,
    "fogColor": "#07070e",
-   "fogNear": 6,
-   "fogFar": 26
+   "fogNear": 8,
+   "fogFar": 34
   },
   "lights": {
    "brazier": "#ffc070",
@@ -1576,14 +1587,14 @@
     {
      "kit": "proc",
      "id": "pew",
-     "scale": 1.2,
+     "scale": 1,
      "count": [
-      2,
-      3
+      3,
+      4
      ],
-     "clear": 1.6,
+     "clear": 1.0,
      "turn": "quarter",
-     "row": 3,
+     "row": 2,
      "rowAxis": "z",
      "gap": 0.55
     },
@@ -1748,12 +1759,12 @@
   },
   "tint": "#c47a5a",
   "lighting": {
-   "ambient": "#3a1a10",
+   "ambient": "#4e2316",
    "light": "#b0502a",
    "intensity": 0.18,
    "fogColor": "#100402",
-   "fogNear": 5,
-   "fogFar": 22
+   "fogNear": 8,
+   "fogFar": 30
   },
   "lights": {
    "brazier": "#ff4a1a",
@@ -1909,12 +1920,12 @@
   },
   "tint": "#6a8fb8",
   "lighting": {
-   "ambient": "#1a3a54",
+   "ambient": "#234e71",
    "light": "#4a8ac0",
    "intensity": 0.17,
    "fogColor": "#030a12",
-   "fogNear": 5,
-   "fogFar": 22
+   "fogNear": 8,
+   "fogFar": 30
   },
   "lights": {
    "brazier": "#4acfff",
@@ -2069,12 +2080,12 @@
   },
   "tint": "#b8a48a",
   "lighting": {
-   "ambient": "#34261a",
+   "ambient": "#463323",
    "light": "#9a7a50",
    "intensity": 0.15,
    "fogColor": "#0a0705",
-   "fogNear": 6,
-   "fogFar": 24
+   "fogNear": 8,
+   "fogFar": 32
   },
   "lights": {
    "brazier": "#ffa050",
@@ -2108,7 +2119,7 @@
     {
      "kit": "proc",
      "id": "reading-table",
-     "scale": 1.3,
+     "scale": 1,
      "count": [
       2,
       3
@@ -2232,6 +2243,17 @@
      ],
      "clear": 1.2,
      "light": "brazier"
+    },
+    {
+     "kit": "proc",
+     "id": "bookshelf",
+     "scale": 1,
+     "count": [
+      6,
+      9
+     ],
+     "clear": 1.3,
+     "turn": "wall"
     }
    ]
   },
@@ -2283,12 +2305,12 @@
   },
   "tint": "#a89098",
   "lighting": {
-   "ambient": "#3a1a1e",
+   "ambient": "#4e2328",
    "light": "#a04a50",
    "intensity": 0.16,
    "fogColor": "#0a0306",
-   "fogNear": 7,
-   "fogFar": 30
+   "fogNear": 8,
+   "fogFar": 38
   },
   "lights": {
    "brazier": "#ff3a2a",

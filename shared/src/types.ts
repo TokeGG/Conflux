@@ -306,8 +306,8 @@ export interface PoolItem {
   count: [number, number];
   /** Metres of free space reserved round it. */
   clear: number;
-  /** Quarter turns only, no turn, or any angle (the default). */
-  turn?: 'quarter' | 'none';
+  /** Quarter turns only, no turn, or any angle (the default); `wall` (wall layer only) stands the prop's back against the wall it is placed at. */
+  turn?: 'quarter' | 'none' | 'wall';
   /** The light it carries: a brazier, a candle, or a mushroom glow. */
   light?: 'brazier' | 'candle' | 'glow';
   /** A row of this many copies side by side (a run of bookshelves, a block of pews); `clear` then covers the whole row. */

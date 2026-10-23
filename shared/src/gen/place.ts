@@ -50,13 +50,13 @@ export function inside(fp: Footprint, x: number, z: number, m: number): boolean 
   return at(x, z) && at(x + m, z) && at(x - m, z) && at(x, z + m) && at(x, z - m);
 }
 
-export function freeSpot(ctx: PlaceCtx, r: number, margin: number, pack = 1, hard = false): { x: number; z: number } | null {
+export function freeSpot(ctx: PlaceCtx, r: number, margin: number, pack = 1, hard = false, reach = 0): { x: number; z: number } | null {
   const hw = (ctx.fp.cw * 4) / 2;
   const hd = (ctx.fp.cd * 4) / 2;
   for (let t = 0; t < 120; t++) {
     const p = { x: (ctx.rng.next() * 2 - 1) * (hw - 1), z: (ctx.rng.next() * 2 - 1) * (hd - 1) };
     if (!inside(ctx.fp, p.x, p.z, margin)) continue;
-    if (ctx.taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < (q.hard ? q.r : q.r * pack) + r)) continue;
+    if (ctx.taken.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < (q.hard ? q.r + reach : q.r * pack) + r)) continue;
     ctx.taken.push({ ...p, r, hard });
     return p;
   }
@@ -77,8 +77,8 @@ export function rowHalf(item: PoolItem): number {
   return ((n * b.size[item.rowAxis === 'z' ? 2 : 0] * item.scale) + (n - 1) * (item.gap ?? 0)) / 2;
 }
 
-function propAt(ctx: PlaceCtx, item: PoolItem, x: number, z: number): Prop {
-  const rot = angleFor(ctx.rng, item.turn);
+function propAt(ctx: PlaceCtx, item: PoolItem, x: number, z: number, facing?: number): Prop {
+  const rot = facing ?? angleFor(ctx.rng, item.turn === 'wall' ? 'quarter' : item.turn);
   const n = item.row ?? 1;
   const parts: RoomPiece[] = [];
   if (n <= 1) parts.push(piece(item.kit, item.id, x, z, rot, item.scale));
@@ -123,7 +123,7 @@ export function placeLayer(ctx: PlaceCtx, items: PoolItem[], cap: number, pack =
   for (const item of order) {
     const n = Math.round((item.count[0] + ctx.rng.int(item.count[1] - item.count[0] + 1)) * ctx.scale);
     for (let k = 0; k < n && placed < cap; k++) {
-      const p = freeSpot(ctx, item.clear, Math.max(pack < 1 ? 1.0 : 1.4, item.clear * 0.6, rowHalf(item) + 0.5), pack);
+      const p = freeSpot(ctx, item.clear, Math.max(pack < 1 ? 1.0 : 1.4, item.clear * 0.6, rowHalf(item) + 0.5), pack, false, rowHalf(item));
       if (!p) break;
       ctx.props.push(propAt(ctx, item, p.x, p.z));
       placed++;
@@ -140,12 +140,16 @@ export function placeWallDecor(ctx: PlaceCtx, items: PoolItem[], edges: Edge[], 
     for (let k = 0; k < n; k++) {
       for (let t = 0; t < 20; t++) {
         const e = usable[ctx.rng.int(usable.length)];
-        const u = (ctx.rng.next() * 2 - 1) * 1.4;
-        const x = e.x - e.nx * 1.3 + Math.abs(e.nz) * u;
-        const z = e.z - e.nz * 1.3 + Math.abs(e.nx) * u;
+        // a prop against the wall stays within its 4 m stretch of wall, so it never pokes past a corner
+        const slack = item.turn === 'wall' ? Math.max(0, 1.9 - (pieceBounds(item.kit, item.id).size[0] * item.scale) / 2) : 1.4;
+        const u = (ctx.rng.next() * 2 - 1) * slack;
+        const off = item.turn === 'wall' ? 0.6 : 1.3;
+        const x = e.x - e.nx * off + Math.abs(e.nz) * u;
+        const z = e.z - e.nz * off + Math.abs(e.nx) * u;
         if (!inside(ctx.fp, x, z, 0.6) || ctx.taken.some((q) => Math.hypot(q.x - x, q.z - z) < (q.hard ? q.r : q.r * 0.4) + item.clear)) continue;
         ctx.taken.push({ x, z, r: item.clear });
-        ctx.props.push(propAt(ctx, item, x, z));
+        // a prop that stands against the wall turns its back (local -z) to it; the edge normal points out of the room
+        ctx.props.push(propAt(ctx, item, x, z, item.turn === 'wall' ? Math.atan2(-e.nx, -e.nz) : undefined));
         break;
       }
     }
