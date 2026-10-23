@@ -157,7 +157,7 @@ export class EnemyView {
     const c = new THREE.Color(hex);
     for (const m of this.materials) {
       m.color?.multiply(c);
-      this.glow.set(m, c.clone().multiplyScalar(0.25));
+      this.glow.set(m, c.clone().multiplyScalar(0.08));
       m.emissive.copy(this.glow.get(m)!);
     }
   }

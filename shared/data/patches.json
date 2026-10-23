@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.69",
+    "date": "2026-10-23",
+    "at": "2026-10-23T01:09:34Z",
+    "notes": [
+      "Rooms open facing the middle so you see the stalls and gates at once, shop labels no longer overlap, library shelves, chapel pews and prison cells show up in almost every room at the right size, rooms are a little brighter, shop prices were raised so a run buys about one ware per shop, and the skeleton mage no longer glows flat purple."
+    ]
+  },
+  {
     "version": "0.1.68",
     "date": "2026-10-23",
     "at": "2026-10-23T00:53:21Z",
