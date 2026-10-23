@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.75",
+    "date": "2026-10-23",
+    "at": "2026-10-23T15:27:06Z",
+    "notes": [
+      "Behind-the-scenes setup so the live site can store accounts"
+    ]
+  },
+  {
     "version": "0.1.74",
     "date": "2026-10-23",
     "at": "2026-10-23T15:19:19Z",
