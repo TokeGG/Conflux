@@ -89,12 +89,62 @@ const firstOf = (sim: Sim, e: EnemyState, ...templates: AttackDef['template'][])
 
 const speedOf = (sim: Sim, e: EnemyState) => e.def.speed * statusModifiers(e, sim.time, sim.data.statuses).speedMul;
 
+/**
+ * The attack a boss with several kinds should start now, or null: the projectile when the player is far, the charge at mid range, the summon when
+ * it has few minions, the slam or claw up close. Only attacks off cooldown are considered; the best score wins and the list order breaks ties,
+ * so the same fight plays out the same way every time.
+ */
+function bossAttack(sim: Sim, e: EnemyState, d: number): string | null {
+  let best: string | null = null;
+  let bestScore = 0;
+  for (const id of e.def.attacks) {
+    const a = sim.data.attacks[id];
+    if (!a || sim.time < (e.cooldowns[id] ?? 0) - EPS) continue;
+    let score = 0;
+    switch (a.template) {
+      case 'summon': {
+        const spec = a.summon;
+        const alive = spec ? sim.enemies.filter((o) => o.def.id === spec.enemy && o !== e).length : 0;
+        if (spec && alive <= 1 && alive + spec.count <= (spec.cap ?? 4)) score = 100;
+        break;
+      }
+      case 'projectile':
+        if (d >= 8 && d <= a.range) score = 80;
+        break;
+      case 'charge':
+        if (d >= 5 && d <= a.range + 3) score = 70;
+        break;
+      case 'slam':
+        // the slam lands a range ahead of the boss and hurts within its radius of that spot
+        if (d >= Math.max(0, a.range - (a.radius ?? 2) + 0.5) && d <= a.range + (a.radius ?? 2) - 0.5) score = 60;
+        break;
+      case 'melee_swipe':
+        if (d <= a.range - 0.2) score = 40;
+        break;
+    }
+    if (score > bestScore) {
+      best = id;
+      bestScore = score;
+    }
+  }
+  return best;
+}
+
 /** Walks at the player until within `stand`, attacking with a melee attack when it is in reach. */
 function rush(sim: Sim, e: EnemyState, dt: number, separate: boolean): void {
   const { dx, dz, d } = toPlayer(sim, e);
   const melee = firstOf(sim, e, 'melee_swipe', 'slam');
   const reach = melee ? melee.a.range - 0.3 : 1.4;
   face(sim, e);
+  // a boss with a projectile, a charge or a summon chooses among all its attacks; everything else keeps to its melee ones
+  if (e.def.attacks.some((id) => ['projectile', 'charge', 'summon'].includes(sim.data.attacks[id]?.template ?? ''))) {
+    const pick = bossAttack(sim, e, d);
+    if (pick) {
+      runAttack(sim, e, pick, sim.player.pos);
+      return;
+    }
+    if (d <= reach) return;
+  }
   if (d <= reach + 0.1 && melee) {
     const ready = readyAttack(sim, e, 'melee_swipe', 'slam');
     if (ready) runAttack(sim, e, ready.id, sim.player.pos);
