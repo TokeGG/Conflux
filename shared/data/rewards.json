@@ -31,10 +31,10 @@
     "pickupRadius": 2.4,
     "eliteSoulsMul": 2,
     "price": {
-      "skill": 70,
-      "augment": 50,
-      "heal": 30,
-      "element": 140
+      "skill": 110,
+      "augment": 80,
+      "heal": 48,
+      "element": 220
     },
     "rarityMul": {
       "common": 1,

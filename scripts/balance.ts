@@ -48,3 +48,15 @@ usage('Reactions', [...new Set(data.reactions.map((x) => x.effect))], (r) => r.r
   const reach = (n: number) => pct(reports.filter((r) => r.rooms >= n).length, seeds);
   console.log(`Reached room 3 / 5 (first boss cleared) / 8 / 10 (second boss cleared): ${[3, 5, 8, 10].map(reach).join(' / ')}`);
 }
+
+// quiet rooms: how many runs reach one, and what they can afford there
+{
+  const visits = reports.flatMap((r) => r.quiet.map((q) => ({ ...q, seed: r.seed })));
+  console.log('\nQuiet rooms');
+  for (const kind of ['shop', 'shrine', 'rest']) console.log(`  ${kind}: runs that stood in one ${pct(reports.filter((r) => r.quiet.some((q) => q.kind === kind)).length, seeds)}`);
+  for (const depth of [1, 2, 3]) {
+    const shops = visits.filter((v) => v.kind === 'shop' && v.depth === depth);
+    if (shops.length) console.log(`  depth ${depth} shops: ${shops.length}, souls on arrival mean ${mean(shops.map((s) => s.souls)).toFixed(0)}, bought mean ${mean(shops.map((s) => s.bought)).toFixed(2)}, bought at least one ${pct(shops.filter((s) => s.bought > 0).length, shops.length)}`);
+  }
+  console.log(`  runs reaching the first landing (room 7): ${pct(reports.filter((r) => r.rooms >= 6).length, seeds)}`);
+}

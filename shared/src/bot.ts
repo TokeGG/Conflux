@@ -5,7 +5,7 @@ import { TICK, type Sim } from './sim/sim.ts';
 import { RunDirector, createRunRoomSim } from './run/director.ts';
 import { ENDLESS } from './run/endless.ts';
 import { emptyLedger } from './run/unlocks.ts';
-import type { DoorChoice, RunState } from './run/run.ts';
+import { isQuiet, type DoorChoice, type RunState } from './run/run.ts';
 import type { RewardOffer } from './run/rewards.ts';
 import { tryBuy } from './run/shop.ts';
 import { depthAt } from './run/floors.ts';
@@ -140,12 +140,25 @@ export function walkTo(sim: Sim, input: Input, goal: { x: number; z: number } | 
   return input;
 }
 
+/** The gate a bot has set its mind on in a room (an index into `sim.doors`); without one it takes the nearest. */
+const gateWish = new WeakMap<Sim, number>();
+
+/** Picks the gate to leave by: a shop when the bot has souls to spend, a rest room when it is hurt; otherwise none (the nearest). */
+export function botPickGate(run: RunState, doors: DoorChoice[]): number | undefined {
+  const cheapest = Math.min(...Object.values(run.data.rewards.economy.price));
+  const i = doors.findIndex((d) => d.room.type === 'shop');
+  if (i >= 0 && run.souls >= cheapest) return i;
+  const r = doors.findIndex((d) => d.room.type === 'rest');
+  if (r >= 0 && run.hp < run.data.player.health * 0.6) return r;
+  return undefined;
+}
+
 /** A cleared room: walk to the nearest gate. */
 function leaveRoom(sim: Sim, input: Input): Input {
   const p = sim.player.pos;
   // the gate it chose first stays the goal while it walks, so it does not dither between two
   const chosen = sim.doors.find((d) => `${d.x},${d.z}` === gatePaths.get(sim)?.goal);
-  const gate = chosen ?? [...sim.doors].sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
+  const gate = chosen ?? sim.doors[gateWish.get(sim) ?? -1] ?? [...sim.doors].sort((a, b) => Math.hypot(a.x - p.x, a.z - p.z) - Math.hypot(b.x - p.x, b.z - p.z))[0];
   return walkTo(sim, input, gate);
 }
 
@@ -259,6 +272,8 @@ export interface RunReport {
   bought: number;
   /** The depth reached (1 on the first floor). */
   depth: number;
+  /** Every quiet room the run stood in: its kind, the floor, the souls in hand on arrival and the wares bought there. */
+  quiet: { kind: string; depth: number; souls: number; bought: number }[];
   /** Where the run ended, when the bot died: the room's number (0 based), its type and theme, and what dealt the last hit. */
   death?: { room: number; type: string; theme: string; killer: string };
 }
@@ -329,10 +344,14 @@ const bump = (m: Record<string, number>, k: string) => (m[k] = (m[k] ?? 0) + 1);
 /** Plays an endless run with the scripted bot until it dies or `maxSeconds` of simulated time pass, and reports what happened. Deterministic for a seed. */
 export function playRun(data: GameData, seed: number, maxSeconds: number): RunReport {
   const d = new RunDirector(data, seed, emptyLedger(), false, ENDLESS);
-  const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {}, souls: 0, bought: 0, depth: 1 };
+  const report: RunReport = { seed, victory: false, rooms: 0, seconds: 0, skillUse: {}, augmentUse: {}, reactions: {}, souls: 0, bought: 0, depth: 1, quiet: [] };
   let sim: Sim | null = null;
   let lastKiller = '';
-  d.onEnter = () => ((sim = null), (lastKiller = ''));
+  d.onEnter = () => {
+    sim = null;
+    lastKiller = '';
+    if (isQuiet(d.run.current.type)) report.quiet.push({ kind: d.run.current.type, depth: depthAt(d.run.roomIndex), souls: d.run.souls, bought: 0 });
+  };
   let ticks = 0;
   let roomTicks = 0;
   let shopTicks = 0;
@@ -343,8 +362,12 @@ export function playRun(data: GameData, seed: number, maxSeconds: number): RunRe
       continue;
     }
     sim ??= createRunRoomSim(d.run, data);
+    if (d.phase === 'doors' && !gateWish.has(sim)) {
+      const wish = botPickGate(d.run, d.doors);
+      if (wish !== undefined) gateWish.set(sim, wish);
+    }
     // in a quiet room: walk to the best ware it can afford and buy it, then leave by a gate
-    const input = d.phase === 'doors' && shopTicks < SHOP_LIMIT / TICK ? botShop(d, sim, () => report.bought++) : null;
+    const input = d.phase === 'doors' && shopTicks < SHOP_LIMIT / TICK ? botShop(d, sim, () => (report.bought++, report.quiet[report.quiet.length - 1] && report.quiet[report.quiet.length - 1].bought++)) : null;
     if (input) shopTicks++;
     const events = sim.step([input ?? botInput(sim)]);
     ticks++;

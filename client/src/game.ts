@@ -107,6 +107,12 @@ export class Game {
     this.latest = null;
     this.prevPos = null;
     this.holder.position.set(room.spawns.player.x, 0, room.spawns.player.z);
+    // a new room opens with the player looking toward its middle (the stalls, the enemies) instead of at whatever wall the last yaw met
+    const { x, z } = room.spawns.player;
+    if (Math.hypot(x, z) > 3) {
+      this.input.yaw = Math.atan2(-x, -z);
+      this.input.pitch = 0;
+    }
   }
 
   private onFrame(s: Snapshot, events: SimEvent[]): void {

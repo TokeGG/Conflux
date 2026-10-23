@@ -228,8 +228,26 @@ export class Hud {
     this.drawCrosshair(aimTarget !== null);
     for (const g of this.gateLabels) this.place(g.el, g.pos.x, g.pos.y + 3.2, g.pos.z);
     for (const g of this.stallLabels) this.place(g.el, g.pos.x, g.pos.y + 1.9, g.pos.z);
+    this.spreadLabels();
     this.updateTags(s, aimTarget, showAi);
     this.updateNumbers();
+  }
+
+  /** Lifts ware labels that would sit on top of each other (stalls seen from afar line up), so every name and price stays readable. */
+  private spreadLabels(): void {
+    const placed: { x: number; y: number; w: number }[] = [];
+    const shown = this.stallLabels.filter((g) => g.el.style.display !== 'none').map((g) => ({ g, x: parseFloat(g.el.style.left) / 100 * this.root.clientWidth, y: parseFloat(g.el.style.top) / 100 * this.root.clientHeight, w: g.el.offsetWidth }));
+    shown.sort((a, b) => a.x - b.x);
+    for (const s of shown) {
+      let lift = 0;
+      for (let tries = 0; tries < 6; tries++) {
+        const hit = placed.find((p) => Math.abs(p.x - s.x) < (p.w + s.w) / 2 + 4 && Math.abs(p.y - (s.y - lift)) < 40);
+        if (!hit) break;
+        lift += 42;
+      }
+      s.g.el.style.marginTop = lift ? `${-lift}px` : '';
+      placed.push({ x: s.x, y: s.y - lift, w: s.w });
+    }
   }
 
   /** One icon per status on the player, each with its ring. */
