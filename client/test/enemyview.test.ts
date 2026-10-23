@@ -170,3 +170,16 @@ test('a rocked mob turns stone coloured with no extra glow, and a hit flash stil
   v.update(snap({ statuses: [{ id: 'rocked', remaining: 5 }] }), 1 / 60);
   assert.ok(material(v).emissive.r > 0.5);
 });
+
+test('the painted texture is set aside while rocked and comes back afterwards', () => {
+  const { root, mat } = model();
+  const tex = new THREE.Texture();
+  mat.map = tex;
+  const v = new EnemyView(data.enemies['enemy.stump'], root);
+  v.update(snap(), 1 / 60);
+  assert.equal(material(v).map, tex);
+  v.update(snap({ statuses: [{ id: 'rocked', remaining: 5 }] }), 1 / 60);
+  assert.equal(material(v).map, null);
+  v.update(snap(), 1 / 60);
+  assert.equal(material(v).map, tex);
+});

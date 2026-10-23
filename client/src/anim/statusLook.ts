@@ -16,9 +16,11 @@ export interface StatusLook {
   colorAmount: number;
   /** Extra glow added on the materials' resting glow, 0..1 per channel. */
   emissive: RGB;
+  /** 0..1: how much of the model's painted texture is covered (stone and rock), so the view can drop it and show the plain colour. */
+  cover: number;
 }
 
-export const NO_LOOK: StatusLook = { colorTo: [0, 0, 0], colorAmount: 0, emissive: [0, 0, 0] };
+export const NO_LOOK: StatusLook = { colorTo: [0, 0, 0], colorAmount: 0, emissive: [0, 0, 0], cover: 0 };
 
 interface Layer {
   color: RGB;
@@ -26,6 +28,7 @@ interface Layer {
   glow: RGB;
   /** 0..1: how much of the mob's other glow this layer smothers (stone has none). */
   smother?: number;
+  cover?: number;
 }
 
 const hex = (h: string): RGB => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
@@ -61,6 +64,8 @@ export const STATUS_LOOK = {
 
 /** The seconds over which a status fades in the look as it runs out, so it does not snap off. */
 const FADE_OUT = 0.35;
+/** How hard the glow is laid on: enough to read from across a dark room, not so much that the mob turns into a flat blob of colour. */
+const GLOW_GAIN = 0.6;
 
 function layerOf(s: StatusIn, t: number): Layer | null {
   const spec = (STATUS_LOOK as Record<string, { to: RGB; amount: number; glow: RGB; hz: number }>)[s.id];
@@ -75,7 +80,7 @@ function layerOf(s: StatusIn, t: number): Layer | null {
       pulse = 0.45 + 0.3 * wave(t, spec.hz) + 0.25 * wave(t, spec.hz * 2.7, 0.3) * (0.6 + 0.4 * flicker(t, 14));
       break;
     case 'shocked':
-      pulse = flicker(t, spec.hz) > 0.45 ? 1 : 0.12;
+      pulse = flicker(t, spec.hz) > 0.45 ? 1 : 0.3;
       break;
     case 'rocked':
     case 'petrified':
@@ -86,9 +91,9 @@ function layerOf(s: StatusIn, t: number): Layer | null {
       pulse = 0.35 + 0.65 * wave(t, spec.hz);
   }
   const stackBoost = s.id === 'poisoned' ? 0.75 + 0.25 * (stacks / 5) : 1;
-  const glowK = pulse * fade * stackBoost * 0.95;
+  const glowK = pulse * fade * stackBoost * GLOW_GAIN;
   const stone = s.id === 'rocked' || s.id === 'petrified';
-  return { color: spec.to, amount: spec.amount * fade * stackBoost, glow: scale(spec.glow, glowK), smother: stone ? 0.95 : 0 };
+  return { color: spec.to, amount: spec.amount * fade * stackBoost, glow: scale(spec.glow, glowK), smother: stone ? 0.95 : 0, cover: stone ? fade : 0 };
 }
 
 /**
@@ -103,23 +108,26 @@ export function statusLook(statuses: readonly StatusIn[], t: number): StatusLook
     const l = layerOf(s, time);
     if (l) layers.push(l);
   }
-  if (!layers.length) return { colorTo: [0, 0, 0], colorAmount: 0, emissive: [0, 0, 0] };
+  if (!layers.length) return { colorTo: [0, 0, 0], colorAmount: 0, emissive: [0, 0, 0], cover: 0 };
   const w = layers.reduce((a, l) => a + l.amount, 0);
   const colorTo: RGB = [0, 0, 0];
   let gap = 1;
   const glow: RGB = [0, 0, 0];
   let smother = 0;
+  let cover = 0;
   for (const l of layers) {
     for (let i = 0; i < 3; i++) {
       colorTo[i] += w > 0 ? (l.color[i] * l.amount) / w : 0;
       glow[i] += l.glow[i];
     }
     gap *= 1 - Math.min(0.95, l.amount);
+    cover = Math.max(cover, l.cover ?? 0);
     smother = Math.max(smother, (l.smother ?? 0) * Math.min(1, l.amount / 0.6));
   }
   return {
     colorTo,
     colorAmount: 1 - gap,
+    cover,
     emissive: glow.map((g) => Math.min(1, g * (1 - smother))) as RGB,
   };
 }

@@ -79,6 +79,11 @@ export class FxSystem {
     return this.live.length;
   }
 
+  /** The ids of the effects drawn right now (test hook). */
+  liveIds(): string[] {
+    return this.live.map((i) => i.id);
+  }
+
   private sheet(id: string) {
     let p = this.sheets.get(id);
     if (!p) this.sheets.set(id, (p = this.loader.loadFxSheet(id, this.filter)));

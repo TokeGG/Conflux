@@ -47,7 +47,7 @@ test('stone smothers the glow of other statuses on the same mob', () => {
 
 test('shocked flickers hard between bright and nearly dark; poisoned is green; cursed violet; exposed gold; dilated slow', () => {
   const vals = Array.from({ length: 60 }, (_, i) => Math.max(...statusLook([s('shocked')], i / 60).emissive));
-  assert.ok(Math.max(...vals) > 0.8 && Math.min(...vals) < 0.2);
+  assert.ok(Math.max(...vals) > 0.5 && Math.min(...vals) < 0.25);
   const p = statusLook([s('poisoned')], 0.3 / STATUS_LOOK.poisoned.hz / 4 + 0.2);
   assert.ok(peakGlow('poisoned') > 0.4);
   assert.ok(p.colorTo[1] > p.colorTo[0] && p.colorTo[1] > p.colorTo[2]);
@@ -82,4 +82,11 @@ test('a status fades as it runs out instead of snapping off', () => {
 
 test('stays finite for odd times and stacks', () => {
   for (const t of [0, 1e6, -5, NaN, Infinity]) for (const id of STATUS_IDS) assert.ok(finite(statusLook([s(id, 3, 99)], t)), `${id} at ${t}`);
+});
+
+test('stone covers the painted texture (cover is 1 while rocked or petrified) and nothing else does', () => {
+  assert.equal(statusLook([s('rocked')], 0.5).cover, 1);
+  assert.equal(statusLook([s('petrified')], 0.5).cover, 1);
+  assert.equal(statusLook([s('burning')], 0.5).cover, 0);
+  assert.equal(statusLook([], 0.5).cover, 0);
 });

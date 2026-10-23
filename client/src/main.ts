@@ -55,7 +55,7 @@ declare global {
   interface Window {
     /** Read by the browser smoke tests. */
     __confluxDev?: { readonly sampling: boolean; report(): string };
-    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[]; souls: number; depth: number; roomType: string; wares: number; stalls: { x: number; z: number }[] } | null; buyNearest(slot?: number): string; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number; renderInfo(): { calls: number; triangles: number; geometries: number; textures: number; parts: string[] } };
+    __conflux?: { ready: boolean; tick: number; room: string; run(): { phase: RunPhase; roomIndex: number; tuned: boolean; screen: string; hp: number; gates: { x: number; z: number }[]; counters: Record<string, number>; unlocked: string[]; souls: number; depth: number; roomType: string; wares: number; stalls: { x: number; z: number }[] } | null; buyNearest(slot?: number): string; menuOpen?: () => boolean; lockRequests(): number; lights(): number; lamp(on: boolean): void; lookFrom(px: number, py: number, pz: number, lx: number, ly: number, lz: number): void; pieces: number; distinctColours(): number; pose(state: LocoState, castClip: string | null, castW: number, aimPitch: number): void; frontView(): void; playFx(id: string): Promise<void>; fxActive(): number; fxIds(): string[]; command(cmd: DevCommand): void; aimAt(x: number, y: number, z: number): { aimYaw: number; aimPitch: number }; sendInput(i: Partial<Input> | null): void; snapshot(): Snapshot | null; events(): SimEvent[]; enemyViews(): number; enemyPoses(): unknown[]; damageShown(): number; renderInfo(): { calls: number; triangles: number; geometries: number; textures: number; parts: string[] } };
   }
 }
 
@@ -207,6 +207,7 @@ async function boot(): Promise<void> {
       await fx.spawn(id, { x: room.spawns.player.x - 0.6, y: 0.2, z: room.spawns.player.z + 0.8 });
     },
     fxActive: () => fx.active,
+    fxIds: () => fx.liveIds(),
     /** Sends a dev command to the sim (test hook). */
     command: (cmd) => bridge.command(cmd),
     aimAt: (x, y, z) => play.aimAt({ x, y, z }),

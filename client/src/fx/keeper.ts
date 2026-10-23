@@ -84,7 +84,7 @@ export interface StatusFx {
 
 /** A sheet frame is 3 m wide at scale 1, and the mob the table's scales are meant for is about this tall. */
 const REFERENCE_HEIGHT = 2;
-const SIZE_RANGE: [number, number] = [0.65, 1.7];
+const SIZE_RANGE: [number, number] = [0.65, 1.25];
 
 /** How many copies of an effect stack up a mob of this height, so a tall one is covered and not just dotted. */
 export function statusCopies(height: number): number {

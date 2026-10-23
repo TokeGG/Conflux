@@ -90,6 +90,7 @@ export class EnemyView {
   /** Each material's colour without any status on it, which the status look pulls away from and back to. */
   private baseColor = new Map<THREE.MeshStandardMaterial, THREE.Color>();
   private lookTo = new THREE.Color();
+  private mapAway = new Map<THREE.MeshStandardMaterial, THREE.Texture | null>();
   private flashLeft = 0;
   private dyingFor = -1;
 
@@ -167,6 +168,20 @@ export class EnemyView {
     }
   }
 
+  /** Stone covers the painted texture: it is set aside while the mob is rocked, so the whole model shows one stone colour, and put back after. */
+  private coverMap(m: THREE.MeshStandardMaterial, on: boolean): void {
+    const away = this.mapAway.has(m);
+    if (on === away) return;
+    if (on) {
+      this.mapAway.set(m, m.map);
+      m.map = null;
+    } else {
+      m.map = this.mapAway.get(m) ?? null;
+      this.mapAway.delete(m);
+    }
+    m.needsUpdate = true;
+  }
+
   /** The colour and glow of a mob that carries statuses or marks, on top of its tint; the hurt flash still wins. */
   private applyLook(snap: EnemySnap): void {
     const on: StatusIn[] = [...snap.statuses, ...(snap.marks ?? [])];
@@ -175,6 +190,7 @@ export class EnemyView {
     for (const m of this.materials) {
       const base = this.baseColor.get(m);
       if (base) m.color.copy(base).lerp(this.lookTo, look.colorAmount);
+      this.coverMap(m, look.cover > 0.5);
       if (this.flashLeft > 0) m.emissive.setRGB(0.9, 0.1, 0.05);
       else {
         m.emissive.copy(this.glow.get(m) ?? ZERO);
