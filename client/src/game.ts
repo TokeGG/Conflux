@@ -1,6 +1,6 @@
 // The playable game in the page: reads the player's controls, sends them to the sim worker, and draws what comes back
 // (the player and enemies, effects, the HUD). The sim decides everything; this only shows it.
-import { FxKeeper, statusFxFor, zoneFxFor, type KeptFx } from './fx/keeper.ts';
+import { FxKeeper, statusFxLayers, zoneFxFor, type KeptFx } from './fx/keeper.ts';
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { buildWorld, hurtboxesFor, idleInput, resolveAim, type GameData, type Input, type RoomDef, type SimEvent, type SimBridge, type Snapshot, type Vec3, type World } from '@conflux/shared';
@@ -38,7 +38,8 @@ export interface GameDeps {
 const LOG_LIMIT = 300;
 
 /** The width in metres of an effect frame at scale 1 (192 px at 64 px a metre), so a zone effect can be sized to its radius. */
-const ZONE_FX_METRES = 3;
+/** A zone's ground effect is drawn so that its art (about this many metres of a 3 m frame) spans the zone, so the effect reads. */
+const ZONE_FX_METRES = 1.8;
 
 export class Game {
   readonly input: InputController;
@@ -103,8 +104,7 @@ export class Game {
     this.dying = [];
     this.enemyLoads.clear();
     this.lastEnemies.clear();
-    for (const rec of this.projectiles.values()) rec.handle?.stop();
-    this.projectiles.clear();
+    this.clearFx();
     this.latest = null;
     this.prevPos = null;
     this.holder.position.set(room.spawns.player.x, 0, room.spawns.player.z);
@@ -114,6 +114,17 @@ export class Game {
       this.input.yaw = Math.atan2(-x, -z);
       this.input.pitch = 0;
     }
+  }
+
+  /** Ends every effect of the room that is going away: event effects, kept status and zone effects, projectile effects. */
+  clearFx(): void {
+    for (const rec of this.projectiles.values()) {
+      rec.stopped = true;
+      rec.handle?.stop();
+    }
+    this.projectiles.clear();
+    this.keeper.reset();
+    this.d.fx.clear();
   }
 
   private onFrame(s: Snapshot, events: SimEvent[]): void {
@@ -191,12 +202,14 @@ export class Game {
     const active = new Map<string, KeptFx>();
     for (const z of s.zones) {
       const fx = zoneFxFor(z.kind, skills);
-      if (fx) active.set(`z${z.id}`, { id: fx.id, pos: { x: z.pos.x, y: z.pos.y + 0.05, z: z.pos.z }, scale: Math.max(0.5, (z.radius * 2) / ZONE_FX_METRES) });
+      if (fx) active.set(`z${z.id}`, { id: fx.id, pos: { x: z.pos.x, y: z.pos.y + 0.05, z: z.pos.z }, scale: Math.max(0.9, (z.radius * 2) / ZONE_FX_METRES) });
     }
+    const enemies = this.d.data().enemies;
     for (const e of s.enemies) {
-      for (const st of e.statuses) {
-        const fx = statusFxFor(st.id);
-        if (fx) active.set(`s${e.id}.${st.id}`, { id: fx.id, pos: { x: e.pos.x, y: e.pos.y + fx.y, z: e.pos.z }, scale: fx.scale });
+      const def = enemies[e.defId];
+      const height = def ? Math.max(...def.hurtboxes.map((h) => Math.max(h.a[1], h.b[1]) + h.r)) * def.scale : 2;
+      for (const st of [...e.statuses, ...(e.marks ?? [])]) {
+        statusFxLayers(st.id, height).forEach((fx, i) => active.set(`s${e.id}.${st.id}.${i}`, { id: fx.id, pos: { x: e.pos.x, y: e.pos.y + fx.y, z: e.pos.z }, scale: fx.scale }));
       }
     }
     for (const [key, fx] of keptCastFx(s.players[0], skills, this.d.data().player.castOrigin)) active.set(`p${key}`, fx);

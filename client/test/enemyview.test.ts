@@ -146,3 +146,40 @@ test('metallic models are not left fully metallic: with no environment map in th
   assert.ok(material(v).metalness <= 0.1);
   assert.equal(mat.metalness, 1, 'the shared material is untouched');
 });
+
+test('a burning mob glows orange-red and is charred, and returns to its base look when the status ends', () => {
+  const { root } = model();
+  const v = new EnemyView(data.enemies['enemy.stump'], root);
+  v.update(snap(), 1 / 60);
+  const base = material(v).color.clone();
+  const baseGlow = material(v).emissive.clone();
+  for (let i = 0; i < 12; i++) v.update(snap({ statuses: [{ id: 'burning', remaining: 4 }] }), 1 / 60);
+  assert.ok(material(v).emissive.r > baseGlow.r + 0.2 && material(v).emissive.r > material(v).emissive.b * 2);
+  assert.ok(material(v).color.r < base.r, 'charred');
+  v.update(snap(), 1 / 60);
+  assert.ok(Math.abs(material(v).color.r - base.r) < 1e-6 && Math.abs(material(v).emissive.r - baseGlow.r) < 1e-6);
+});
+
+test('a rocked mob turns stone coloured with no extra glow, and a hit flash still shows over a status', () => {
+  const { root } = model();
+  const v = new EnemyView(data.enemies['enemy.stump'], root);
+  v.update(snap({ statuses: [{ id: 'rocked', remaining: 5 }] }), 1 / 60);
+  const c = material(v).color;
+  assert.ok(Math.abs(c.r - c.b) < 0.45 && c.r >= c.b, 'grey-brown');
+  v.hurt();
+  v.update(snap({ statuses: [{ id: 'rocked', remaining: 5 }] }), 1 / 60);
+  assert.ok(material(v).emissive.r > 0.5);
+});
+
+test('the painted texture is set aside while rocked and comes back afterwards', () => {
+  const { root, mat } = model();
+  const tex = new THREE.Texture();
+  mat.map = tex;
+  const v = new EnemyView(data.enemies['enemy.stump'], root);
+  v.update(snap(), 1 / 60);
+  assert.equal(material(v).map, tex);
+  v.update(snap({ statuses: [{ id: 'rocked', remaining: 5 }] }), 1 / 60);
+  assert.equal(material(v).map, null);
+  v.update(snap(), 1 / 60);
+  assert.equal(material(v).map, tex);
+});

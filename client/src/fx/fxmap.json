@@ -116,25 +116,149 @@
     "burning_trail": "fx.burning_ground"
   },
   "statuses": {
-    "gusted": {
-      "id": "fx.leaf_cyclone",
-      "scale": 1.7,
-      "y": 1.0
-    },
     "burning": {
-      "id": "fx.campfire_loop",
-      "scale": 1.1,
-      "y": 0.5
+      "layers": [
+        {
+          "id": "fx.campfire_loop",
+          "scale": 2.0
+        },
+        {
+          "id": "fx.ember_burst",
+          "scale": 1.7
+        }
+      ]
     },
     "soaked": {
-      "id": "fx.water_splash",
-      "scale": 0.9,
-      "y": 1.0
+      "layers": [
+        {
+          "id": "fx.water_splash",
+          "scale": 1.9
+        },
+        {
+          "id": "fx.bubble_shield",
+          "scale": 1.7
+        }
+      ]
     },
     "rocked": {
-      "id": "fx.stone_impact",
-      "scale": 1.0,
-      "y": 0.3
+      "layers": [
+        {
+          "id": "fx.stone_impact",
+          "scale": 2.0
+        },
+        {
+          "id": "fx.rock_shield",
+          "scale": 1.8
+        }
+      ]
+    },
+    "gusted": {
+      "layers": [
+        {
+          "id": "fx.leaf_cyclone",
+          "scale": 2.1
+        },
+        {
+          "id": "fx.dust_step",
+          "scale": 1.7
+        }
+      ]
+    },
+    "shocked": {
+      "layers": [
+        {
+          "id": "fx.spark_shower",
+          "scale": 1.9
+        },
+        {
+          "id": "fx.thunder_burst",
+          "scale": 1.7
+        }
+      ]
+    },
+    "exposed": {
+      "layers": [
+        {
+          "id": "fx.celestial_orbit",
+          "scale": 1.7
+        },
+        {
+          "id": "fx.mana_charge",
+          "scale": 1.7
+        }
+      ]
+    },
+    "cursed": {
+      "layers": [
+        {
+          "id": "fx.shadow_grasp",
+          "scale": 1.9
+        },
+        {
+          "id": "fx.soul_release",
+          "scale": 1.6
+        }
+      ]
+    },
+    "rent": {
+      "layers": [
+        {
+          "id": "fx.cross_slash",
+          "scale": 1.8
+        },
+        {
+          "id": "fx.sword_crescent",
+          "scale": 1.7
+        }
+      ]
+    },
+    "poisoned": {
+      "layers": [
+        {
+          "id": "fx.toxic_bubble",
+          "scale": 2.0
+        },
+        {
+          "id": "fx.poison_cloud",
+          "scale": 1.7
+        }
+      ]
+    },
+    "dilated": {
+      "layers": [
+        {
+          "id": "fx.rune_seal",
+          "scale": 1.8
+        },
+        {
+          "id": "fx.teleport_arrival",
+          "scale": 1.6
+        }
+      ]
+    },
+    "stasis": {
+      "layers": [
+        {
+          "id": "fx.magic_shield",
+          "scale": 2.0
+        },
+        {
+          "id": "fx.rune_seal",
+          "scale": 1.7
+        }
+      ]
+    },
+    "petrified": {
+      "layers": [
+        {
+          "id": "fx.rock_shield",
+          "scale": 2.1
+        },
+        {
+          "id": "fx.stone_impact",
+          "scale": 1.8
+        }
+      ]
     }
   }
 }
