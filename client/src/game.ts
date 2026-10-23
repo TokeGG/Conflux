@@ -10,6 +10,7 @@ import type { CharacterRig } from './anim/rig.ts';
 import type { AssetLoader } from './assets/loader.ts';
 import { effectiveFov, NEUTRAL_FOV, ThirdPersonCamera } from './camera.ts';
 import { fxForEvent } from './fx/events.ts';
+import { castExtras, keptCastFx } from './fx/castFx.ts';
 import type { FxHandle, FxSystem } from './fx/sprites.ts';
 import type { Hud } from './hud/hud.ts';
 import { InputController } from './input.ts';
@@ -131,10 +132,11 @@ export class Game {
         if (this.log.length > LOG_LIMIT) this.log.shift();
       }
       if (e.type === 'hit' && e.target === 'enemy') this.onEnemyHit(e, s);
+      if (e.type === 'cast_fire') for (const piece of castExtras(e, skills, p.pos)) void this.d.fx.spawn(piece.id, piece.pos, { scale: piece.scale, dir: piece.dir }).catch(() => undefined);
       const at = fxForEvent(e, skills);
       if (!at) continue;
       const pos = this.where(e, at.at, s);
-      if (pos) void this.d.fx.spawn(at.id, pos).catch(() => undefined);
+      if (pos) void this.d.fx.spawn(at.id, pos, at.scale ? { scale: at.scale } : {}).catch(() => undefined);
     }
     this.syncProjectiles(s);
     this.syncPersistentFx(s);
@@ -197,6 +199,7 @@ export class Game {
         if (fx) active.set(`s${e.id}.${st.id}`, { id: fx.id, pos: { x: e.pos.x, y: e.pos.y + fx.y, z: e.pos.z }, scale: fx.scale });
       }
     }
+    for (const [key, fx] of keptCastFx(s.players[0], skills, this.d.data().player.castOrigin)) active.set(`p${key}`, fx);
     void this.keeper.sync(active);
   }
 
@@ -353,6 +356,29 @@ export class Game {
   /** The body pose of every enemy on screen (test hook). */
   enemyPoses(): (ReturnType<EnemyView['debugPose']> & { sim: number })[] {
     return [...this.enemies].map(([sim, v]) => ({ sim, ...v.debugPose() }));
+  }
+
+  /** Where a named bone of the player's model is, as metres forward, right and up of the player's feet along the facing (test hook for measuring the casting hand). */
+  boneLocal(name: string): { forward: number; right: number; up: number; t: number } | null {
+    const node = this.d.playerModel.getObjectByName(name);
+    const p = this.latest?.players[0];
+    if (!node || !p) return null;
+    this.d.scene.updateMatrixWorld(true);
+    const w = node.getWorldPosition(new THREE.Vector3());
+    const dx = w.x - p.pos.x;
+    const dz = w.z - p.pos.z;
+    const fx = Math.sin(p.facing);
+    const fz = Math.cos(p.facing);
+    return { forward: dx * fx + dz * fz, right: dz * fx - dx * fz, up: w.y - p.pos.y, t: this.d.rig.castClipTime() };
+  }
+
+  /** boneLocal with the legs pinned to one moment of a clip (test hook: the hand at the release frame of a cast clip). */
+  boneAtClip(name: string, clip: string, time: number): ReturnType<Game['boneLocal']> {
+    this.d.rig.showClip(clip, time);
+    this.d.rig.update(0);
+    const out = this.boneLocal(name);
+    this.d.rig.showClip(null);
+    return out;
   }
 
   /** How many enemies have a model on screen (test hook). */

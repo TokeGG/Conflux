@@ -51,6 +51,7 @@ interface Instance {
   scale: number;
   anchor: Vec3;
   follow: (() => Vec3 | null) | null;
+  dir: (() => Vec3 | null) | null;
   stopped: boolean;
   handle: FxHandle & { finish(): void };
 }
@@ -80,13 +81,15 @@ export class FxSystem {
   }
 
   /** Starts an effect at a position (or following something). Resolves once its sheet is loaded; unknown ids reject. */
-  async spawn(id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null } = {}): Promise<FxHandle> {
+  async spawn(id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null; dir?: Vec3 | (() => Vec3 | null) } = {}): Promise<FxHandle> {
     const { texture, def } = await this.sheet(id);
     const inst = this.idle.get(id)?.pop() ?? this.make(id, texture, def);
     inst.start = this.now;
     inst.scale = opts.scale ?? 1;
     inst.anchor = { ...pos };
     inst.follow = opts.follow ?? null;
+    const dir = opts.dir;
+    inst.dir = dir ? (typeof dir === 'function' ? dir : () => dir) : null;
     inst.stopped = false;
     inst.mesh.visible = true;
     inst.handle = this.handleFor(inst);
@@ -119,12 +122,13 @@ export class FxSystem {
       transparent: true,
       depthWrite: false,
       toneMapped: false,
+      side: THREE.DoubleSide,
       blending: def.blend === 'additive' || def.blend === 'add' ? THREE.AdditiveBlending : THREE.NormalBlending,
     });
     const mesh = new THREE.Mesh(this.geometry, material);
     mesh.renderOrder = 10;
     mesh.frustumCulled = false;
-    const inst: Instance = { id, mesh, book, start: 0, scale: 1, anchor: { x: 0, y: 0, z: 0 }, follow: null, stopped: false, handle: null as never };
+    const inst: Instance = { id, mesh, book, start: 0, scale: 1, anchor: { x: 0, y: 0, z: 0 }, follow: null, dir: null, stopped: false, handle: null as never };
     return inst;
   }
 
@@ -142,18 +146,29 @@ export class FxSystem {
         continue;
       }
       inst.book.setFrame(inst.book.frameAt(ms));
-      const d = inst.book.def;
-      const w = (d.frame[0] / PIXELS_PER_METRE) * inst.scale;
-      const h = (d.frame[1] / PIXELS_PER_METRE) * inst.scale;
+      const d0 = inst.book.def;
+      const w = (d0.frame[0] / PIXELS_PER_METRE) * inst.scale;
+      const h = (d0.frame[1] / PIXELS_PER_METRE) * inst.scale;
       const at = inst.follow?.() ?? inst.anchor;
       inst.mesh.quaternion.copy(camera.quaternion);
-      inst.mesh.scale.set(w, h, 1);
-      // the sheet's anchor pixel sits on the position: move the quad's centre up by how far the anchor is below it
-      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
-      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
-      const dy = ((d.anchor[1] - d.frame[1] / 2) / PIXELS_PER_METRE) * inst.scale;
-      const dx = ((d.frame[0] / 2 - d.anchor[0]) / PIXELS_PER_METRE) * inst.scale;
-      inst.mesh.position.set(at.x, at.y, at.z).addScaledVector(up, dy).addScaledVector(right, dx);
+      const world = inst.dir?.() ?? null;
+      if (world) {
+        // lay the sheet along a world direction: its right side follows the direction as the camera sees it (mirrored when it points left, so it never turns upside down)
+        const d = new THREE.Vector3(world.x, world.y, world.z).applyQuaternion(camera.quaternion.clone().invert());
+        const flip = d.x < 0 ? -1 : 1;
+        const roll = Math.hypot(d.x, d.y) > 0.05 ? Math.atan2(d.y * flip, Math.abs(d.x)) : 0;
+        inst.mesh.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), roll));
+        inst.mesh.scale.set(w * flip, h, 1);
+        inst.mesh.position.set(at.x, at.y, at.z);
+      } else {
+        inst.mesh.scale.set(w, h, 1);
+        // the sheet's anchor pixel sits on the position: move the quad's centre up by how far the anchor is below it
+        const up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+        const dy = ((d0.anchor[1] - d0.frame[1] / 2) / PIXELS_PER_METRE) * inst.scale;
+        const dx = ((d0.frame[0] / 2 - d0.anchor[0]) / PIXELS_PER_METRE) * inst.scale;
+        inst.mesh.position.set(at.x, at.y, at.z).addScaledVector(up, dy).addScaledVector(right, dx);
+      }
       keep.push(inst);
     }
     this.live = keep;

@@ -1,6 +1,12 @@
 {
   "events": {
     "cast": null,
+    "cast_fire": {
+      "by": "skill",
+      "slot": "cast",
+      "at": "pos",
+      "scale": 0.55
+    },
     "hit": {
       "by": "skill",
       "slot": "hit",

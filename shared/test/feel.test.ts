@@ -62,7 +62,7 @@ test('cast blend and fireAt are optional: they can be set on a skill that does n
   assert.match(validatePatch(base, { path: 'skills.fire.nope.cast.blend', value: 0.5 }) ?? '', /unknown path/);
   const { data, undo } = applyPatches(base, [{ path: 'skills.fire.fireball.cast.fireAt', value: 0.4 }]);
   assert.equal(data.skills['fire.fireball'].cast.fireAt, 0.4);
-  assert.equal(applyPatches(data, undo).data.skills['fire.fireball'].cast.fireAt, 0, 'undo puts the default back');
+  assert.equal(applyPatches(data, undo).data.skills['fire.fireball'].cast.fireAt, base.skills['fire.fireball'].cast.fireAt, 'undo puts the old value back');
 });
 
 test('the layers carry animation and camera edits through the run layer and back', () => {

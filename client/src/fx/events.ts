@@ -6,9 +6,11 @@ export interface FxPlacement {
   id: string;
   /** 'pos': where the event says (x, y, z or pos); 'target': on the entity it names (the player, or the enemy with that id). */
   at: 'pos' | 'target';
+  /** How big to draw it, when the map says (1 is the sheet's own size). */
+  scale?: number;
 }
 
-type Entry = null | { id: string; at: 'pos' | 'target' } | { by: 'skill'; slot: string; at: 'pos' | 'target' } | { by: 'reaction' | 'to'; ids: Record<string, string>; at: 'pos' | 'target' };
+type Entry = null | { id: string; at: 'pos' | 'target' } | { by: 'skill'; slot: string; at: 'pos' | 'target'; scale?: number } | { by: 'reaction' | 'to'; ids: Record<string, string>; at: 'pos' | 'target' };
 
 export function fxForEvent(e: SimEvent, skills: Record<string, Pick<SkillDef, 'fx'>> = {}): FxPlacement | null {
   const entry = (fxmap.events as Record<string, Entry>)[e.type];
@@ -16,7 +18,7 @@ export function fxForEvent(e: SimEvent, skills: Record<string, Pick<SkillDef, 'f
   if ('id' in entry) return { id: entry.id, at: entry.at };
   if (entry.by === 'skill') {
     const id = skills[String(e.skillId)]?.fx?.[entry.slot];
-    return id ? { id, at: entry.at } : null;
+    return id ? { id, at: entry.at, ...(entry.scale ? { scale: entry.scale } : {}) } : null;
   }
   const id = entry.ids[String(entry.by === 'reaction' ? e.id : e.to)];
   return id ? { id, at: entry.at } : null;

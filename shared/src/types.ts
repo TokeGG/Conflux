@@ -83,6 +83,8 @@ export interface PlayerCfg {
   dashSpeed: number;
   swap: { cooldown: number; bonusWindow: number; bonusDamage: number };
   cast: { windupMove: number; channelMove: number };
+  /** Where a spell leaves the caster, in metres from the feet: forward along the facing, right (the character's own right, seen from behind) and up. The wizard's casting hand at the release of a cast. */
+  castOrigin: { forward: number; right: number; up: number };
 }
 
 export interface ElementsCfg {

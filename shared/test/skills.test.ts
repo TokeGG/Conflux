@@ -62,7 +62,7 @@ test('a boulder with gravity arcs up, comes down and lands before 20 m', () => {
     } else if (i > 20) break;
   }
   assert.equal(sim.projectiles.length, 0, 'it landed');
-  assert.ok(maxY > 2.2, `it rose (peak ${maxY})`);
+  assert.ok(maxY > 1.5, `it rose (peak ${maxY})`);
   assert.ok(last.y < 1, `it came back down (${last.y})`);
   assert.ok(last.z > 5 && last.z < 20, `it landed at ${last.z} m`);
 });

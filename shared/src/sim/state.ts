@@ -232,6 +232,10 @@ export interface PlayerSnap {
   statuses: StatusSnap[];
   dodging: boolean;
   casting: string | null;
+  /** The skill whose buff or shield is up (null when none), for the aura the client draws round the player. */
+  buff: string | null;
+  /** The aim point of a stream while it channels (null otherwise), so the client can draw the stream from the hand to it. */
+  aim: Vec3 | null;
   /** The held element's skills. */
   slots: SlotSnap[];
   swapRemaining: number;

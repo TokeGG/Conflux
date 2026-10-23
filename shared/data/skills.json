@@ -16,9 +16,11 @@
       "archetype": "throw",
       "windup": 0.18,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.ember_burst",
       "travel": "fx.fireball_travel",
       "hit": "fx.fireball_impact"
     },
@@ -42,10 +44,13 @@
       "archetype": "sweep",
       "windup": 0.2,
       "clip": "cast_2h_magic_attack_01",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.48
     },
     "fx": {
-      "hit": "fx.flame_jet"
+      "cast": "fx.ember_burst",
+      "cone": "fx.flame_jet",
+      "hit": "fx.ember_burst"
     },
     "tags": [
       "cone",
@@ -71,6 +76,7 @@
       "move": 0.7
     },
     "fx": {
+      "cast": "fx.ember_burst",
       "trail": "fx.burning_ground"
     },
     "tags": [
@@ -95,9 +101,11 @@
       "archetype": "throw",
       "windup": 0.15,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.water_splash",
       "travel": "fx.water_projectile",
       "hit": "fx.water_splash"
     },
@@ -124,10 +132,14 @@
       "archetype": "channel",
       "windup": 0.2,
       "clip": "cast_magic_spell_casting",
-      "move": 0.5
+      "move": 0.5,
+      "fireAt": 0.05
     },
     "fx": {
-      "loop": "fx.tidal_wave"
+      "cast": "fx.water_splash",
+      "stream": "fx.tidal_wave",
+      "self": "fx.tidal_wave",
+      "hit": "fx.water_splash"
     },
     "tags": [
       "stream",
@@ -150,10 +162,12 @@
       "archetype": "self",
       "windup": 0.1,
       "clip": "cast_1h_cast_spell_01",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.31
     },
     "fx": {
-      "loop": "fx.bubble_shield",
+      "cast": "fx.water_splash",
+      "self": "fx.bubble_shield",
       "pop": "fx.water_splash"
     },
     "tags": [
@@ -178,9 +192,11 @@
       "archetype": "throw",
       "windup": 0.3,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.stone_impact",
       "travel": "fx.boulder_roll",
       "hit": "fx.stone_impact"
     },
@@ -205,10 +221,12 @@
     "cast": {
       "archetype": "slam",
       "windup": 0.35,
-      "clip": "cast_two_hand_spell_casting",
-      "move": 0.6
+      "clip": "cast_spell_casting",
+      "move": 0.6,
+      "fireAt": 0.33
     },
     "fx": {
+      "cast": "fx.stone_impact",
       "zone": "fx.crystal_eruption"
     },
     "tags": [
@@ -232,10 +250,12 @@
       "archetype": "self",
       "windup": 0.1,
       "clip": "cast_1h_cast_spell_01",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.31
     },
     "fx": {
-      "loop": "fx.rock_shield"
+      "cast": "fx.stone_impact",
+      "self": "fx.rock_shield"
     },
     "tags": [
       "buff",
@@ -261,9 +281,11 @@
       "archetype": "throw",
       "windup": 0.12,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.leaf_cyclone",
       "travel": "fx.sword_crescent",
       "hit": "fx.dust_step"
     },
@@ -288,9 +310,11 @@
       "archetype": "push",
       "windup": 0.3,
       "clip": "cast_two_hand_spell_casting",
-      "move": 0.6
+      "move": 0.6,
+      "fireAt": 0.41
     },
     "fx": {
+      "cast": "fx.leaf_cyclone",
       "zone": "fx.leaf_cyclone"
     },
     "tags": [
@@ -316,6 +340,7 @@
       "move": 0.7
     },
     "fx": {
+      "cast": "fx.leaf_cyclone",
       "trail": "fx.dust_step"
     },
     "tags": [
@@ -340,9 +365,11 @@
       "archetype": "throw",
       "windup": 0.08,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.8
+      "move": 0.8,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.ember_burst",
       "travel": "fx.ember_burst",
       "hit": "fx.fireball_impact"
     },
@@ -367,10 +394,12 @@
     "cast": {
       "archetype": "slam",
       "windup": 0.3,
-      "clip": "cast_two_hand_spell_casting",
-      "move": 0.6
+      "clip": "cast_spell_casting",
+      "move": 0.6,
+      "fireAt": 0.33
     },
     "fx": {
+      "cast": "fx.ember_burst",
       "zone": "fx.burning_ground"
     },
     "tags": [
@@ -393,10 +422,12 @@
     "cast": {
       "archetype": "slam",
       "windup": 0.35,
-      "clip": "cast_two_hand_spell_casting",
-      "move": 0.6
+      "clip": "cast_spell_casting",
+      "move": 0.6,
+      "fireAt": 0.33
     },
     "fx": {
+      "cast": "fx.water_splash",
       "zone": "fx.rain_circle"
     },
     "tags": [
@@ -424,6 +455,7 @@
       "move": 0.7
     },
     "fx": {
+      "cast": "fx.water_splash",
       "trail": "fx.water_splash"
     },
     "tags": [
@@ -450,9 +482,11 @@
       "archetype": "throw",
       "windup": 0.12,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.stone_impact",
       "travel": "fx.stone_impact",
       "hit": "fx.stone_impact"
     },
@@ -478,10 +512,12 @@
       "archetype": "self",
       "windup": 0.1,
       "clip": "cast_1h_cast_spell_01",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.31
     },
     "fx": {
-      "loop": "fx.rock_shield"
+      "cast": "fx.stone_impact",
+      "self": "fx.rock_shield"
     },
     "tags": [
       "shield",
@@ -506,9 +542,11 @@
       "archetype": "throw",
       "windup": 0.1,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.leaf_cyclone",
       "travel": "fx.sword_crescent",
       "hit": "fx.dust_step"
     },
@@ -532,10 +570,13 @@
       "archetype": "sweep",
       "windup": 0.25,
       "clip": "cast_2h_magic_attack_01",
-      "move": 0.6
+      "move": 0.6,
+      "fireAt": 0.48
     },
     "fx": {
-      "hit": "fx.leaf_cyclone"
+      "cast": "fx.leaf_cyclone",
+      "cone": "fx.leaf_cyclone",
+      "hit": "fx.dust_step"
     },
     "tags": [
       "cone",
@@ -560,9 +601,11 @@
       "archetype": "throw",
       "windup": 0.12,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.8
+      "move": 0.8,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.spark_shower",
       "travel": "fx.electric_orb",
       "hit": "fx.thunder_burst"
     },
@@ -586,10 +629,12 @@
     "cast": {
       "archetype": "slam",
       "windup": 0.35,
-      "clip": "cast_2h_magic_attack_01",
-      "move": 0.6
+      "clip": "cast_spell_casting",
+      "move": 0.6,
+      "fireAt": 0.33
     },
     "fx": {
+      "cast": "fx.spark_shower",
       "zone": "fx.lightning_strike",
       "hit": "fx.thunder_burst"
     },
@@ -618,6 +663,7 @@
       "move": 0.8
     },
     "fx": {
+      "cast": "fx.spark_shower",
       "trail": "fx.spark_shower"
     },
     "tags": [
@@ -643,9 +689,11 @@
       "archetype": "throw",
       "windup": 0.15,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.celestial_orbit",
       "travel": "fx.holy_ray",
       "hit": "fx.celestial_orbit"
     },
@@ -670,10 +718,12 @@
     "cast": {
       "archetype": "slam",
       "windup": 0.3,
-      "clip": "cast_2h_magic_attack_01",
-      "move": 0.6
+      "clip": "cast_spell_casting",
+      "move": 0.6,
+      "fireAt": 0.33
     },
     "fx": {
+      "cast": "fx.celestial_orbit",
       "zone": "fx.holy_ray",
       "hit": "fx.celestial_orbit"
     },
@@ -698,10 +748,12 @@
       "archetype": "self",
       "windup": 0.1,
       "clip": "cast_1h_cast_spell_01",
-      "move": 0.8
+      "move": 0.8,
+      "fireAt": 0.31
     },
     "fx": {
-      "loop": "fx.magic_shield",
+      "cast": "fx.celestial_orbit",
+      "self": "fx.magic_shield",
       "pop": "fx.celestial_orbit"
     },
     "tags": [
@@ -726,9 +778,11 @@
       "archetype": "throw",
       "windup": 0.2,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.shadow_grasp",
       "travel": "fx.spectral_blade",
       "hit": "fx.shadow_grasp"
     },
@@ -752,10 +806,13 @@
       "archetype": "sweep",
       "windup": 0.25,
       "clip": "cast_2h_magic_attack_01",
-      "move": 0.6
+      "move": 0.6,
+      "fireAt": 0.48
     },
     "fx": {
-      "hit": "fx.soul_chain"
+      "cast": "fx.shadow_grasp",
+      "cone": "fx.soul_chain",
+      "hit": "fx.shadow_grasp"
     },
     "tags": [
       "cone",
@@ -782,6 +839,7 @@
       "move": 0.8
     },
     "fx": {
+      "cast": "fx.shadow_grasp",
       "trail": "fx.teleport_departure"
     },
     "tags": [
@@ -807,9 +865,11 @@
       "archetype": "throw",
       "windup": 0.15,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.cross_slash",
       "travel": "fx.sword_crescent",
       "hit": "fx.cross_slash"
     },
@@ -833,10 +893,13 @@
       "archetype": "sweep",
       "windup": 0.2,
       "clip": "cast_2h_magic_attack_01",
-      "move": 0.6
+      "move": 0.6,
+      "fireAt": 0.48
     },
     "fx": {
-      "hit": "fx.piercing_thrust"
+      "cast": "fx.cross_slash",
+      "cone": "fx.piercing_thrust",
+      "hit": "fx.cross_slash"
     },
     "tags": [
       "cone",
@@ -859,10 +922,12 @@
       "archetype": "self",
       "windup": 0.1,
       "clip": "cast_1h_cast_spell_01",
-      "move": 0.8
+      "move": 0.8,
+      "fireAt": 0.31
     },
     "fx": {
-      "loop": "fx.crystal_shield",
+      "cast": "fx.cross_slash",
+      "self": "fx.crystal_shield",
       "pop": "fx.cross_slash"
     },
     "tags": [
@@ -887,9 +952,11 @@
       "archetype": "throw",
       "windup": 0.12,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.8
+      "move": 0.8,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.toxic_bubble",
       "travel": "fx.toxic_bubble",
       "hit": "fx.poison_cloud"
     },
@@ -913,10 +980,12 @@
     "cast": {
       "archetype": "slam",
       "windup": 0.3,
-      "clip": "cast_2h_magic_attack_01",
-      "move": 0.6
+      "clip": "cast_spell_casting",
+      "move": 0.6,
+      "fireAt": 0.33
     },
     "fx": {
+      "cast": "fx.toxic_bubble",
       "zone": "fx.poison_cloud"
     },
     "tags": [
@@ -944,6 +1013,7 @@
       "move": 0.8
     },
     "fx": {
+      "cast": "fx.toxic_bubble",
       "trail": "fx.toxic_bubble"
     },
     "tags": [
@@ -968,9 +1038,11 @@
       "archetype": "throw",
       "windup": 0.18,
       "clip": "cast_1h_magic_attack_02",
-      "move": 0.7
+      "move": 0.7,
+      "fireAt": 0.3
     },
     "fx": {
+      "cast": "fx.rune_seal",
       "travel": "fx.arcane_portal",
       "hit": "fx.rune_seal"
     },
@@ -995,9 +1067,11 @@
       "archetype": "push",
       "windup": 0.3,
       "clip": "cast_two_hand_spell_casting",
-      "move": 0.6
+      "move": 0.6,
+      "fireAt": 0.41
     },
     "fx": {
+      "cast": "fx.rune_seal",
       "zone": "fx.gravity_well"
     },
     "tags": [
@@ -1023,6 +1097,7 @@
       "move": 0.8
     },
     "fx": {
+      "cast": "fx.rune_seal",
       "trail": "fx.teleport_arrival"
     },
     "tags": [

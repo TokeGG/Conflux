@@ -258,7 +258,7 @@ export class SkillAnimPage implements DevPage {
       const life = Math.min(shape.lifetime ?? 1.5, (TARGET_Z - 0.6) / speed);
       const flight = { pos: { ...hand }, vz: speed, left: life, handle: null as FxHandle | null, hit: fx.hit };
       this.flights.push(flight);
-      void this.fx?.spawn(fx.travel ?? fx.loop ?? '', flight.pos, { follow: () => flight.pos }).then((h) => (flight.handle = h), () => undefined);
+      void this.fx?.spawn(fx.travel ?? fx.self ?? fx.stream ?? fx.cone ?? fx.cast ?? '', flight.pos, { follow: () => flight.pos }).then((h) => (flight.handle = h), () => undefined);
       if (fx.trail) void this.fx?.spawn(fx.trail, flight.pos, { follow: () => flight.pos }).then((h) => this.live.push(h), () => undefined);
       return;
     }

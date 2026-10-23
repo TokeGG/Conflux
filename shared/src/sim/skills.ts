@@ -8,6 +8,7 @@ import { consumeSwapBonus } from './swap.ts';
 import { dealDamage } from './damage.ts';
 import { dropSouls } from './souls.ts';
 import { spreadOnDeath } from './deaths.ts';
+import { castOriginAt, shotDirection } from './castorigin.ts';
 
 export interface CastResult {
   ok: boolean;
@@ -26,10 +27,8 @@ const STREAM_FAN = 0.25;
 /** How many seconds of damage an enemy remembers (the Rewind curse replays them). */
 export const DAMAGE_MEMORY = 4;
 
-/** Chest height: where spells leave the caster. */
+/** Chest height: the dash sweeps at this height (spells themselves leave the casting hand, see castOrigin). */
 const CHEST = 1.4;
-
-const chest = (p: PlayerState): Vec3 => ({ x: p.pos.x, y: p.pos.y + CHEST, z: p.pos.z });
 
 /** Takes health off an enemy and emits the hit; removes it when it dies. Element, status and reaction rules live in dealDamage. */
 export function damageEnemy(sim: Sim, e: EnemyState, amount: number, skillId: string, point: Vec3): void {
@@ -104,19 +103,19 @@ export function stepCast(sim: Sim, p: PlayerState, input: Input): void {
     p.castState = null;
     return;
   }
-  const origin = chest(p);
+  const origin = castOriginAt(p.pos, p.facing, sim.data.player.castOrigin);
   if (skill.shape.type === 'stream') {
     cs.aim = resolveAim(sim.world, sim.enemies.flatMap((e) => enemyHurtboxes(e)), input.camOrigin, input.aimYaw, input.aimPitch, sim.data.player.maxAimRange).point;
   }
   if (!cs.fired && now >= (cs.fireAt ?? 0)) {
     cs.fired = true;
-    fire(sim, p, skill, origin, cs.aim ?? { x: origin.x, y: origin.y, z: origin.z + 1 }, cs.bonus);
+    fire(sim, p, skill, origin, cs.aim ?? { x: origin.x + Math.sin(p.facing), y: origin.y, z: origin.z + Math.cos(p.facing) }, cs.bonus);
   }
   if (cs.fired && skill.shape.type === 'stream') {
     const tick = skill.shape.tick ?? 0.25;
     while (cs.nextTick !== undefined && now >= cs.nextTick && cs.nextTick < cs.until - 1e-9) {
       cs.nextTick += tick;
-      const dir = v3.norm(v3.sub(cs.aim ?? origin, origin));
+      const dir = shotDirection(origin, cs.aim ?? origin, p.facing);
       // extra streams fan out either side of the aim; an enemy in two of them is hit once
       const lines = Math.max(1, Math.round(skill.shape.count ?? 1));
       const hits = new Map<number, ReturnType<typeof hitEnemies>[number]>();
@@ -136,7 +135,8 @@ export function stepCast(sim: Sim, p: PlayerState, input: Input): void {
 function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3, bonus?: Bonus): void {
   const s = skill.shape;
   const now = sim.time;
-  const dir = v3.norm(v3.sub(aim, origin));
+  const dir = shotDirection(origin, aim, p.facing);
+  const extra: Record<string, number> = {};
   switch (s.type) {
     case 'projectile': {
       const aimDir = s.gravity ? lobDirection(origin, aim, s.speed ?? 20, s.gravity) ?? dir : dir;
@@ -170,7 +170,8 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       p.buff = { skillId: skill.id, until: now + (s.duration ?? 3), absorb: s.absorb ?? 0, damageTakenMul: s.damageTakenMul ?? 1, speedMul: s.speedMul ?? 1 };
       break;
     case 'dash': {
-      const flat = v3.norm({ x: dir.x, y: 0, z: dir.z });
+      const aimed = v3.sub(aim, origin); // a dash goes where the aim point is, whichever way the body faces
+      const flat = v3.norm({ x: aimed.x, y: 0, z: aimed.z });
       const want = v3.add({ x: p.pos.x, y: CHEST - 0.5, z: p.pos.z }, v3.scale(flat, s.distance ?? 5));
       const start = { x: p.pos.x, y: CHEST - 0.5, z: p.pos.z };
       const hit = sim.world.sweepSphere(start, want, sim.data.player.radius);
@@ -186,12 +187,15 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       }
       // carried along at the dash speed, not moved in one tick; stepPlayer does the moving and stops at colliders
       const dur = Math.max(0.1, travel / sim.data.player.dashSpeed);
+      extra.distance = travel;
       p.dash = { until: now + dur, vx: (flat.x * travel) / dur, vz: (flat.z * travel) / dur };
       p.facing = Math.atan2(flat.x, flat.z);
       p.invulnUntil = Math.max(p.invulnUntil, now + Math.max(sim.data.player.dodge.invulnerable, s.duration ?? 0));
       break;
     }
   }
+  // the client plays the skill's cast effect at the hand (and draws cones, streams and dash trails from it)
+  sim.emit('cast_fire', { skillId: skill.id, x: origin.x, y: origin.y, z: origin.z, yaw: Math.atan2(dir.x, dir.z), pitch: Math.asin(Math.max(-1, Math.min(1, dir.y))), ...extra });
 }
 
 /** The direction that sends a projectile with gravity through the aim point (the flatter of the two arcs), or null when out of range. */

@@ -88,6 +88,11 @@ export function validateData(d: GameData, ctx: ValidationContext = {}): string[]
     }
   }
 
+  // the spell origin
+  const co = d.player.castOrigin;
+  if (!co || ![co.forward, co.right, co.up].every(Number.isFinite)) err('player: castOrigin needs a forward, right and up in metres');
+  else if (co.up < 0 || co.up > 2) err('player: castOrigin.up must be between 0 and 2 m');
+
   // camera and animation
   const cam = d.camera;
   if (!(cam.distance > 0) || !(cam.fov > 0 && cam.fov < 180)) err('camera: distance and field of view must be positive');

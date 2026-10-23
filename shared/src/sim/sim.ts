@@ -200,6 +200,8 @@ export class Sim {
           statuses: list(p.statuses),
           dodging: now < p.dodgeUntil || (p.dash !== null && now < p.dash.until),
           casting: p.castState ? p.castState.skillId : null,
+          buff: p.buff && now < p.buff.until ? p.buff.skillId : null,
+          aim: p.castState?.aim && this.skill(p.castState.skillId)?.shape.type === 'stream' ? { ...p.castState.aim } : null,
           slots: SLOTS.map((slot) => {
             const skillId = p.loadout[ELEMENTS[p.element]][slot];
             return { slot, skillId, remaining: Math.max(0, (p.cooldowns[skillId] ?? 0) - now), total: this.skill(skillId)?.cooldown ?? 0 };
