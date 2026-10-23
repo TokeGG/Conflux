@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.76",
+    "date": "2026-10-23",
+    "at": "2026-10-23T15:31:45Z",
+    "notes": [
+      "Behind-the-scenes setup for the owner account"
+    ]
+  },
+  {
     "version": "0.1.75",
     "date": "2026-10-23",
     "at": "2026-10-23T15:27:06Z",

@@ -9,6 +9,8 @@
     // only /api/* wakes the script; the game files are served straight from the assets
     "run_worker_first": ["/api/*"]
   },
+  // reserved owner names (comma separated); the owner code itself is a dashboard secret, OWNER_CODE
+  "vars": { "OWNER_NAMES": "toke" },
   // accounts, sessions and shared tuning (see api/README.md)
   "kv_namespaces": [{ "binding": "CONFLUX_KV", "id": "1b5ae26e570448c6aeb5a5e2135c469f" }]
 }
