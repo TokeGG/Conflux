@@ -34,10 +34,10 @@
     "tex.sbs256.stone.stone_05_256x256"
    ]
   },
-  "tint": "#adb3ff",
+  "tint": "#b2b8ff",
   "lighting": {
-   "ambient": "#454a99",
-   "light": "#9da3f2",
+   "ambient": "#545999",
+   "light": "#aaaef2",
    "intensity": 0.15,
    "fogColor": "#08091f",
    "fogNear": 8,
@@ -796,8 +796,8 @@
    "fogFar": 30
   },
   "lights": {
-   "brazier": "#ff8a2a",
-   "candle": "#ffb050"
+   "brazier": "#ffb060",
+   "candle": "#ffd090"
   },
   "pools": {
    "set": [
@@ -1366,10 +1366,10 @@
     "tex.sbs256.plaster.plaster_17_256x256"
    ]
   },
-  "tint": "#8cff80",
+  "tint": "#98ff8c",
   "lighting": {
-   "ambient": "#388030",
-   "light": "#97f28d",
+   "ambient": "#4d9945",
+   "light": "#a6f29d",
    "intensity": 0.15,
    "fogColor": "#091c07",
    "fogNear": 8,
@@ -1757,7 +1757,7 @@
     "tex.sbs256.stone.stone_02_256x256"
    ]
   },
-  "tint": "#ff6e61",
+  "tint": "#ff857a",
   "lighting": {
    "ambient": "#94352c",
    "light": "#f28379",
@@ -2078,18 +2078,18 @@
     "tex.sbs256.brick.brick_15_256x256"
    ]
   },
-  "tint": "#ff73fa",
+  "tint": "#ff99fc",
   "lighting": {
-   "ambient": "#942f91",
-   "light": "#f27eee",
+   "ambient": "#9e479b",
+   "light": "#f29def",
    "intensity": 0.15,
    "fogColor": "#1c071b",
    "fogNear": 8,
    "fogFar": 32
   },
   "lights": {
-   "brazier": "#ffa050",
-   "candle": "#ffc870"
+   "brazier": "#ffd0a0",
+   "candle": "#fff0c0"
   },
   "pools": {
    "set": [
@@ -2303,18 +2303,18 @@
     "tex.sbs256.brick.brick_01_256x256"
    ]
   },
-  "tint": "#ff73a2",
+  "tint": "#ff99bb",
   "lighting": {
-   "ambient": "#8f2b4c",
-   "light": "#f279a2",
+   "ambient": "#8f3c58",
+   "light": "#f296b5",
    "intensity": 0.16,
    "fogColor": "#210811",
    "fogNear": 8,
    "fogFar": 38
   },
   "lights": {
-   "brazier": "#ff3a2a",
-   "candle": "#ff7a5a"
+   "brazier": "#ff3a5a",
+   "candle": "#ff8aa0"
   },
   "pools": {
    "set": [
