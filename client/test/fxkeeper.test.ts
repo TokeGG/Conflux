@@ -56,17 +56,23 @@ test('a gust, a fire, a soaking and a rock status each show an effect around the
   assert.equal(statusFxFor('nothing'), null);
 });
 
-test('every status shows big (scale 1.6 to 2.2 for a normal mob), in more copies on a taller mob, scaled to its height', () => {
-  for (const s of ['burning', 'soaked', 'rocked', 'gusted', 'shocked', 'exposed', 'cursed', 'rent', 'poisoned', 'dilated', 'stasis', 'petrified']) {
-    const mid = statusFxLayers(s, 2);
-    assert.ok(mid.length >= 2, `${s} has copies`);
-    for (const l of mid) assert.ok(l.id.startsWith('fx.') && l.scale >= 1.6 && l.scale <= 2.2, `${s} ${l.scale}`);
-    const tall = statusFxLayers(s, 3.4);
-    assert.ok(tall.length > mid.length);
-    assert.ok(Math.max(...tall.map((l) => l.scale)) > Math.max(...mid.map((l) => l.scale)));
-    assert.ok(Math.max(...tall.map((l) => l.y)) > Math.max(...mid.map((l) => l.y)), 'spread up the tall body');
-    for (const l of [...mid, ...tall]) assert.ok(Number.isFinite(l.scale) && Number.isFinite(l.y) && l.y > 0);
+test('status sheets sit at the feet, sized to the mob, and never cover the body', () => {
+  const all = ['burning', 'soaked', 'rocked', 'gusted', 'shocked', 'exposed', 'cursed', 'rent', 'poisoned', 'dilated', 'stasis', 'petrified'];
+  for (const s of all) {
+    for (const h of [1.2, 2, 3.4]) {
+      const ls = statusFxLayers(s, h);
+      assert.ok(ls.length >= 1 && ls.length <= 3, `${s} ${h} copies`);
+      assert.ok(ls.some((l) => l.y <= 0.15), `${s} ${h} has a ground aura`);
+      for (const l of ls) {
+        assert.ok(l.id.startsWith('fx.') && Number.isFinite(l.scale) && Number.isFinite(l.y) && l.y >= 0, `${s} ${l.id}`);
+        if (l.y <= 0.15) assert.ok(l.scale <= 1.5 && l.scale >= 0.5, `${s} ground aura ${l.scale}`);
+        else assert.ok(l.y <= h * 0.5 && l.scale <= 1.2, `${s} body sheet modest ${l.y} ${l.scale}`);
+      }
+      assert.ok(ls.filter((l) => l.y > 0.15).length <= 1, `${s} at most one body sheet`);
+    }
+    assert.ok(Math.max(...statusFxLayers(s, 3.4).map((l) => l.scale)) > Math.max(...statusFxLayers(s, 1.2).map((l) => l.scale)), `${s} grows with the mob`);
   }
+  for (const h of [1.2, 2, 3.4]) assert.ok(statusFxLayers('poisoned', h).every((l) => l.y <= 0.15), 'poison is only ever at the feet');
   assert.equal(statusCopies(1.2), 1);
   assert.deepEqual(statusFxLayers('nothing', 2), []);
   assert.ok(statusFxLayers('burning', NaN).length > 0, 'a bad height falls back to the reference mob');

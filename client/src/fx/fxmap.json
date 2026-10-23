@@ -120,11 +120,12 @@
       "layers": [
         {
           "id": "fx.campfire_loop",
-          "scale": 2.0
+          "scale": 0.9,
+          "anchor": "body"
         },
         {
           "id": "fx.ember_burst",
-          "scale": 1.7
+          "scale": 1.1
         }
       ]
     },
@@ -132,11 +133,11 @@
       "layers": [
         {
           "id": "fx.water_splash",
-          "scale": 1.9
+          "scale": 1.2
         },
         {
           "id": "fx.bubble_shield",
-          "scale": 1.7
+          "scale": 0.9
         }
       ]
     },
@@ -144,11 +145,11 @@
       "layers": [
         {
           "id": "fx.stone_impact",
-          "scale": 2.0
+          "scale": 1.2
         },
         {
           "id": "fx.rock_shield",
-          "scale": 1.8
+          "scale": 0.9
         }
       ]
     },
@@ -156,11 +157,11 @@
       "layers": [
         {
           "id": "fx.leaf_cyclone",
-          "scale": 2.1
+          "scale": 1.2
         },
         {
           "id": "fx.dust_step",
-          "scale": 1.7
+          "scale": 0.9
         }
       ]
     },
@@ -168,11 +169,12 @@
       "layers": [
         {
           "id": "fx.spark_shower",
-          "scale": 1.9
+          "scale": 0.9,
+          "anchor": "body"
         },
         {
           "id": "fx.thunder_burst",
-          "scale": 1.7
+          "scale": 0.8
         }
       ]
     },
@@ -180,11 +182,11 @@
       "layers": [
         {
           "id": "fx.celestial_orbit",
-          "scale": 1.7
+          "scale": 1.2
         },
         {
           "id": "fx.mana_charge",
-          "scale": 1.7
+          "scale": 0.9
         }
       ]
     },
@@ -192,11 +194,11 @@
       "layers": [
         {
           "id": "fx.shadow_grasp",
-          "scale": 1.9
+          "scale": 1.2
         },
         {
           "id": "fx.soul_release",
-          "scale": 1.6
+          "scale": 0.9
         }
       ]
     },
@@ -204,23 +206,23 @@
       "layers": [
         {
           "id": "fx.cross_slash",
-          "scale": 1.8
+          "scale": 1.0
         },
         {
           "id": "fx.sword_crescent",
-          "scale": 1.7
+          "scale": 0.9
         }
       ]
     },
     "poisoned": {
       "layers": [
         {
-          "id": "fx.toxic_bubble",
-          "scale": 2.0
+          "id": "fx.poison_cloud",
+          "scale": 1.1
         },
         {
-          "id": "fx.poison_cloud",
-          "scale": 1.7
+          "id": "fx.toxic_bubble",
+          "scale": 0.8
         }
       ]
     },
@@ -228,23 +230,23 @@
       "layers": [
         {
           "id": "fx.rune_seal",
-          "scale": 1.8
+          "scale": 1.2
         },
         {
           "id": "fx.teleport_arrival",
-          "scale": 1.6
+          "scale": 0.9
         }
       ]
     },
     "stasis": {
       "layers": [
         {
-          "id": "fx.magic_shield",
-          "scale": 2.0
+          "id": "fx.rune_seal",
+          "scale": 1.2
         },
         {
-          "id": "fx.rune_seal",
-          "scale": 1.7
+          "id": "fx.magic_shield",
+          "scale": 0.9
         }
       ]
     },
@@ -252,11 +254,11 @@
       "layers": [
         {
           "id": "fx.rock_shield",
-          "scale": 2.1
+          "scale": 1.2
         },
         {
           "id": "fx.stone_impact",
-          "scale": 1.8
+          "scale": 0.9
         }
       ]
     }

@@ -75,6 +75,8 @@ export function zoneFxFor(kind: string, skills: Record<string, Pick<SkillDef, 'f
 interface StatusLayer {
   id: string;
   scale: number;
+  /** 'body' sits at a third of the mob's height (one modest copy); the default is a ring on the ground at its feet. */
+  anchor?: 'body';
 }
 
 /** One sheet effect round an enemy: which sheet, how big, and how high on its body (metres above its feet). */
@@ -88,30 +90,25 @@ export interface StatusFx {
 const REFERENCE_HEIGHT = 2;
 const SIZE_RANGE: [number, number] = [0.65, 1.25];
 
-/** How many copies of an effect stack up a mob of this height, so a tall one is covered and not just dotted. */
-export function statusCopies(height: number): number {
-  return height < 1.6 ? 1 : height < 2.8 ? 2 : 3;
+/** Kept for callers: a status no longer stacks copies up the body. */
+export function statusCopies(_height: number): number {
+  return 1;
 }
 
+/** Ground auras sit this high (metres), so they read as a ring round the feet and not a sprite over the body. */
+const FEET_Y = 0.08;
+
 /**
- * The sheet effects round an enemy that carries a status or mark: each of the status's layers, in two or three copies at different
- * heights for a tall mob, scaled to its height. Empty for a status with no effect.
+ * The sheet effects round an enemy that carries a status or mark: by default a ring or cloud on the ground at its feet, sized to its
+ * footprint (scaled by its height), plus for a few statuses (flames, sparks) one modest sheet at a third of its height. Never a big
+ * sprite over the chest or head. Empty for a status with no effect.
  */
 export function statusFxLayers(status: string, height: number): StatusFx[] {
   const layers = (fxmap.statuses as Record<string, { layers: StatusLayer[] }>)[status]?.layers;
   if (!layers) return [];
   const h = Number.isFinite(height) && height > 0 ? height : REFERENCE_HEIGHT;
   const size = Math.min(SIZE_RANGE[1], Math.max(SIZE_RANGE[0], h / REFERENCE_HEIGHT));
-  const n = statusCopies(h);
-  const out: StatusFx[] = [];
-  layers.forEach((l, k) => {
-    for (let i = 0; i < n; i++) {
-      // the sheet's anchor sits low in its frame, so the effect is lifted a little to centre on the body; layers interleave in height
-      const frac = (i + 0.25 + (k % 2) * 0.35) / n;
-      out.push({ id: l.id, scale: l.scale * size, y: Math.max(0.1, h * frac * 0.9) });
-    }
-  });
-  return out;
+  return layers.map((l) => ({ id: l.id, scale: l.scale * size, y: l.anchor === 'body' ? h * 0.33 : FEET_Y }));
 }
 
 /** The first effect round an enemy that carries a status (for tools that want one sheet): which sheet, how big, how high. */
