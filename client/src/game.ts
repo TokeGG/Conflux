@@ -355,6 +355,29 @@ export class Game {
     return [...this.enemies].map(([sim, v]) => ({ sim, ...v.debugPose() }));
   }
 
+  /** Where a named bone of the player's model is, as metres forward, right and up of the player's feet along the facing (test hook for measuring the casting hand). */
+  boneLocal(name: string): { forward: number; right: number; up: number; t: number } | null {
+    const node = this.d.playerModel.getObjectByName(name);
+    const p = this.latest?.players[0];
+    if (!node || !p) return null;
+    this.d.scene.updateMatrixWorld(true);
+    const w = node.getWorldPosition(new THREE.Vector3());
+    const dx = w.x - p.pos.x;
+    const dz = w.z - p.pos.z;
+    const fx = Math.sin(p.facing);
+    const fz = Math.cos(p.facing);
+    return { forward: dx * fx + dz * fz, right: dz * fx - dx * fz, up: w.y - p.pos.y, t: this.d.rig.castClipTime() };
+  }
+
+  /** boneLocal with the legs pinned to one moment of a clip (test hook: the hand at the release frame of a cast clip). */
+  boneAtClip(name: string, clip: string, time: number): ReturnType<Game['boneLocal']> {
+    this.d.rig.showClip(clip, time);
+    this.d.rig.update(0);
+    const out = this.boneLocal(name);
+    this.d.rig.showClip(null);
+    return out;
+  }
+
   /** How many enemies have a model on screen (test hook). */
   get enemyViews(): number {
     return this.enemies.size;

@@ -7,5 +7,6 @@
   "jump": { "speed": 6.3, "gravity": 18 },
   "dashSpeed": 22,
   "swap": { "cooldown": 0, "bonusWindow": 3, "bonusDamage": 1.25 },
-  "cast": { "windupMove": 0.7, "channelMove": 0.5 }
+  "cast": { "windupMove": 0.7, "channelMove": 0.5 },
+  "castOrigin": { "forward": 0.5, "right": 0.15, "up": 0.7 }
 }
