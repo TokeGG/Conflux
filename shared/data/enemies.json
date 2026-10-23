@@ -200,6 +200,10 @@
         "guard": [
           "Defence1"
         ]
+      },
+      "attackClips": {
+        "atk.golem_slam": "Attack2",
+        "atk.golem_swipe": "Attack1"
       }
     },
     "hp": 220,
@@ -260,6 +264,10 @@
         "guard": [
           "Defence1"
         ]
+      },
+      "attackClips": {
+        "atk.golem_slam": "Attack2",
+        "atk.golem_swipe": "Attack1"
       }
     },
     "hp": 220,
@@ -320,6 +328,10 @@
         "guard": [
           "Defence1"
         ]
+      },
+      "attackClips": {
+        "atk.golem_slam": "Attack2",
+        "atk.golem_swipe": "Attack1"
       }
     },
     "hp": 220,

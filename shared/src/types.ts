@@ -192,7 +192,8 @@ export interface EnemyDef {
   model: string;
   tint?: string;
   scale: number;
-  rig: { type: RigType; clips?: Record<string, string | string[]>; preset?: string };
+  /** `attackClips` maps an attack id to the clip a rigged mob plays for it (any attack not listed takes one of `clips.attack`). */
+  rig: { type: RigType; clips?: Record<string, string | string[]>; attackClips?: Record<string, string>; preset?: string };
   hp: number;
   speed: number;
   cost: number;

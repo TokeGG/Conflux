@@ -169,6 +169,7 @@ const PATTERNS: [RegExp, (m: RegExpExecArray) => FieldInfo | undefined][] = [
   [/^skills\..+\.cast\.blend$/, () => optional(n('Upper-body blend', '0 to 1', 0, 1, 0.05), 1)],
   [/^skills\..+\.cast\.fireAt$/, () => optional(n('Fires at (share of the clip, 0 = play at normal speed)', 'of clip', 0, 1, 0.01), 0)],
   [/^enemies\..+\.rig\.clips\.\w+(?:\.\d+)?$/, () => text('Clip for this mob state')],
+  [/^enemies\..+\.rig\.attackClips\..+$/, () => text('Clip for this attack')],
   [/^skills\..+\.cast\.windup$/, () => n('Windup', 's', 0, 5, 0.01)],
   [/^skills\..+\.cast\.move$/, () => n('Move speed while casting', '×', 0, 1, 0.05)],
   [/^skills\..+\.shape\.(\w+)$/, (m) => SHAPE[m[1]]],
