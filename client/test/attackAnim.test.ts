@@ -101,3 +101,24 @@ test('a charge strikes while it runs and recovers after', () => {
   t.update(null, null, 0, 0.016);
   assert.equal(t.update(null, null, 0, 0.2)!.stage, 'recover');
 });
+
+test('the reaper chops, sweeps and stomps: the scythe swings, the body does not spin', () => {
+  const reaper = ['atk.reaper_scythe', 'atk.reaper_wave', 'atk.reaper_spikes'];
+  for (const id of reaper) {
+    for (const stage of ['windup', 'strike', 'recover'] as AttackStage[]) {
+      for (let u = 0; u <= 1; u += 0.05) {
+        const p = attackPose(id, stage, u, u);
+        assert.equal(p.spin, 0, `${id} has no body spin`);
+        assert.ok(Math.abs(p.yaw) <= 0.3, `${id} turns the body at most a sliver (${p.yaw})`);
+        assert.ok(Math.abs(p.weapon) <= 2, `${id} scythe stays inside a swing, not a full circle (${p.weapon})`);
+      }
+    }
+    const wind = attackPose(id, 'windup', 1);
+    const hit = attackPose(id, 'strike', 1);
+    assert.ok(Math.abs(wind.weapon - hit.weapon) > 0.8, `${id} the scythe moves between the wind-up and the strike`);
+    assert.ok(dist(attackPose(id, 'recover', 1), REST_FRAME) < 1e-9, `${id} returns to rest`);
+  }
+  // the scythe stands upright at rest: the chop tips it back, then brings it down forward; the stomp rises and then drops
+  assert.ok(attackPose('atk.reaper_scythe', 'windup', 1).weapon < -1 && attackPose('atk.reaper_scythe', 'strike', 1).weapon > 1);
+  assert.ok(attackPose('atk.reaper_spikes', 'windup', 1).y > 0.4 && attackPose('atk.reaper_spikes', 'strike', 1).y < 0);
+});
