@@ -2078,12 +2078,12 @@
     "tex.sbs256.brick.brick_15_256x256"
    ]
   },
-  "tint": "#ff99fc",
+  "tint": "#ffb8ff",
   "lighting": {
-   "ambient": "#9e479b",
-   "light": "#f29def",
+   "ambient": "#9e3c9e",
+   "light": "#f28df2",
    "intensity": 0.15,
-   "fogColor": "#1c071b",
+   "fogColor": "#1c071c",
    "fogNear": 8,
    "fogFar": 32
   },
