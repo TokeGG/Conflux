@@ -27,9 +27,15 @@ export const BONE_RIG = {
   armL: 'mixamorigLeftArm',
   spine: 'mixamorigSpine1',
   head: 'mixamorigHead',
-  /** Axis, sign and strength with which the pose's arm channels turn a bone. */
-  armRaise: { axis: 'x' as 'x' | 'y' | 'z', gain: 1 },
-  armSpread: { axis: 'z' as 'x' | 'y' | 'z', gain: 1 },
+  foreR: 'mixamorigRightForeArm',
+  foreL: 'mixamorigLeftForeArm',
+  /**
+   * Strength of the pose's raise and spread on the arms. The pose is worked out in the MODEL's axes (it faces +z, +y up: x swings an arm forward,
+   * z spreads it, y twists the spine) and converted into each bone's frame, because the rigs rest differently: the elementals and the wraith hang
+   * their arms, the Maw holds a rolled T-pose with quarter-turn shoulders, so no one local axis suits them all.
+   */
+  armRaiseGain: 1,
+  armSpreadGain: 1,
   /** Spine bend per unit of the pose's tilt, and twist per unit of its yaw. */
   spineTilt: 0.5,
   spineTwist: 0.6,
@@ -39,13 +45,18 @@ export const BONE_RIG = {
 interface BoneDrive {
   bone: THREE.Object3D;
   kind: 'armR' | 'armL' | 'spine' | 'head';
+  /** An arm's forearm: the direction from the bone to it is the direction of the arm. */
+  child?: THREE.Object3D;
 }
 
 export interface RigParts {
   /** The pivot the scythe hangs from, when the model has one. */
   weapon: THREE.Group | null;
   book: { covers: THREE.Object3D[]; pages: THREE.Object3D[]; baseRot: Map<THREE.Object3D, THREE.Euler> } | null;
+  /** In the order they are driven: the spine first, then the arms and the head that ride on it. */
   bones: BoneDrive[];
+  /** The model the bones belong to; poses are worked out in its frame. */
+  root: THREE.Object3D;
 }
 
 /** Makes the scythe pivot for a reaper model: its meshes move into a group at the grip, and the group is what swings. Call before collecting parts. */
@@ -65,7 +76,7 @@ export function makeScythePivot(model: THREE.Object3D): THREE.Group | null {
 
 /** Finds what an attack can move on this model. `animated` names the bones that the model's own clips already drive (only those are safe to add to). */
 export function findRigParts(model: THREE.Object3D, modelId: string, weapon: THREE.Group | null, clips: THREE.AnimationClip[]): RigParts {
-  const parts: RigParts = { weapon, book: null, bones: [] };
+  const parts: RigParts = { weapon, book: null, bones: [], root: model };
   if (modelId === BOOK_RIG.model) {
     const get = (n: string) => model.getObjectByName(n);
     const covers = [get('cover_left'), get('cover_right')].filter((o): o is THREE.Object3D => !!o);
@@ -75,23 +86,49 @@ export function findRigParts(model: THREE.Object3D, modelId: string, weapon: THR
     parts.book = { covers, pages, baseRot };
   }
   const animated = (name: string) => clips.some((c) => c.tracks.some((t) => t.name.startsWith(`${name}.`)));
-  const add = (name: string, kind: BoneDrive['kind']) => {
+  const add = (name: string, kind: BoneDrive['kind'], child?: string) => {
     const bone = model.getObjectByName(name);
-    if (bone && animated(name)) parts.bones.push({ bone, kind });
+    if (bone && animated(name)) parts.bones.push({ bone, kind, child: child ? model.getObjectByName(child) ?? undefined : undefined });
   };
-  add(BONE_RIG.armR, 'armR');
-  add(BONE_RIG.armL, 'armL');
+  // the spine first: the arms and the head ride on it, so they are worked out after it has turned
   add(BONE_RIG.spine, 'spine');
+  add(BONE_RIG.armR, 'armR', BONE_RIG.foreR);
+  add(BONE_RIG.armL, 'armL', BONE_RIG.foreL);
   add(BONE_RIG.head, 'head');
   return parts;
 }
 
 const eul = new THREE.Euler();
-const quat = new THREE.Quaternion();
+const HANG = new THREE.Vector3(0, -1, 0);
+const tmpQ = new THREE.Quaternion();
+const modelQ = new THREE.Quaternion();
+const parentQ = new THREE.Quaternion();
+const conj = new THREE.Quaternion();
+const rot = new THREE.Quaternion();
+const pa = new THREE.Vector3();
+const pb = new THREE.Vector3();
+const dRest = new THREE.Vector3();
+const dTarget = new THREE.Vector3();
 
-function turn(bone: THREE.Object3D, x: number, y: number, z: number): void {
-  quat.setFromEuler(eul.set(x, y, z));
-  bone.quaternion.multiply(quat);
+/**
+ * Turns a bone by a rotation given in the model's frame: local = P^-1 * R * P * local, where P is the parent's rotation in the model. Whatever
+ * way the bone's own axes point, the model's x then bends it forward, its y twists it and its z spreads it.
+ */
+function turnInModel(bone: THREE.Object3D, rModel: THREE.Quaternion): void {
+  bone.parent!.getWorldQuaternion(parentQ);
+  parentQ.premultiply(tmpQ.copy(modelQ).invert()); // the parent's rotation in the model's frame
+  conj.copy(parentQ).invert().multiply(rModel).multiply(parentQ);
+  bone.quaternion.premultiply(conj);
+}
+
+/**
+ * The direction an arm should point for a pose (model frame): a hanging arm swung forward and up by `raise` (about x, negative is forward and
+ * overhead), then spread by `spread` (about z), moved by how far this rig's arm rests from hanging, so a rolled T-pose arm starts at rest and goes
+ * where the pose sends it instead of dropping to the side. Pure.
+ */
+export function armTarget(rest: THREE.Vector3, raise: number, spread: number, out = new THREE.Vector3()): THREE.Vector3 {
+  out.copy(HANG).applyEuler(eul.set(raise, 0, 0)).applyEuler(eul.set(0, 0, spread));
+  return out.add(rest).sub(HANG).normalize();
 }
 
 /**
@@ -112,21 +149,29 @@ export function poseRig(parts: RigParts, pose: AttackPose, weight: number): void
     });
   }
   const R = BONE_RIG;
-  for (const { bone, kind } of parts.bones) {
-    const v = [0, 0, 0] as [number, number, number];
-    const idx = (a: 'x' | 'y' | 'z') => (a === 'x' ? 0 : a === 'y' ? 1 : 2);
-    if (kind === 'armR' || kind === 'armL') {
+  if (!parts.bones.length) return;
+  parts.root.updateMatrixWorld(true);
+  for (const { bone, kind, child } of parts.bones) {
+    if (!bone.parent) continue;
+    parts.root.getWorldQuaternion(modelQ);
+    if ((kind === 'armR' || kind === 'armL') && child) {
       const right = kind === 'armR';
-      const raise = (right ? pose.armRx : pose.armLx) * R.armRaise.gain * weight;
-      const spread = (right ? pose.armRz : pose.armLz) * R.armSpread.gain * weight;
-      v[idx(R.armRaise.axis)] += raise;
-      v[idx(R.armSpread.axis)] += right ? spread : -spread;
+      const raise = (right ? pose.armRx : pose.armLx) * R.armRaiseGain * weight;
+      const spread = (right ? pose.armRz : pose.armLz) * R.armSpreadGain * weight;
+      if (raise !== 0 || spread !== 0) {
+        // the arm's direction now, in the model's frame
+        bone.getWorldPosition(pa);
+        child.getWorldPosition(pb);
+        dRest.copy(pb).sub(pa).applyQuaternion(tmpQ.copy(modelQ).invert()).normalize();
+        armTarget(dRest, raise, spread, dTarget);
+        turnInModel(bone, rot.setFromUnitVectors(dRest, dTarget));
+      }
     } else if (kind === 'spine') {
-      v[0] = pose.tilt * R.spineTilt * weight;
-      v[1] = pose.yaw * R.spineTwist * weight;
-    } else {
-      v[0] = pose.tilt * R.headTilt * weight;
+      turnInModel(bone, rot.setFromEuler(eul.set(pose.tilt * R.spineTilt * weight, pose.yaw * R.spineTwist * weight, 0, 'YXZ')));
+    } else if (kind === 'head') {
+      turnInModel(bone, rot.setFromEuler(eul.set(pose.tilt * R.headTilt * weight, 0, 0)));
     }
-    turn(bone, v[0], v[1], v[2]);
+    // what is driven next (the arms, the head) rides on this bone
+    bone.updateWorldMatrix(false, true);
   }
 }

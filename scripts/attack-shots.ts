@@ -19,7 +19,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' }).end(readFileSync(file));
 });
 await new Promise<void>((r) => server.listen(0, '127.0.0.1', () => r()));
-const url = `http://127.0.0.1:${(server.address() as { port: number }).port}/?dev&sandbox`;
+const url = `http://127.0.0.1:${(server.address() as { port: number }).port}/?${process.env.SANDBOX ? 'dev&sandbox' : `dev&theme=${process.env.THEME ?? 'arena'}&seed=${process.env.SEED ?? 3}`}`;
 const root = process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/opt/pw-browsers';
 const exe = process.env.CHROMIUM ?? join(root, readdirSync(root).find((d) => d.startsWith('chromium-'))!, 'chrome-linux/chrome');
 const browser = await chromium.launch({ executablePath: exe, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
@@ -43,6 +43,8 @@ try {
     await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
     await page.waitForFunction(() => (window as any).__conflux.tick > 3, null, { timeout: 20000 });
     await page.evaluate(`window.__conflux.command({ op: 'god', on: true })`);
+    // the dark rooms hide the pose: a screenshot lamp (not part of the game) lights the scene unless LAMP=0
+    if (process.env.LAMP !== '0') await page.evaluate(`window.__conflux.lamp(true)`);
     await page.evaluate(`window.__conflux.command({ op: 'pause', on: true })`);
     for (const attack of attacks) {
       for (const view of views) {
@@ -52,6 +54,8 @@ try {
           const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
           const stepWait = async (n) => { const t0 = c.snapshot().tick; c.command({ op: 'step', n }); for (let i = 0; i < 200 && c.snapshot().tick < t0 + n; i++) await sleep(50); };
           c.command({ op: 'killAll' });
+          // the room's open middle, away from the walls that would block the side and front cameras
+          if (${JSON.stringify(!process.env.SANDBOX)}) c.command({ op: 'teleport', x: -5, z: 0 });
           await stepWait(3);
           await sleep(200);
           const me = c.snapshot().players[0].pos;
@@ -61,12 +65,12 @@ try {
           const e0 = c.snapshot().enemies[0];
           const id = e0.id;
           const boss = ${JSON.stringify(mob.startsWith('boss.'))};
-          const d = boss ? 10 : 6, h = boss ? 1.0 : 0.6;
+          const d = boss ? 10 : 3.6, h = boss ? 1.1 : 0.6, cy = boss ? d * 0.3 + 0.8 : 1.3;
           // the mob faces the player (-x); cam is a three-quarter view from behind-left, side looks across its flank, front faces it
           const cams = {
             cam: [e0.pos.x - 2, d * 0.7 + 1, e0.pos.z - d * 0.6, e0.pos.x - 1, d * 0.15 + 0.4, e0.pos.z],
-            side: [e0.pos.x, d * 0.3 + 0.8, e0.pos.z + d, e0.pos.x, h * 1.6, e0.pos.z],
-            front: [e0.pos.x - d, d * 0.3 + 0.8, e0.pos.z, e0.pos.x, h * 1.6, e0.pos.z],
+            side: [e0.pos.x, cy, e0.pos.z + d, e0.pos.x, h * 1.6, e0.pos.z],
+            front: [e0.pos.x - d, cy, e0.pos.z, e0.pos.x, h * 1.6, e0.pos.z],
           };
           c.lookFrom(...cams[${JSON.stringify(view)}]);
           const seen = { rest: null, stages: {}, rotX: [], y: [], scaleY: [], weapon: [] };
@@ -74,6 +78,7 @@ try {
           const note = () => { const p = poseOf(); if (!p) return; seen.rotX.push(p.rotX); seen.y.push(p.y); seen.scaleY.push(p.scaleY); seen.weapon.push(p.weapon); if (p.stage) seen.stages[p.stage] = (seen.stages[p.stage] || 0) + 1; return p; };
           await sleep(300);
           seen.rest = note();
+          if (${JSON.stringify(!!process.env.REST)}) return JSON.stringify({ restOnly: true });
           c.command({ op: 'forceAttack', enemy: id, attack: ${JSON.stringify(attack)} });
           await stepWait(1);
           await sleep(100);
@@ -91,6 +96,11 @@ try {
           return JSON.stringify({ rest: seen.rest, stages: seen.stages, range: { rotX: [Math.min(...seen.rotX), Math.max(...seen.rotX)], y: [Math.min(...seen.y), Math.max(...seen.y)], scaleY: [Math.min(...seen.scaleY), Math.max(...seen.scaleY)], weapon: [Math.min(...seen.weapon), Math.max(...seen.weapon)] } });
         })()`);
         const r = JSON.parse(result as string);
+        if (r.restOnly) {
+          // REST=1: only the resting pose, to compare an attack's pose with
+          await page.screenshot({ path: join(shots, `rest-${mob.replace(/[^a-z]+/g, '-')}-${view}.png`) });
+          continue;
+        }
         if (r.error) {
           console.log(`FAIL ${mob} ${attack}: ${r.error}`);
           failures++;
