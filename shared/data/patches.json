@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.72",
+    "date": "2026-10-23",
+    "at": "2026-10-23T02:13:50Z",
+    "notes": [
+      "Swirls and other effects no longer stay behind when you change rooms; burning, soaked, rocked, poisoned, shocked, cursed and the other debuffs now show on the mob itself with colour pulses, stone skin and bigger effects, and reaction ground effects are bigger"
+    ]
+  },
+  {
     "version": "0.1.71",
     "date": "2026-10-23",
     "at": "2026-10-23T01:47:00Z",
