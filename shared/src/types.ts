@@ -116,6 +116,8 @@ export interface ReactionDef {
   id: string;
   pair: [Element, Element];
   effect: string;
+  /** One line for players: what the reaction does (shown in the Element reactions guide). */
+  text?: string;
   params: Record<string, number>;
 }
 

@@ -1,6 +1,7 @@
 // The words on the run screens, kept apart from the DOM so they can be tested.
 import { depthAt, type DoorChoice, type GameData, type RewardOffer, type RunState, type Ware } from '@conflux/shared';
 import { skillLabel } from './format.ts';
+import { reactionName } from './reactionGuide.ts';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -39,7 +40,6 @@ export interface ComboLine {
   text: string;
 }
 
-const words = (id: string) => id.split('_').map(cap).join(' ');
 
 /** What `element` combines into with each element in `held`, so the player can see what to mix. Either order reacts; each pair is one line. */
 export function elementCombos(element: string, held: readonly string[], data: GameData): ComboLine[] {
@@ -48,7 +48,7 @@ export function elementCombos(element: string, held: readonly string[], data: Ga
     if (other === element) continue;
     const row = data.reactions.find((r) => (r.pair[0] === element && r.pair[1] === other) || (r.pair[0] === other && r.pair[1] === element));
     if (!row) continue;
-    lines.push({ with: other, text: `${words(row.effect)} (either order)` });
+    lines.push({ with: other, text: `${reactionName(row.effect)} (either order)` });
   }
   return lines;
 }
