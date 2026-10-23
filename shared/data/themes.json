@@ -319,7 +319,7 @@
   },
   "tint": "#fbff80",
   "lighting": {
-   "ambient": "#919438",
+   "ambient": "#7d8030",
    "light": "#eff28d",
    "intensity": 0.15,
    "fogColor": "#1e1f08",
@@ -1368,7 +1368,7 @@
   },
   "tint": "#98ff8c",
   "lighting": {
-   "ambient": "#4d9945",
+   "ambient": "#478c3f",
    "light": "#a6f29d",
    "intensity": 0.15,
    "fogColor": "#091c07",
@@ -1571,7 +1571,7 @@
   },
   "tint": "#dfffba",
   "lighting": {
-   "ambient": "#99bd71",
+   "ambient": "#68804c",
    "light": "#d0f2aa",
    "intensity": 0.15,
    "fogColor": "#141f08",
