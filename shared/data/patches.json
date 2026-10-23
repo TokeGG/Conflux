@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.68",
+    "date": "2026-10-23",
+    "at": "2026-10-23T00:53:21Z",
+    "notes": [
+      "Every boss attack now shows and is used: the Maw claws, slams, charges and summons, the reaper swings, throws a wave and raises spikes. The rigged mobs raise their arms correctly when they attack, the golems slam with their own clip, and the boss auras are subtler."
+    ]
+  },
+  {
     "version": "0.1.67",
     "date": "2026-10-23",
     "at": "2026-10-23T00:32:43Z",
