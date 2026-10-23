@@ -61,7 +61,7 @@
       "trailRadius": 1.2,
       "trailSeconds": 3
     },
-    "damage": 4,
+    "damage": 2.5,
     "cooldown": 7,
     "applies": "burning",
     "cast": {
@@ -117,7 +117,7 @@
       "duration": 1.6,
       "count": 1
     },
-    "damage": 3,
+    "damage": 5,
     "cooldown": 5,
     "applies": "soaked",
     "cast": {
@@ -333,7 +333,7 @@
       "gravity": 0,
       "lifetime": 0.9
     },
-    "damage": 7,
+    "damage": 6,
     "cooldown": 0.25,
     "applies": "burning",
     "cast": {
@@ -525,8 +525,8 @@
       "angle": 120,
       "range": 4
     },
-    "damage": 6,
-    "cooldown": 5,
+    "damage": 12,
+    "cooldown": 3,
     "applies": "gusted",
     "cast": {
       "archetype": "sweep",

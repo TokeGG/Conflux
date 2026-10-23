@@ -144,13 +144,13 @@ test('a dash with a trail leaves its element\'s status on whoever stands in it',
 
 // ---- the reactions ----
 
-test('Plasma bursts for 250% in 4.5 m', () => {
+test('Plasma bursts for 160% in 4.5 m', () => {
   const { sim, target } = setup();
   const near = spawnEnemy(sim, 'enemy.dummy', at(4, 8));
   const far = spawnEnemy(sim, 'enemy.dummy', at(6, 8));
   react(sim, target, 'lightning', 'fire');
-  assert.equal(lost(target), 25);
-  assert.equal(lost(near), 25);
+  assert.equal(lost(target), 16);
+  assert.equal(lost(near), 16);
   assert.equal(lost(far), 0);
 });
 
@@ -518,8 +518,8 @@ test('Eclipse uses up both statuses in a huge nova', () => {
   const near = spawnEnemy(sim, 'enemy.dummy', at(6, 8));
   applyStatus(sim, near, 'exposed', sim.time);
   react(sim, target, 'light', 'dark');
-  assert.equal(lost(target), 35);
-  assert.equal(lost(near), 35);
+  assert.equal(lost(target), 20);
+  assert.equal(lost(near), 20);
   assert.equal(target.statuses.exposed, undefined);
   assert.equal(target.statuses.cursed, undefined);
   assert.equal(near.statuses.exposed, undefined);

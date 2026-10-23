@@ -3,9 +3,9 @@
   "rows": [
     {"id": "steam", "pair": ["fire", "water"], "effect": "steam", "params": {"radius": 3, "damageMul": 1, "blindSeconds": 3}},
     {"id": "magma", "pair": ["fire", "earth"], "effect": "magma", "params": {"radius": 4, "seconds": 4, "dps": 6, "brittleSeconds": 4, "damageTakenMul": 1.3, "speedMul": 0.5}},
-    {"id": "firestorm", "pair": ["fire", "wind"], "effect": "firestorm", "params": {"radius": 6, "damageMul": 1.5, "seconds": 3.5, "liftSeconds": 1.5, "zoneRadius": 3.5, "drift": 3}},
-    {"id": "plasma", "pair": ["fire", "lightning"], "effect": "plasma", "params": {"radius": 4.5, "damageMul": 2.5}},
-    {"id": "overheat", "pair": ["fire", "time"], "effect": "overheat", "params": {"seconds": 6, "rate": 3}},
+    {"id": "firestorm", "pair": ["fire", "wind"], "effect": "firestorm", "params": {"radius": 6, "damageMul": 0.6, "seconds": 3.5, "liftSeconds": 1.5, "zoneRadius": 3.5, "drift": 3}},
+    {"id": "plasma", "pair": ["fire", "lightning"], "effect": "plasma", "params": {"radius": 4.5, "damageMul": 1.6}},
+    {"id": "overheat", "pair": ["fire", "time"], "effect": "overheat", "params": {"seconds": 4, "rate": 2.5}},
     {"id": "toxic_blaze", "pair": ["fire", "poison"], "effect": "toxic_blaze", "params": {"radius": 4, "damageMul": 0.8, "perStack": 0.4}},
     {"id": "solar_flare", "pair": ["fire", "light"], "effect": "solar_flare", "params": {"radius": 5, "damageMul": 0.5, "blindSeconds": 4}},
     {"id": "hellfire", "pair": ["fire", "dark"], "effect": "hellfire", "params": {"seconds": 8, "radius": 4}},
@@ -43,7 +43,7 @@
     {"id": "purge", "pair": ["poison", "light"], "effect": "purge", "params": {"radius": 7, "healPerStack": 4}},
     {"id": "plague", "pair": ["poison", "dark"], "effect": "plague", "params": {"seconds": 10, "radius": 5}},
     {"id": "corrosion", "pair": ["poison", "metal"], "effect": "corrosion", "params": {"seconds": 10, "damageTakenPerStack": 0.08, "maxStacks": 6}},
-    {"id": "eclipse", "pair": ["light", "dark"], "effect": "eclipse", "params": {"radius": 7, "damageMul": 3.5, "stunSeconds": 0.5}},
+    {"id": "eclipse", "pair": ["light", "dark"], "effect": "eclipse", "params": {"radius": 7, "damageMul": 2, "stunSeconds": 0.5}},
     {"id": "mirror", "pair": ["light", "metal"], "effect": "mirror", "params": {"radius": 4, "seconds": 5}},
     {"id": "cursed_steel", "pair": ["dark", "metal"], "effect": "cursed_steel", "params": {"seconds": 8, "heal": 0.2}}
   ]
