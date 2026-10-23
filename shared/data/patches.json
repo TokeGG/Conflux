@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.78",
+    "date": "2026-10-23",
+    "at": "2026-10-23T16:02:47Z",
+    "notes": [
+      "The Pumpkin Reaper now has to walk up to you before he swings, his scythe reach matches what you see, he mixes his chop, wave and stomp instead of repeating one, and he no longer spins"
+    ]
+  },
+  {
     "version": "0.1.77",
     "date": "2026-10-23",
     "at": "2026-10-23T15:58:13Z",
