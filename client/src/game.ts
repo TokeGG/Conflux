@@ -102,8 +102,7 @@ export class Game {
     this.dying = [];
     this.enemyLoads.clear();
     this.lastEnemies.clear();
-    for (const rec of this.projectiles.values()) rec.handle?.stop();
-    this.projectiles.clear();
+    this.clearFx();
     this.latest = null;
     this.prevPos = null;
     this.holder.position.set(room.spawns.player.x, 0, room.spawns.player.z);
@@ -113,6 +112,17 @@ export class Game {
       this.input.yaw = Math.atan2(-x, -z);
       this.input.pitch = 0;
     }
+  }
+
+  /** Ends every effect of the room that is going away: event effects, kept status and zone effects, projectile effects. */
+  clearFx(): void {
+    for (const rec of this.projectiles.values()) {
+      rec.stopped = true;
+      rec.handle?.stop();
+    }
+    this.projectiles.clear();
+    this.keeper.reset();
+    this.d.fx.clear();
   }
 
   private onFrame(s: Snapshot, events: SimEvent[]): void {

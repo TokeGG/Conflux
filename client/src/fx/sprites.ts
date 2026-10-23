@@ -5,6 +5,8 @@ import type { AssetLoader, FxDef } from '../assets/loader.ts';
 
 /** Pixels of an effect frame per metre of world, before the effect's own scale. */
 const PIXELS_PER_METRE = 64;
+/** The longest a looping sheet lives when it is spawned for an event (no `follow`): nothing owns it, so nothing would ever stop it. */
+export const EVENT_LOOP_LIFE_MS = 1500;
 
 export class SpriteFlipbook {
   constructor(
@@ -49,6 +51,8 @@ interface Instance {
   book: SpriteFlipbook;
   start: number;
   scale: number;
+  /** Milliseconds after which the effect ends whatever its sheet does, or null. */
+  life: number | null;
   anchor: Vec3;
   follow: (() => Vec3 | null) | null;
   stopped: boolean;
@@ -62,6 +66,8 @@ export class FxSystem {
   private live: Instance[] = [];
   private geometry = new THREE.PlaneGeometry(1, 1);
   private now = 0;
+  /** Counts clears, so a spawn that was still loading its sheet when the room changed can tell and drop itself. */
+  private epoch = 0;
 
   constructor(
     private scene: THREE.Scene,
@@ -80,11 +86,14 @@ export class FxSystem {
   }
 
   /** Starts an effect at a position (or following something). Resolves once its sheet is loaded; unknown ids reject. */
-  async spawn(id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null } = {}): Promise<FxHandle> {
+  async spawn(id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null; life?: number } = {}): Promise<FxHandle> {
+    const epoch = this.epoch;
     const { texture, def } = await this.sheet(id);
+    if (epoch !== this.epoch) return { done: true, stop: () => undefined };
     const inst = this.idle.get(id)?.pop() ?? this.make(id, texture, def);
     inst.start = this.now;
     inst.scale = opts.scale ?? 1;
+    inst.life = opts.life ?? (def.loop && !opts.follow ? EVENT_LOOP_LIFE_MS : null);
     inst.anchor = { ...pos };
     inst.follow = opts.follow ?? null;
     inst.stopped = false;
@@ -93,6 +102,20 @@ export class FxSystem {
     this.scene.add(inst.mesh);
     this.live.push(inst);
     return inst.handle;
+  }
+
+  private retire(inst: Instance): void {
+    inst.mesh.visible = false;
+    this.scene.remove(inst.mesh);
+    inst.handle.finish();
+    (this.idle.get(inst.id) ?? this.idle.set(inst.id, []).get(inst.id)!).push(inst);
+  }
+
+  /** Ends every live effect at once (a room change): followed ones too, and spawns still loading their sheet. */
+  clear(): void {
+    this.epoch++;
+    for (const inst of this.live) this.retire(inst);
+    this.live = [];
   }
 
   private handleFor(inst: Instance): FxHandle & { finish(): void } {
@@ -124,7 +147,7 @@ export class FxSystem {
     const mesh = new THREE.Mesh(this.geometry, material);
     mesh.renderOrder = 10;
     mesh.frustumCulled = false;
-    const inst: Instance = { id, mesh, book, start: 0, scale: 1, anchor: { x: 0, y: 0, z: 0 }, follow: null, stopped: false, handle: null as never };
+    const inst: Instance = { id, mesh, book, start: 0, scale: 1, life: null, anchor: { x: 0, y: 0, z: 0 }, follow: null, stopped: false, handle: null as never };
     return inst;
   }
 
@@ -134,11 +157,8 @@ export class FxSystem {
     const keep: Instance[] = [];
     for (const inst of this.live) {
       const ms = this.now - inst.start;
-      if (inst.stopped || inst.book.done(ms)) {
-        inst.mesh.visible = false;
-        this.scene.remove(inst.mesh);
-        inst.handle.finish();
-        (this.idle.get(inst.id) ?? this.idle.set(inst.id, []).get(inst.id)!).push(inst);
+      if (inst.stopped || inst.book.done(ms) || (inst.life !== null && ms >= inst.life)) {
+        this.retire(inst);
         continue;
       }
       inst.book.setFrame(inst.book.frameAt(ms));

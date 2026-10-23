@@ -371,6 +371,7 @@ async function boot(): Promise<void> {
   const loadPlan = async (plan: RoomPlan): Promise<void> => {
     const run = director!.run;
     play.inputEnabled = false;
+    play.clearFx();
     const swapped = bridge.enter({ seed: run.seed, current: plan, skills: run.skills, augments: run.augments, hp: run.hp, tuned: run.tuned });
     const next = plan.def ?? layers.current().rooms[plan.roomId];
     // the scene was built while the gates were open when it could be, so stepping through does not stall
@@ -431,6 +432,7 @@ async function boot(): Promise<void> {
     const run = d.run;
     screens.hide();
     shown = d.phase;
+    play.clearFx();
     await bridge.enter({ seed: run.seed, current: run.current, skills: run.skills, augments: run.augments, hp: run.hp, tuned: run.tuned });
     bridge.command({ op: 'pause', on: false });
     play.inputEnabled = true;
@@ -492,6 +494,7 @@ async function boot(): Promise<void> {
     /** The main menu: the dark room behind it, a slow orbit, no crosshair or bars. A run ends here, whether it was won or lost. */
     showMenu = () => {
       director = null;
+      play.clearFx();
       chip?.setVisible(true);
       hud.setGates([]);
       hud.setStalls([]);

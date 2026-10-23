@@ -14,12 +14,21 @@ interface Handle {
   stop(): void;
 }
 
-type Spawn = (id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null }) => Promise<Handle>;
+type Spawn = (id: string, pos: Vec3, opts: { scale?: number; life?: number; follow?: () => Vec3 | null }) => Promise<Handle>;
 
 export class FxKeeper {
   private live = new Map<string, { handle: Handle | null; fx: KeptFx; starting: boolean; stopped: boolean }>();
 
   constructor(private spawn: Spawn) {}
+
+  /** Stops everything and forgets it (a room change); the keys still wanted start again on the next sync. */
+  reset(): void {
+    for (const rec of this.live.values()) {
+      rec.stopped = true;
+      rec.handle?.stop();
+    }
+    this.live.clear();
+  }
 
   /** Brings the running effects in line with `active`: starts new keys, restarts finished ones, stops keys that are gone. */
   async sync(active: Map<string, KeptFx>): Promise<void> {
