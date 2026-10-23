@@ -14,12 +14,12 @@ export interface GeneratedRoom {
   theme: string;
 }
 
-/** Most props a layer holds (the spec's figures: 2 to 5 set pieces, 10 to 20 medium, 40 to 100 small). */
-const CAPS = { set: 5, medium: 20, small: 100 };
+/** Most props a layer holds (2 to 5 set pieces, about 11 medium, about 36 small: owner 2026-10-24 "less clutter on the floors"). */
+const CAPS = { set: 5, medium: 11, small: 36 };
 /** Floor cells of the reference room (6 x 6) that CAPS and the pools' counts were made for; a bigger floor scales them up. */
 const REFERENCE_CELLS = 30;
 /** The least share of the floor that stays clear for a body (the owner's rule: stuff on the ground, but not in the way). */
-const MIN_CLEAR = 0.78;
+const MIN_CLEAR = 0.85;
 const OUTWARD_TURN = (nx: number, nz: number) => (nz > 0 ? 0 : nz < 0 ? Math.PI : nx < 0 ? Math.PI / 2 : -Math.PI / 2);
 
 function structure(fp: Footprint, theme: ThemeDef, edges: Edge[], exits: Edge[], gate: (e: Edge) => string, rng: ReturnType<typeof makeStreams>['map']): RoomPiece[] {

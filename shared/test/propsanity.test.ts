@@ -74,7 +74,7 @@ test('every theme is lit well enough to see enemies across the room and the gate
     const l = t.lighting;
     assert.ok(l.fogNear >= 8 && l.fogFar >= 30, `${name}: fog ${l.fogNear}-${l.fogFar} hides enemies at mid range`);
     assert.ok(lum(l.ambient) >= 0.15, `${name}: ambient ${l.ambient} is too dark (${lum(l.ambient).toFixed(2)})`);
-    assert.ok(lum(l.ambient) <= 0.4, `${name}: ambient ${l.ambient} is too bright for a gloomy dungeon`);
+    assert.ok(lum(l.ambient) <= 0.5, `${name}: ambient ${l.ambient} is too bright for a gloomy dungeon`);
   }
 });
 

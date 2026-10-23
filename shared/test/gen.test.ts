@@ -94,16 +94,34 @@ test('a room has 1 to 3 exits, 12 to 28 enemy spots, a piece count in the recipe
       const room = get(theme, seed);
       assert.ok(room.spawns.doors.length >= 1 && room.spawns.doors.length <= 3, `${theme} ${seed} exits`);
       assert.ok(room.spawns.enemies.length >= 12 && room.spawns.enemies.length <= 28, `${theme} ${seed} enemy spots ${room.spawns.enemies.length}`);
-      assert.ok(room.pieces.length >= 120 && room.pieces.length <= 1000, `${theme} ${seed} pieces ${room.pieces.length}`);
+      assert.ok(room.pieces.length >= 70 && room.pieces.length <= 480, `${theme} ${seed} pieces ${room.pieces.length}`);
       assert.ok((room.lights?.length ?? 0) >= 3, `${theme} ${seed} lights`);
       assert.equal(room.theme, theme);
       assert.ok(room.look!.floorTex.startsWith('tex.') && room.look!.wallTex.startsWith('tex.'));
     }
     const mean = SEEDS.reduce((n, seed) => n + get(theme, seed).pieces.length, 0) / SEEDS.length;
-    assert.ok(mean >= 250, `${theme}: a lot of scenery wanted, mean ${mean.toFixed(0)} pieces`);
+    // owner, 2026-10-24: "less clutter on the floors": about a third of the small pieces, thinner medium layer (was mean >= 250)
+    assert.ok(mean >= 110 && mean <= 215, `${theme}: scenery wanted, mean ${mean.toFixed(0)} pieces (110 to 215)`);
     const t = data.themes[theme];
     const room = get(theme, 3);
     for (const item of Object.values(t.pools).flat()) assert.ok(room.pieces.filter((p) => p.kit === item.kit && p.id === item.id).length <= item.count[1] * 4, `${theme}: ${item.id} count`);
+  }
+});
+
+test('the small layer is thin: a normal room has at most 45 small pieces, a big one scales with its floor', () => {
+  for (const theme of THEMES) {
+    const t = data.themes[theme];
+    const other = new Set(Object.entries(t.pools).filter(([k]) => k !== 'small').flatMap(([, v]) => v.map((i) => `${i.kit}/${i.id}`)));
+    const small = new Set(t.pools.small.map((i) => `${i.kit}/${i.id}`).filter((k) => !other.has(k)));
+    let total = 0;
+    for (const seed of SEEDS) {
+      const room = get(theme, seed);
+      const n = room.pieces.filter((p) => small.has(`${p.kit}/${p.id}`)).length;
+      const scale = Math.max(1, room.cells!.length / 30);
+      assert.ok(n <= 45 * scale + 1, `${theme} ${seed}: ${n} small pieces on ${room.cells!.length} cells`);
+      total += n;
+    }
+    assert.ok(total / SEEDS.length >= 8, `${theme}: the small layer should not vanish (mean ${(total / SEEDS.length).toFixed(1)})`);
   }
 });
 
@@ -163,7 +181,7 @@ test('at least 75% of every room\'s floor is clear for a body to stand on, in ev
   for (const theme of THEMES) {
     for (const seed of SEEDS.slice(0, 120)) {
       const share = openShare(get(theme, seed));
-      assert.ok(share >= 0.75, `${theme} seed ${seed}: ${(share * 100).toFixed(0)}% clear`);
+      assert.ok(share >= 0.84, `${theme} seed ${seed}: ${(share * 100).toFixed(0)}% clear`);
     }
   }
 });

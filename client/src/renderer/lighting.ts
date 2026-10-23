@@ -10,7 +10,7 @@ export interface LightingRig {
 
 export function lightingRig(p: LightingPreset): LightingRig {
   const ambient = new THREE.Color(p.ambient);
-  const sky = new THREE.HemisphereLight(ambient, ambient.clone().multiplyScalar(0.35), 1.6);
+  const sky = new THREE.HemisphereLight(ambient, ambient.clone().multiplyScalar(0.45), 2.2);
   const sun = new THREE.DirectionalLight(new THREE.Color(p.light), p.intensity);
   sun.position.set(-4, 8, -3);
   return { lights: [sky, sun], fog: new THREE.Fog(new THREE.Color(p.fogColor), p.fogNear, p.fogFar), background: new THREE.Color(p.fogColor) };
