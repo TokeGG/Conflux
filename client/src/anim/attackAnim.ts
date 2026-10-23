@@ -126,7 +126,21 @@ export const ATTACK_STYLES: Record<string, AttackStyle> = {
 export const ATTACK_TIMING = { strikeSeconds: 0.12, recoverSeconds: 0.45, /** Share of a rigged mob's attack clip at which its blow lands. */ clipHitFraction: 0.5 };
 
 /** Per-attack clip share where the blow lands, for clips that differ from the default. */
-export const CLIP_HIT_FRACTION: Record<string, number> = {};
+export const CLIP_HIT_FRACTION: Record<string, number> = {
+  // the golem's overhead slam rears up for the first half and its fists land at 0.58 of the clip
+  Attack2: 0.58,
+};
+
+/** The clip a rigged mob plays for an attack: its own entry in `rig.attackClips`, else one of `rig.clips.attack` picked by a hash of the id, else none. */
+export function attackClip(rig: { clips?: Record<string, string | string[]>; attackClips?: Record<string, string> }, attackId: string): string | null {
+  const own = rig.attackClips?.[attackId];
+  if (own) return own;
+  const list = rig.clips?.attack;
+  if (!list) return null;
+  if (!Array.isArray(list)) return list;
+  if (!list.length) return null;
+  return list[[...attackId].reduce((a, ch) => a + ch.charCodeAt(0), 0) % list.length];
+}
 
 /** How strongly the whole-body pose is laid on a mob whose own clip already moves its limbs (0 to 1). */
 export const CLIPPED_BODY_WEIGHT = 0.45;

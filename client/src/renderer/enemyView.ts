@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import type { EnemyDef, EnemySnap } from '@conflux/shared';
 import { defaultParams, PRESETS, type PresetParams } from '../anim/procedural.ts';
 import { dampAngle, dampTo, mobMotion, MOTION } from '../anim/mobMotion.ts';
-import { ATTACK_TIMING, AttackTracker, CLIPPED_BODY_WEIGHT, CLIP_HIT_FRACTION, REST_FRAME, attackPose, type AttackNow, type AttackPose } from '../anim/attackAnim.ts';
+import { ATTACK_TIMING, AttackTracker, attackClip, CLIPPED_BODY_WEIGHT, CLIP_HIT_FRACTION, REST_FRAME, attackPose, type AttackNow, type AttackPose } from '../anim/attackAnim.ts';
 import { AURA_PULSE, auraOf, pulseHz, pulseLevel } from '../anim/bossAura.ts';
 import type { AuraDef } from '@conflux/shared';
 import { REAPER_RIG, findRigParts, makeScythePivot, poseRig, type RigParts } from '../anim/mobParts.ts';
@@ -167,7 +167,7 @@ export class EnemyView {
     if (!clips) return null;
     const one = (v: string | string[] | undefined, key = 0) => (Array.isArray(v) ? v[key % v.length] : v);
     const id = this.attackNow?.id ?? snap.attack;
-    if (id) return one(clips.attack, [...id].reduce((a, ch) => a + ch.charCodeAt(0), 0)) ?? null;
+    if (id) return attackClip(this.def.rig, id);
     if (snap.guardOn) return one(clips.guard) ?? null;
     if (this.moving) return one(clips.walk) ?? one(clips.idle) ?? null;
     return one(clips.idle) ?? null;

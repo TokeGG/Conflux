@@ -8,6 +8,7 @@ import { canSocket, socketFor } from '../run/augments.ts';
 import { aimDir, v3, type Vec3 } from '../math.ts';
 import { damageEnemy } from './skills.ts';
 import { dealDamage } from './damage.ts';
+import { runAttack } from './attacks.ts';
 import { applyStatus } from './statuses.ts';
 import { enemyHurtboxes, spawnEnemy } from './state.ts';
 import type { Sim } from './sim.ts';
@@ -84,6 +85,17 @@ export function applyDevCommand(sim: Sim, cmd: DevCommand): string | null {
     }
     case 'tryReaction':
       return done(tryReaction(sim, cmd.a, cmd.b));
+    case 'forceAttack': {
+      // starts an attack now whatever its cooldown (a mob's AI may never pick it), aimed at the player
+      const e = cmd.enemy === undefined ? sim.enemies[0] : sim.enemies.find((o) => o.id === cmd.enemy);
+      if (!e) return `no enemy ${String(cmd.enemy)}`;
+      const id = String(cmd.attack);
+      if (!sim.data.attacks[id]) return `unknown attack ${id}`;
+      if (e.attack) return 'that enemy is busy with an attack';
+      delete e.cooldowns[id];
+      runAttack(sim, e, id, sim.player.pos);
+      return done(null);
+    }
     case 'killAll':
       for (const e of [...sim.enemies]) damageEnemy(sim, e, e.hp, 'dev.killAll', e.pos);
       return done(null);
