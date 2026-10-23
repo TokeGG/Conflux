@@ -52,7 +52,7 @@ try {
       await page.waitForTimeout(100);
     }
   };
-  const statuses = (process.env.STATUSES ?? 'burning,soaked,rocked,poisoned,shocked,cursed,exposed,rent,dilated,gusted').split(',');
+  const statuses = (process.env.STATUSES ?? 'burning,soaked,rocked,poisoned,shocked,cursed,exposed,rent,dilated,gusted').split(',').filter((x) => x && !process.env.REACTIONS);
   for (const st of statuses) {
     await run(`(() => { const c = window.__conflux; c.command({ op: 'killAll' }); c.command({ op: 'teleport', x: 0, z: -2 }); c.sendInput({ aimYaw: 0 }); c.command({ op: 'spawn', enemy: '${enemy}', count: 1, at: { x: 0, y: 0, z: 1.6 } }); })()`);
     await hold(600);
@@ -64,6 +64,14 @@ try {
     await hold(900);
     console.log(st, await run(`JSON.stringify(window.__conflux.snapshot().enemies.map((e) => e.statuses.map((s) => s.id)))`), 'fx', await run(`window.__conflux.fxActive()`));
     await page.screenshot({ path: join(shots, `${prefix}-${st}.png`), clip: { x: 320, y: 120, width: 640, height: 400 } });
+  }
+  // ground effects of reactions: REACTIONS=water:earth:mud,fire:water:steam
+  for (const r of (process.env.REACTIONS ?? '').split(',').filter(Boolean)) {
+    const [a, b, name] = r.split(':');
+    await run(`(() => { const c = window.__conflux; c.command({ op: 'killAll' }); c.command({ op: 'teleport', x: 0, z: -2 }); c.sendInput({ aimYaw: 0 }); c.command({ op: 'tryReaction', a: '${a}', b: '${b}' }); })()`);
+    await page.waitForTimeout(1500);
+    console.log(name, 'fx', await run(`JSON.stringify(window.__conflux.fxIds())`));
+    await page.screenshot({ path: join(shots, `${prefix}-react-${name}.png`), clip: { x: 220, y: 100, width: 840, height: 520 } });
   }
   // the time element's swap effect, several times, then another room
   await run(`window.__conflux.command({ op: 'killAll' })`);
