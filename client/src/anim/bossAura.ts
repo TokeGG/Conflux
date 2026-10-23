@@ -16,8 +16,8 @@ export const AURA_PULSE = {
   /** Extra brightness at the hit moment of an attack. */
   attackBoost: 0.3,
   /** Share of the aura's light that reaches the materials as a rim glow, and the ring's opacity at full. */
-  glowShare: 0.1,
-  ringOpacity: 0.34,
+  glowShare: 0.05,
+  ringOpacity: 0.42,
 };
 
 /** The aura a def has: its own, or the default for any boss, or none for a mob. A broken one falls back to the default. */
