@@ -97,6 +97,16 @@ const speedOf = (sim: Sim, e: EnemyState) => e.def.speed * statusModifiers(e, si
 function bossAttack(sim: Sim, e: EnemyState, d: number): string | null {
   let best: string | null = null;
   let bestScore = 0;
+  // an attack's cooldown ends a cooldown after it started, so the latest start is the one it used last
+  let lastStarted: string | null = null;
+  let lastAt = -Infinity;
+  for (const id of e.def.attacks) {
+    const at = (e.cooldowns[id] ?? -Infinity) - (sim.data.attacks[id]?.cooldown ?? 0);
+    if (at > lastAt) {
+      lastAt = at;
+      lastStarted = id;
+    }
+  }
   for (const id of e.def.attacks) {
     const a = sim.data.attacks[id];
     if (!a || sim.time < (e.cooldowns[id] ?? 0) - EPS) continue;
@@ -109,7 +119,9 @@ function bossAttack(sim: Sim, e: EnemyState, d: number): string | null {
         break;
       }
       case 'projectile':
-        if (d >= 8 && d <= a.range) score = 80;
+        if (d >= Math.min(8, a.range * 0.6) && d <= a.range) score = 80;
+        // up close it is a fallback, so a boss between swings throws one point-blank instead of repeating the same blow
+        else if (d >= 1.5 && d < a.range) score = 30;
         break;
       case 'charge':
         if (d >= 5 && d <= a.range + 3) score = 70;
@@ -122,6 +134,8 @@ function bossAttack(sim: Sim, e: EnemyState, d: number): string | null {
         if (d <= a.range - 0.2) score = 40;
         break;
     }
+    // the attack it just used is less likely to come up again, so a boss that has others in reach mixes them up
+    if (score > 0 && lastStarted === id) score *= 0.4;
     if (score > bestScore) {
       best = id;
       bestScore = score;
