@@ -25,9 +25,9 @@ Ten elements; three are held at a time on keys 1 to 3. Every pair of elements ha
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `fire.fireball` | fire | basic | projectile (speed 22, radius 0.25, gravity 0, lifetime 1.2) | 14 | 0.45 s | burning | projectile, fire |
 | `fire.flame_cone` | fire | secondary | cone (angle 45, range 6) | 12 | 3 s | burning | cone, fire |
-| `fire.flame_dash` | fire | utility | dash (distance 6, trailRadius 1.2, trailSeconds 3) | 4 | 7 s | burning | dash, fire |
+| `fire.flame_dash` | fire | utility | dash (distance 6, trailRadius 1.2, trailSeconds 3) | 2.5 | 7 s | burning | dash, fire |
 | `water.water_bolt` | water | basic | projectile (speed 20, radius 0.3, gravity 0, lifetime 1.4) | 8 | 0.5 s | soaked | projectile, water |
-| `water.tidal_stream` | water | secondary | stream (range 7, width 0.8, tick 0.2, duration 1.6, count 1) | 3 | 5 s | soaked | stream, water |
+| `water.tidal_stream` | water | secondary | stream (range 7, width 0.8, tick 0.2, duration 1.6, count 1) | 5 | 5 s | soaked | stream, water |
 | `water.bubble_shield` | water | utility | self (absorb 30, duration 6, radius 3) | 6 | 10 s | soaked | shield, water |
 | `earth.boulder` | earth | basic | projectile (speed 14, radius 0.4, gravity 4, lifetime 2.2) | 16 | 1.2 s | rocked | projectile, earth, heavy |
 | `earth.spike_field` | earth | secondary | zone (radius 3, duration 0.8, tick 0.2) | 9 | 6 s | rocked | zone, earth |
@@ -35,14 +35,14 @@ Ten elements; three are held at a time on keys 1 to 3. Every pair of elements ha
 | `wind.gust_volley` | wind | basic | projectile (speed 30, radius 0.2, gravity 0, lifetime 0.9, count 3, angle 6) | 4 | 0.7 s | - | projectile, wind |
 | `wind.cyclone` | wind | secondary | zone (radius 3, duration 0.8, tick 0.2) | 3 | 7 s | gusted | zone, wind |
 | `wind.air_dash` | wind | utility | dash (distance 5, duration 0.3) | 0 | 5 s | - | dash, wind |
-| `fire.cinder_shot` | fire | basic | projectile (speed 30, radius 0.2, gravity 0, lifetime 0.9) | 7 | 0.25 s | burning | projectile, fire |
+| `fire.cinder_shot` | fire | basic | projectile (speed 30, radius 0.2, gravity 0, lifetime 0.9) | 6 | 0.25 s | burning | projectile, fire |
 | `fire.flame_burst` | fire | secondary | zone (radius 3, duration 0.4, tick 0.2) | 10 | 4 s | burning | zone, fire |
 | `water.rain_zone` | water | secondary | zone (radius 3.5, duration 1.2, tick 0.3) | 3 | 6 s | soaked | zone, water |
 | `water.slip_dash` | water | utility | dash (distance 5, trailRadius 1, trailSeconds 2.5, duration 0.2) | 2 | 6 s | soaked | dash, water |
 | `earth.pebble_volley` | earth | basic | projectile (speed 24, radius 0.25, gravity 0, lifetime 0.9, count 2, angle 5) | 6 | 0.6 s | rocked | projectile, earth |
 | `earth.granite_shell` | earth | utility | self (absorb 40, duration 6, speedMul 0.75) | 0 | 14 s | - | shield, earth |
 | `wind.slicing_gale` | wind | basic | projectile (speed 34, radius 0.25, gravity 0, lifetime 0.8, pierce 1) | 9 | 0.6 s | - | projectile, wind |
-| `wind.whirl` | wind | secondary | cone (angle 120, range 4) | 6 | 5 s | gusted | cone, wind |
+| `wind.whirl` | wind | secondary | cone (angle 120, range 4) | 12 | 3 s | gusted | cone, wind |
 | `lightning.spark` | lightning | basic | projectile (speed 38, radius 0.2, gravity 0, lifetime 0.8) | 7 | 0.35 s | shocked | projectile, lightning |
 | `lightning.thunder_strike` | lightning | secondary | zone (radius 2.5, duration 0.5, tick 0.25) | 13 | 5.5 s | shocked | zone, lightning |
 | `lightning.blink_dash` | lightning | utility | dash (distance 7, duration 0.2, trailRadius 1, trailSeconds 2) | 3 | 6 s | shocked | dash, lightning |
@@ -102,9 +102,9 @@ One reaction for every pair of elements. It fires when a target carrying one ele
 | --- | --- | --- | --- |
 | `steam` | fire + water | steam | radius 3, damageMul 1, blindSeconds 3 |
 | `magma` | fire + earth | magma | radius 4, seconds 4, dps 6, brittleSeconds 4, damageTakenMul 1.3, speedMul 0.5 |
-| `firestorm` | fire + wind | firestorm | radius 6, damageMul 1.5, seconds 3.5, liftSeconds 1.5, zoneRadius 3.5, drift 3 |
-| `plasma` | fire + lightning | plasma | radius 4.5, damageMul 2.5 |
-| `overheat` | fire + time | overheat | seconds 6, rate 3 |
+| `firestorm` | fire + wind | firestorm | radius 6, damageMul 0.6, seconds 3.5, liftSeconds 1.5, zoneRadius 3.5, drift 3 |
+| `plasma` | fire + lightning | plasma | radius 4.5, damageMul 1.6 |
+| `overheat` | fire + time | overheat | seconds 4, rate 2.5 |
 | `toxic_blaze` | fire + poison | toxic_blaze | radius 4, damageMul 0.8, perStack 0.4 |
 | `solar_flare` | fire + light | solar_flare | radius 5, damageMul 0.5, blindSeconds 4 |
 | `hellfire` | fire + dark | hellfire | seconds 8, radius 4 |
@@ -142,7 +142,7 @@ One reaction for every pair of elements. It fires when a target carrying one ele
 | `purge` | poison + light | purge | radius 7, healPerStack 4 |
 | `plague` | poison + dark | plague | seconds 10, radius 5 |
 | `corrosion` | poison + metal | corrosion | seconds 10, damageTakenPerStack 0.08, maxStacks 6 |
-| `eclipse` | light + dark | eclipse | radius 7, damageMul 3.5, stunSeconds 0.5 |
+| `eclipse` | light + dark | eclipse | radius 7, damageMul 2, stunSeconds 0.5 |
 | `mirror` | light + metal | mirror | radius 4, seconds 5 |
 | `cursed_steel` | dark + metal | cursed_steel | seconds 8, heal 0.2 |
 
