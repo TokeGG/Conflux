@@ -101,10 +101,11 @@ export const ATTACK_STYLES: Record<string, AttackStyle> = {
   'atk.maw_slam': { template: 'slam', amp: 1.15 },
   'atk.maw_charge': { template: 'charge', amp: 1.1 },
   'atk.maw_summon': { template: 'summon', amp: 1.1 },
-  // the reaper: an overhead scythe chop, a low sweeping wave and a stomp that raises spikes
-  'atk.reaper_scythe': { template: 'melee_swipe', amp: 1.1, back: { y: 0.2, tilt: -0.3, yaw: -0.5, sy: 0.08, weapon: -2.4, armRx: 0 }, fwd: { z: 0.4, tilt: 0.35, yaw: 0.5, weapon: 1.7, armRx: 0 }, tremble: 0.02 },
-  'atk.reaper_wave': { template: 'projectile', amp: 1.1, back: { y: 0.1, tilt: -0.25, yaw: -0.9, weapon: -1.6, armRx: 0, armLx: 0 }, fwd: { z: 0.3, tilt: 0.25, yaw: 0.9, weapon: 1.1, armRx: 0, armLx: 0 }, tremble: 0.03 },
-  'atk.reaper_spikes': { template: 'slam', amp: 1.1, back: { y: 0.6, tilt: -0.25, sy: 0.15, weapon: -1.2, armRx: 0, armLx: 0 }, fwd: { y: -0.2, tilt: 0.3, sy: -0.22, sxz: 0.14, weapon: 1.2, armRx: 0, armLx: 0 }, tremble: 0.035 },
+  // the reaper: an overhead scythe chop (the blade tips back behind the head, then comes down in front: at rest it stands upright, positive weapon swings the tip forward and down), a low sweep for the wave and a stomp that raises spikes.
+  // The body never turns more than a sliver (yaw stays small, spin is zero): the scythe does the moving, the boss does not spin.
+  'atk.reaper_scythe': { template: 'melee_swipe', amp: 1, back: { y: 0.25, z: -0.2, tilt: -0.35, yaw: -0.12, sy: 0.08, weapon: -1.2, armRx: 0 }, fwd: { y: -0.1, z: 0.45, tilt: 0.4, yaw: 0.12, sy: -0.06, weapon: 1.5, armRx: 0 }, tremble: 0.02 },
+  'atk.reaper_wave': { template: 'projectile', amp: 1, back: { y: -0.05, z: -0.2, tilt: 0.1, yaw: -0.25, weapon: -0.9, armRx: 0, armLx: 0 }, fwd: { z: 0.3, tilt: 0.25, yaw: 0.25, weapon: 0.9, armRx: 0, armLx: 0 }, tremble: 0.03 },
+  'atk.reaper_spikes': { template: 'slam', amp: 1, back: { y: 0.6, z: -0.1, tilt: -0.25, sy: 0.15, weapon: -0.7, armRx: 0, armLx: 0 }, fwd: { y: -0.2, z: 0.2, tilt: 0.3, sy: -0.22, sxz: 0.14, weapon: 1.1, armRx: 0, armLx: 0 }, tremble: 0.035 },
   // the undead
   'atk.skeleton_slash': { template: 'melee_swipe', side: -1 },
   'atk.bone_bolt': { template: 'projectile', back: { armRx: -2.2, armLx: -2.2, tilt: -0.2 }, fwd: { armRx: -1.4, armLx: -1.4 } },

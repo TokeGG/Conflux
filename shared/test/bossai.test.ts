@@ -46,6 +46,35 @@ test('the reaper stamps its spikes at mid range and swings the scythe up close',
   assert.equal(firstAttack(near.sim, near.e), 'atk.reaper_scythe');
 });
 
+test('the reaper walks in close before it swings and never strikes from a distance', () => {
+  const { sim, e } = fight('boss.reaper', 5);
+  const dist = () => Math.hypot(e.pos.x - sim.player.pos.x, e.pos.z - sim.player.pos.z);
+  const scythe = sim.data.attacks['atk.reaper_scythe'];
+  assert.ok(scythe.range >= 2.3 && scythe.range <= 2.7, `scythe reach ${scythe.range}`);
+  assert.ok(sim.data.attacks['atk.reaper_wave'].range <= 12);
+  assert.ok(sim.data.attacks['atk.reaper_spikes'].range <= 4.5);
+  let swung = -1;
+  for (let i = 0; i < 60 * 20 && swung < 0; i++) {
+    sim.step([idle()]);
+    if (e.attack?.attackId === 'atk.reaper_scythe') swung = dist();
+  }
+  assert.ok(swung > 0 && swung <= scythe.range, `swung from ${swung}`);
+});
+
+test('the reaper does not repeat one attack: three swings in a row do not happen, and all three are used', () => {
+  const { sim, e } = fight('boss.reaper', 2.2);
+  const order: string[] = [];
+  let last: string | null = null;
+  for (let i = 0; i < 60 * 40; i++) {
+    sim.step([idle()]);
+    const a = e.attack?.attackId ?? null;
+    if (a && a !== last) order.push(a);
+    last = a;
+  }
+  assert.ok(new Set(order).size >= 2, `only ${[...new Set(order)]}`);
+  for (let i = 2; i < order.length; i++) assert.ok(!(order[i] === order[i - 1] && order[i] === order[i - 2]), `repeats: ${order}`);
+});
+
 test('the Maw calls minions when it has few, and charges at mid range when it has enough', () => {
   const few = fight('boss.maw', 7, 0);
   assert.equal(firstAttack(few.sim, few.e), 'atk.maw_summon');

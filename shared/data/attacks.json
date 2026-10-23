@@ -146,15 +146,15 @@
     "damage": 18,
     "windup": 0.8,
     "cooldown": 2.5,
-    "range": 3.4,
-    "angle": 160
+    "range": 2.5,
+    "angle": 140
   },
   "atk.reaper_wave": {
     "template": "projectile",
     "damage": 12,
     "windup": 0.9,
     "cooldown": 5,
-    "range": 22,
+    "range": 12,
     "radius": 0.6,
     "speed": 9,
     "applies": "burning"
@@ -164,8 +164,8 @@
     "damage": 16,
     "windup": 1.1,
     "cooldown": 7,
-    "range": 6,
-    "radius": 3
+    "range": 4.5,
+    "radius": 2.4
   },
   "atk.skeleton_slash": {
     "template": "melee_swipe",
