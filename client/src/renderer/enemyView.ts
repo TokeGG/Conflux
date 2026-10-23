@@ -7,6 +7,7 @@ import { ATTACK_TIMING, AttackTracker, attackClip, CLIPPED_BODY_WEIGHT, CLIP_HIT
 import { AURA_PULSE, auraOf, pulseHz, pulseLevel } from '../anim/bossAura.ts';
 import type { AuraDef } from '@conflux/shared';
 import { REAPER_RIG, findRigParts, makeScythePivot, poseRig, type RigParts } from '../anim/mobParts.ts';
+import { statusLook, type StatusIn } from '../anim/statusLook.ts';
 import { fitHeight } from './scene.ts';
 
 const FADE = 0.2;
@@ -61,6 +62,7 @@ export class EnemyView {
       m.metalness = Math.min(m.metalness ?? 0, 0.1); // nothing to reflect in this scene, so metal would draw black
     }
     if (def.tint) this.tint(model, def.tint);
+    for (const m of this.materials) this.baseColor.set(m, m.color.clone());
     this.body.add(model);
     this.root.add(this.body);
     if (def.rig.type !== 'procedural' && animations.length) {
@@ -85,6 +87,9 @@ export class EnemyView {
   private materials: THREE.MeshStandardMaterial[] = [];
   /** The resting glow of each material (the tint's), which the hurt flash returns to. */
   private glow = new Map<THREE.MeshStandardMaterial, THREE.Color>();
+  /** Each material's colour without any status on it, which the status look pulls away from and back to. */
+  private baseColor = new Map<THREE.MeshStandardMaterial, THREE.Color>();
+  private lookTo = new THREE.Color();
   private flashLeft = 0;
   private dyingFor = -1;
 
@@ -162,6 +167,24 @@ export class EnemyView {
     }
   }
 
+  /** The colour and glow of a mob that carries statuses or marks, on top of its tint; the hurt flash still wins. */
+  private applyLook(snap: EnemySnap): void {
+    const on: StatusIn[] = [...snap.statuses, ...(snap.marks ?? [])];
+    const look = statusLook(on, this.clock + (snap.id % 5) * 0.37);
+    this.lookTo.setRGB(look.colorTo[0], look.colorTo[1], look.colorTo[2]);
+    for (const m of this.materials) {
+      const base = this.baseColor.get(m);
+      if (base) m.color.copy(base).lerp(this.lookTo, look.colorAmount);
+      if (this.flashLeft > 0) m.emissive.setRGB(0.9, 0.1, 0.05);
+      else {
+        m.emissive.copy(this.glow.get(m) ?? ZERO);
+        m.emissive.r += look.emissive[0];
+        m.emissive.g += look.emissive[1];
+        m.emissive.b += look.emissive[2];
+      }
+    }
+  }
+
   private pick(snap: EnemySnap): string | null {
     const clips = this.def.rig.clips;
     if (!clips) return null;
@@ -186,10 +209,7 @@ export class EnemyView {
   update(snap: EnemySnap, dt: number): void {
     this.clock += dt;
     this.flashLeft = Math.max(0, this.flashLeft - dt);
-    for (const m of this.materials) {
-      if (this.flashLeft > 0) m.emissive.setRGB(0.9, 0.1, 0.05);
-      else m.emissive.copy(this.glow.get(m) ?? ZERO);
-    }
+    this.applyLook(snap);
     const step = this.prev ? Math.hypot(snap.pos.x - this.prev.x, snap.pos.z - this.prev.z) / Math.max(dt, 1e-3) : 0;
     this.speed = dampTo(this.speed, step, 10, dt);
     this.moving = this.prev ? step > MOVING : false;
