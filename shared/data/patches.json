@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.70",
+    "date": "2026-10-23",
+    "at": "2026-10-23T01:28:21Z",
+    "notes": [
+      "Augments are only offered for things you actually hold: the skill must be equipped, the element held, and a reaction needs both its elements. You never get an augment you already own, and skill rewards come from the elements you hold first."
+    ]
+  },
+  {
     "version": "0.1.69",
     "date": "2026-10-23",
     "at": "2026-10-23T01:09:34Z",

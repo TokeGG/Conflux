@@ -1,7 +1,7 @@
 // What a cleared room offers: three choices drawn from the reward stream, with rarity rising by depth and a skill guaranteed early.
 import { defaultData } from '../files.ts';
 import type { Rng } from '../rng.ts';
-import { ELEMENTS, RARITIES, type Element, type GameData, type Rarity, type RewardsCfg } from '../types.ts';
+import { ELEMENTS, RARITIES, type Element, type GameData, type Rarity, type RewardsCfg, type SkillDef } from '../types.ts';
 import { canSocket, socketFor } from './augments.ts';
 import type { RewardKind, RunState } from './run.ts';
 
@@ -31,23 +31,45 @@ export function drawRarity(state: RunState, data: GameData, rng: Rng): Rarity {
   return rng.weighted(RARITIES, (r) => w[r]);
 }
 
-/** Skills not owned, not offered before and not already in this set. */
+/**
+ * Skills not owned, not offered before and not already in this set, for an element held (a skill for one on the bench is no use yet).
+ * Only when the elements held have nothing left to offer do the benched elements' skills come up, so a run is never left without a skill reward.
+ */
 export function skillPool(state: RunState, data: GameData, taken: Set<string>): string[] {
   const owned = new Set(state.skills.pool);
   const offered = new Set(state.offeredSkills);
-  return Object.keys(data.skills)
+  const open = Object.keys(data.skills)
     .filter((id) => !owned.has(id) && !offered.has(id) && !taken.has(id) && (!state.pool || state.pool.skills.has(id)))
     .sort();
+  const held = open.filter((id) => state.skills.equipped.includes(data.skills[id].element));
+  return held.length > 0 ? held : open;
 }
 
-/** Augments that can be used now: a skill augment needs the skill owned and a free socket. */
+/** The skills in use right now: the one on each slot of each element held. */
+function equippedSkills(state: RunState, data: GameData): SkillDef[] {
+  return state.skills.equipped.flatMap((el) => Object.values(state.skills.slots[el]).filter((id) => id && data.skills[id]).map((id) => data.skills[id]));
+}
+
+/** Whether an augment would do anything for what the player holds: its skill is equipped, its element is held, its tag is on an equipped skill, its reaction has both elements held. */
+export function augmentUsable(state: RunState, data: GameData, id: string): boolean {
+  const t = data.augments[id]?.target;
+  if (!t) return false;
+  const held = state.skills.equipped;
+  if (t.skill) return equippedSkills(state, data).some((s) => s.id === t.skill) && canSocket(t.skill, state.augments);
+  if (t.element) return held.includes(t.element as Element);
+  if (t.tag) return equippedSkills(state, data).some((s) => s.tags.includes(t.tag!));
+  if (t.reaction) {
+    const row = data.reactions.find((r) => r.id === t.reaction || r.effect === t.reaction);
+    return !!row && row.pair.every((el) => held.includes(el));
+  }
+  return false;
+}
+
+/** Augments worth offering: not already owned, not already in this set, and useful for what is held (see `augmentUsable`). */
 export function augmentPool(state: RunState, data: GameData, taken: ReadonlySet<string> = new Set()): string[] {
+  const owned = new Set(state.augments.map((a) => a.id));
   return Object.keys(data.augments)
-    .filter((id) => {
-      if (taken.has(id) || (state.pool && !state.pool.augments.has(id))) return false;
-      const t = data.augments[id].target;
-      return !t.skill || (state.skills.pool.includes(t.skill) && canSocket(t.skill, state.augments));
-    })
+    .filter((id) => !taken.has(id) && !owned.has(id) && (!state.pool || state.pool.augments.has(id)) && augmentUsable(state, data, id))
     .sort();
 }
 
