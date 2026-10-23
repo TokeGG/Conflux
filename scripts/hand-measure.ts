@@ -7,9 +7,9 @@ try {
   const { page } = await site.open('?dev&sandbox');
   await page.waitForFunction(() => (window as any).__conflux?.ready === true, null, { timeout: 60000 });
   await page.waitForFunction(() => (window as any).__conflux.tick > 5, null, { timeout: 30000 });
-  for (const clip of ['cast_1h_magic_attack_02', 'cast_2h_magic_attack_01', 'cast_two_hand_spell_casting', 'cast_magic_spell_casting', 'cast_1h_cast_spell_01']) {
+  for (const clip of (process.argv[2] ?? 'cast_spell_casting').split(',')) {
     console.log(clip);
-    for (let t = 0; t < 1.5; t += 0.1) {
+    for (let t = 0; t < Number(process.argv[3] ?? 1.5); t += 0.1) {
       const r = JSON.parse((await page.evaluate(`JSON.stringify({ R: window.__conflux.boneAtClip('FistR', '${clip}', ${t}), L: window.__conflux.boneAtClip('FistL', '${clip}', ${t}) })`)) as string);
       const f = (b: any) => `${b.forward.toFixed(2)} ${b.right.toFixed(2)} ${b.up.toFixed(2)}`;
       console.log(`  t=${t.toFixed(1)} R(f r u) ${f(r.R)}   L ${f(r.L)}`);

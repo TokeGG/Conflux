@@ -7,6 +7,8 @@ export interface KeptFx {
   id: string;
   pos: Vec3;
   scale: number;
+  /** Turns the sheet along this world direction (a cone or stream piece). */
+  dir?: Vec3;
 }
 
 interface Handle {
@@ -14,7 +16,7 @@ interface Handle {
   stop(): void;
 }
 
-type Spawn = (id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null }) => Promise<Handle>;
+type Spawn = (id: string, pos: Vec3, opts: { scale?: number; follow?: () => Vec3 | null; dir?: () => Vec3 | null }) => Promise<Handle>;
 
 export class FxKeeper {
   private live = new Map<string, { handle: Handle | null; fx: KeptFx; starting: boolean; stopped: boolean }>();
@@ -38,7 +40,7 @@ export class FxKeeper {
       rec.starting = true;
       const r = rec;
       starts.push(
-        this.spawn(fx.id, fx.pos, { scale: fx.scale, follow: () => r.fx.pos })
+        this.spawn(fx.id, fx.pos, { scale: fx.scale, follow: () => r.fx.pos, dir: fx.dir ? () => r.fx.dir ?? null : undefined })
           .then((h) => {
             r.handle = h;
             if (r.stopped) h.stop();

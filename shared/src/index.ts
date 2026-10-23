@@ -17,6 +17,7 @@ export * from './layers.ts';
 export * from './aim.ts';
 export * from './sim/player.ts';
 export * from './sim/skills.ts';
+export * from './sim/castorigin.ts';
 export * from './sim/projectiles.ts';
 export * from './sim/swap.ts';
 export * from './sim/statuses.ts';

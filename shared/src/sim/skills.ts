@@ -136,6 +136,7 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
   const s = skill.shape;
   const now = sim.time;
   const dir = shotDirection(origin, aim, p.facing);
+  const extra: Record<string, number> = {};
   switch (s.type) {
     case 'projectile': {
       const aimDir = s.gravity ? lobDirection(origin, aim, s.speed ?? 20, s.gravity) ?? dir : dir;
@@ -186,12 +187,15 @@ function fire(sim: Sim, p: PlayerState, skill: SkillDef, origin: Vec3, aim: Vec3
       }
       // carried along at the dash speed, not moved in one tick; stepPlayer does the moving and stops at colliders
       const dur = Math.max(0.1, travel / sim.data.player.dashSpeed);
+      extra.distance = travel;
       p.dash = { until: now + dur, vx: (flat.x * travel) / dur, vz: (flat.z * travel) / dur };
       p.facing = Math.atan2(flat.x, flat.z);
       p.invulnUntil = Math.max(p.invulnUntil, now + Math.max(sim.data.player.dodge.invulnerable, s.duration ?? 0));
       break;
     }
   }
+  // the client plays the skill's cast effect at the hand (and draws cones, streams and dash trails from it)
+  sim.emit('cast_fire', { skillId: skill.id, x: origin.x, y: origin.y, z: origin.z, yaw: Math.atan2(dir.x, dir.z), pitch: Math.asin(Math.max(-1, Math.min(1, dir.y))), ...extra });
 }
 
 /** The direction that sends a projectile with gravity through the aim point (the flatter of the two arcs), or null when out of range. */
