@@ -7,6 +7,8 @@ import { spawnEnemy } from '../src/sim/state.ts';
 import { resolveAim } from '../src/aim.ts';
 import { enemyHurtboxes } from '../src/sim/state.ts';
 import { validateData } from '../src/data.ts';
+import { fieldFor } from '../src/fields.ts';
+import { applyPatches } from '../src/patch.ts';
 import { defaultData } from '../src/files.ts';
 import { v3, type Vec3 } from '../src/math.ts';
 import { idle, makeSim, run } from './helpers.ts';
@@ -62,6 +64,18 @@ test('a hand origin beside and below the camera still hits the enemy under the c
     run(sim, 90, { ...idle(), aimYaw: yaw, aimPitch: pitch, camOrigin: cam });
     assert.ok(e.hp < 1000, `hit at offset ${offset}`);
   }
+});
+
+test('the dev panel can edit the spell origin: each axis has a label and bounds, and a patch moves where shots start', () => {
+  for (const axis of ['forward', 'right', 'up']) {
+    const f = fieldFor(`player.castOrigin.${axis}`);
+    assert.ok(f && f.label.length > 3, axis);
+  }
+  const { data } = applyPatches(defaultData(), [{ path: 'player.castOrigin.up', value: 1.2 }]);
+  const sim = makeSim(1, { data });
+  castSkill(sim, sim.player, 'fire.fireball', V(0, 1.4, 20));
+  run(sim, 20);
+  assert.ok(sim.projectiles[0].pos.y > 1.1, `shot starts from the edited height (${sim.projectiles[0].pos.y})`);
 });
 
 test('an aim point behind the hand does not send the shot backwards', () => {

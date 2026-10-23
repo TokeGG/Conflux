@@ -15,6 +15,6 @@ export const cameraPage = (state: DevState, base: () => GameData, changed: () =>
     base,
     changed,
     pausesSim: false,
-    roots: () => ['camera', 'player.moveSpeed', 'player.jump', 'player.dodge', 'player.dashSpeed', 'player.cast', 'animation.rigs.wizardpack'],
+    roots: () => ['camera', 'player.moveSpeed', 'player.jump', 'player.dodge', 'player.dashSpeed', 'player.cast', 'player.castOrigin', 'animation.rigs.wizardpack'],
   });
 };

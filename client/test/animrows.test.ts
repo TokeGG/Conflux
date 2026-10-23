@@ -62,7 +62,7 @@ test('castRows gives the six cast controls with the file values, defaults for th
   assert.equal(by('clip').value, 'cast_1h_magic_attack_02');
   assert.equal(by('windup').value, 0.18);
   assert.equal(by('blend').value, 1, 'the default for a skill without one');
-  assert.equal(by('fireAt').value, 0);
+  assert.equal(by('fireAt').value, 0.3, 'the release moment of the throw clip');
   assert.equal(rows.some((r) => r.changed), false);
   const edited = castRows(base, base, id, [{ path: `skills.${id}.cast.blend`, value: 0.5 }]);
   assert.equal(edited.find((r) => r.path.endsWith('.blend'))!.changed, true);
