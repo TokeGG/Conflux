@@ -537,6 +537,7 @@ async function boot(): Promise<void> {
     onOpen: () => (document.exitPointerLock?.(), bridge.command({ op: 'pause', on: true }), (play.inputEnabled = false)),
     onResume: () => (bridge.command({ op: 'pause', on: false }), (play.inputEnabled = true), play.input.requestLock()),
     onQuit: () => location.reload(),
+    getGuide: () => ({ data: layers.current(), held: director ? [...director.run.skills.equipped] : [] }),
   });
   /** The menu opens during play, not over the main menu, the reward screens or the end of a run. */
   const menuAllowed = (): boolean => screens.open === 'none' && (!runMode || (director !== null && director.phase !== 'dead' && director.phase !== 'won'));

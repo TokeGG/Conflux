@@ -1,0 +1,37 @@
+/* The Element reactions guide: a 10 x 10 matrix and a filterable list. Works inside #runscreen and #escmenu. */
+.rguide { text-align: left; color: var(--ink); font: 13px/1.4 var(--font-body); }
+.rguide .rg-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; margin-bottom: 10px; }
+.rguide .rg-tab, .rguide .rg-chip { padding: 6px 14px; font: 600 11px var(--font-body); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-dim); background: var(--stone-1); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; }
+.rguide .rg-tab.on, .rguide .rg-tab:hover, .rguide .rg-chip.on, .rguide .rg-chip:hover { color: #fff; border-color: var(--ember); background: #1b1812; }
+.rguide .rg-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; letter-spacing: .06em; }
+.rguide .rg-chip .ico-svg { width: 14px; height: 14px; display: inline-flex; color: var(--ec); }
+.rguide .rg-chip .ico-svg svg { width: 100%; height: 100%; }
+.rguide .rg-chip.on { border-color: var(--ec); color: var(--ec); }
+.rguide input.rg-search { flex: 1 1 160px; min-width: 120px; max-width: 280px; padding: 6px 10px; font: 13px var(--font-body); color: var(--ink); background: #0a0b10; border: 1px solid var(--line); border-radius: 2px; }
+.rguide .rg-note { text-align: center; font-size: 12px; color: var(--ink-dim); margin: 0 0 8px; }
+.rguide .rg-scroll { overflow-x: auto; padding-bottom: 4px; }
+.rguide table.rg-grid { border-collapse: separate; border-spacing: 2px; margin: 0 auto; }
+.rguide .rg-grid th { padding: 2px; font-weight: 400; }
+.rguide .rg-grid th button { display: flex; flex-direction: column; align-items: center; gap: 1px; width: 100%; padding: 3px 2px; font: 600 9px var(--font-body); letter-spacing: .04em; text-transform: uppercase; color: var(--ec); background: transparent; border: 0; cursor: pointer; }
+.rguide .rg-grid th .ico-svg { width: 18px; height: 18px; display: inline-flex; }
+.rguide .rg-grid th .ico-svg svg { width: 100%; height: 100%; }
+.rguide .rg-grid td { padding: 0; }
+.rguide .rg-grid td button { display: block; width: 78px; height: 40px; padding: 2px; font: 600 10px/1.15 var(--font-body); color: #f1e8d4; text-shadow: 0 1px 2px #000; border: 1px solid #000a; border-radius: 2px; cursor: pointer; overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ca) 50%, #0b0c12) 0 50%, color-mix(in srgb, var(--cb) 50%, #0b0c12) 50% 100%); }
+.rguide .rg-grid td button:hover, .rguide .rg-grid td button.sel { outline: 2px solid var(--ember-hi); outline-offset: -1px; }
+.rguide .rg-grid td button.held { box-shadow: inset 0 0 0 2px var(--good); }
+.rguide .rg-grid td.diag { background: #0a0b10; border-radius: 2px; opacity: .5; }
+.rguide .rg-detail { min-height: 52px; margin-top: 10px; padding: 10px 14px; background: #0a0b10cc; border: 1px solid var(--line); border-radius: 3px; }
+.rguide .rg-detail b { font: 600 15px var(--font-display); letter-spacing: .08em; color: #f3e6c6; }
+.rguide .rg-detail .pair { font-size: 12px; color: var(--ink-dim); margin-left: 8px; }
+.rguide .rg-list { max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.rguide .rg-item { display: grid; grid-template-columns: 78px 150px 1fr; gap: 10px; align-items: center; padding: 6px 10px; background: #0d0e14cc; border: 1px solid var(--line); border-left: 3px solid var(--ca); border-radius: 2px; }
+.rguide .rg-item.held { border-color: var(--good); background: #12170f; }
+.rguide .rg-item .pairs { display: flex; gap: 4px; align-items: center; }
+.rguide .rg-item .pairs .ico-svg { width: 20px; height: 20px; display: inline-flex; }
+.rguide .rg-item .pairs .ico-svg svg { width: 100%; height: 100%; }
+.rguide .rg-item .nm { font: 600 13px var(--font-display); letter-spacing: .06em; color: #f3e6c6; }
+.rguide .rg-item .nm small { display: block; font: 11px var(--font-body); letter-spacing: 0; color: var(--ink-dim); }
+.rguide .rg-item .tx { color: #cdbf9f; }
+.rguide .rg-empty { text-align: center; padding: 18px; color: var(--ink-dim); }
+@media (max-width: 560px) { .rguide .rg-item { grid-template-columns: 70px 1fr; } .rguide .rg-item .tx { grid-column: 1 / -1; } }

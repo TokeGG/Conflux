@@ -4,6 +4,7 @@ import type { DoorChoice, GameData, RewardOffer, RunState, UnlockLedger } from '
 import { visiblePatches, patchTime, type PatchEntry } from './patchNotes.ts';
 import { describeDoor, describeOffer, elementCombos, endSummary, achievementLines } from './runFormat.ts';
 import { elementColour, elementIcon, iconEl, roomIcon, shapeIcon } from './icons.ts';
+import { buildReactionGuide } from './reactionGuideView.ts';
 import './theme.css';
 import './runScreens.css';
 
@@ -44,12 +45,18 @@ export class RunScreens {
     this.show('text', el('h2', '', title), el('div', 'scroll', ...lines.map((l) => el('p', '', l))), el('div', 'row', button('go', 'Back', onBack)));
   }
 
+  /** The Element reactions guide with a way back. */
+  reactions(data: GameData, onBack: () => void): void {
+    this.show('text', el('h2', '', 'Element reactions'), buildReactionGuide(data), el('div', 'row', button('go', 'Back', onBack)));
+  }
+
   start(ledger: UnlockLedger, data: GameData, onBegin: () => void, pages?: { patches: PatchEntry[]; credits: () => Promise<string[]> }, daily?: { label: string; best: string; onBegin: () => void }): void {
     const total = Object.keys(data.unlocks).length;
     const back = () => this.start(ledger, data, onBegin, pages, daily);
     const menu: HTMLElement[] = [button('go', 'Begin run', () => (this.onResume(), onBegin()))];
     // the daily run: three elements chosen by the day, locked for the whole run; see how far you get
     if (daily) menu.push(button('go daily', 'Daily run', () => (this.onResume(), daily.onBegin()), el('small', '', daily.label), el('small', '', daily.best)));
+    menu.push(button('plain', 'Element reactions', () => this.reactions(data, back)));
     if (pages) {
       menu.push(
         button('plain', 'Patch notes', () => this.text('Patch notes', visiblePatches(pages.patches).flatMap((p) => [`v${p.version}, ${patchTime(p.at)}`, ...p.notes.map((n) => `- ${n}`)]), back)),

@@ -1,4 +1,6 @@
 // The Esc menu: Resume, Controls (every key can be changed), Game (mouse and view), Graphics, and a way back to the main menu.
+import type { GameData } from '@conflux/shared';
+import { buildReactionGuide } from './reactionGuideView.ts';
 import type { Bindings } from '../input.ts';
 import { ACTIONS, keyFor, keyLabel, rebind } from '../keybinds.ts';
 import { defaultBindings } from '../input.ts';
@@ -20,9 +22,11 @@ export interface MenuDeps {
   onResume(): void;
   onOpen(): void;
   onQuit(): void;
+  /** The data and the held elements for the Reactions tab; the tab is hidden without it. */
+  getGuide?(): { data: GameData; held: string[] };
 }
 
-type Tab = 'controls' | 'game' | 'crosshair' | 'graphics';
+type Tab = 'controls' | 'game' | 'crosshair' | 'graphics' | 'reactions';
 
 const h = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = '', text = ''): HTMLElementTagNameMap[K] => {
   const e = document.createElement(tag);
@@ -82,11 +86,15 @@ export class EscMenu {
       return b;
     };
     tabs.append(tabButton('controls', 'Controls'), tabButton('game', 'Game'), tabButton('crosshair', 'Crosshair'), tabButton('graphics', 'Graphics'));
+    if (this.d.getGuide) tabs.append(tabButton('reactions', 'Reactions'));
     const body = h('div', 'ebody');
     if (this.tab === 'controls') this.controls(body);
     else if (this.tab === 'game') this.game(body);
     else if (this.tab === 'crosshair') buildCrosshairEditor(body, () => this.d.getCrosshair(), (c) => this.d.onCrosshair(c));
-    else this.graphics(body);
+    else if (this.tab === 'reactions' && this.d.getGuide) {
+      const g = this.d.getGuide();
+      body.append(buildReactionGuide(g.data, g.held));
+    } else this.graphics(body);
     const foot = h('div', 'efoot');
     const resume = h('button', 'go', 'Resume');
     resume.type = 'button';
