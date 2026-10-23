@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.1.67",
+    "date": "2026-10-23",
+    "at": "2026-10-23T00:32:43Z",
+    "notes": [
+      "New Elements page in the dev tools: a grid of all 45 reactions with their numbers and a Try it button. A pass over the damage of the new reactions and skills so none is wildly over- or underpowered."
+    ]
+  },
+  {
     "version": "0.1.66",
     "date": "2026-10-22",
     "at": "2026-10-22T20:19:00Z",
