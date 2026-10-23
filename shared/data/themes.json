@@ -13,8 +13,8 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.stone.stone_03_256x256",
     "tex.sbs256.stone.stone_05_256x256",
+    "tex.sbs256.stone.stone_06_256x256",
     "tex.sbs256.stone.stone_07_256x256"
    ]
   },
@@ -29,23 +29,23 @@
     "gate-door"
    ],
    "tex": [
-    "tex.sbs256.brick.brick_05_256x256",
-    "tex.sbs256.brick.brick_08_256x256",
-    "tex.sbs256.brick.brick_11_256x256"
+    "tex.sbs256.stone.stone_07_256x256",
+    "tex.sbs256.stone.stone_08_256x256",
+    "tex.sbs256.stone.stone_05_256x256"
    ]
   },
-  "tint": "#8e9bb8",
+  "tint": "#adb3ff",
   "lighting": {
-   "ambient": "#393f64",
-   "light": "#6677aa",
+   "ambient": "#454a99",
+   "light": "#9da3f2",
    "intensity": 0.15,
-   "fogColor": "#05060a",
+   "fogColor": "#08091f",
    "fogNear": 8,
    "fogFar": 34
   },
   "lights": {
-   "brazier": "#ff9a3c",
-   "candle": "#ffc766"
+   "brazier": "#8fd0ff",
+   "candle": "#c8e4ff"
   },
   "pools": {
    "set": [
@@ -297,9 +297,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail-a",
    "tex": [
-    "tex.sbs256.tile.tile_02_256x256",
+    "tex.sbs256.tile.tile_03_256x256",
     "tex.sbs256.tile.tile_04_256x256",
-    "tex.sbs256.tile.tile_06_256x256"
+    "tex.sbs256.tile.tile_07_256x256"
    ]
   },
   "wall": {
@@ -312,22 +312,22 @@
     "gate-metal-bars"
    ],
    "tex": [
-    "tex.sbs256.brick.brick_02_256x256",
-    "tex.sbs256.brick.brick_14_256x256",
-    "tex.sbs256.brick.brick_17_256x256"
+    "tex.sbs256.brick.brick_17_256x256",
+    "tex.sbs256.brick.brick_18_256x256",
+    "tex.sbs256.brick.brick_03_256x256"
    ]
   },
-  "tint": "#9aa3b8",
+  "tint": "#fbff80",
   "lighting": {
-   "ambient": "#333b5c",
-   "light": "#5f6f9f",
+   "ambient": "#919438",
+   "light": "#eff28d",
    "intensity": 0.15,
-   "fogColor": "#05060a",
+   "fogColor": "#1e1f08",
    "fogNear": 8,
    "fogFar": 36
   },
   "lights": {
-   "brazier": "#ff9a3c",
+   "brazier": "#ffa030",
    "candle": "#ffc766"
   },
   "pools": {
@@ -514,9 +514,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.dirt.dirt_03_256x256",
-    "tex.sbs256.dirt.dirt_05_256x256",
-    "tex.sbs256.dirt.dirt_08_256x256"
+    "tex.sbs256.stone.stone_05_256x256",
+    "tex.sbs256.stone.stone_06_256x256",
+    "tex.sbs256.stone.stone_13_256x256"
    ]
   },
   "wall": {
@@ -530,23 +530,23 @@
     "gate-rock"
    ],
    "tex": [
-    "tex.sbs256.stone.stone_10_256x256",
-    "tex.sbs256.stone.stone_12_256x256",
-    "tex.sbs256.stone.stone_15_256x256"
+    "tex.sbs256.stone.stone_13_256x256",
+    "tex.sbs256.stone.stone_14_256x256",
+    "tex.sbs256.stone.stone_05_256x256"
    ]
   },
-  "tint": "#8a9aa8",
+  "tint": "#6bffee",
   "lighting": {
-   "ambient": "#2e3a4e",
-   "light": "#5a6c8a",
+   "ambient": "#278a7e",
+   "light": "#74f2e4",
    "intensity": 0.15,
-   "fogColor": "#04060a",
+   "fogColor": "#081f1c",
    "fogNear": 8,
    "fogFar": 32
   },
   "lights": {
-   "brazier": "#ff9a3c",
-   "candle": "#ffc766"
+   "brazier": "#4dffc0",
+   "candle": "#9fffe0"
   },
   "pools": {
    "set": [
@@ -765,8 +765,8 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.wood.wood_03_256x256",
-    "tex.sbs256.wood.wood_06_256x256",
+    "tex.sbs256.wood.wood_13_256x256",
+    "tex.sbs256.wood.wood_14_256x256",
     "tex.sbs256.wood.wood_11_256x256"
    ]
   },
@@ -781,17 +781,17 @@
     "gate-door"
    ],
    "tex": [
-    "tex.sbs256.brick.brick_02_256x256",
-    "tex.sbs256.brick.brick_14_256x256",
-    "tex.sbs256.brick.brick_17_256x256"
+    "tex.sbs256.brick.brick_15_256x256",
+    "tex.sbs256.brick.brick_16_256x256",
+    "tex.sbs256.brick.brick_05_256x256"
    ]
   },
-  "tint": "#b09878",
+  "tint": "#ffd494",
   "lighting": {
-   "ambient": "#503926",
-   "light": "#a8794a",
+   "ambient": "#8f7247",
+   "light": "#f2d5aa",
    "intensity": 0.15,
-   "fogColor": "#0b0604",
+   "fogColor": "#1f1508",
    "fogNear": 8,
    "fogFar": 30
   },
@@ -957,9 +957,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.stone.stone_04_256x256",
+    "tex.sbs256.stone.stone_07_256x256",
     "tex.sbs256.stone.stone_08_256x256",
-    "tex.sbs256.stone.stone_14_256x256"
+    "tex.sbs256.stone.stone_13_256x256"
    ]
   },
   "wall": {
@@ -971,22 +971,22 @@
     "gate-metal-bars"
    ],
    "tex": [
-    "tex.sbs256.metal.metal_03_256x256",
-    "tex.sbs256.metal.metal_07_256x256",
-    "tex.sbs256.metal.metal_12_256x256"
+    "tex.sbs256.metal.metal_17_256x256",
+    "tex.sbs256.metal.metal_18_256x256",
+    "tex.sbs256.metal.metal_05_256x256"
    ]
   },
-  "tint": "#8996a6",
+  "tint": "#d6b2ff",
   "lighting": {
-   "ambient": "#2b364e",
-   "light": "#5c6a8a",
+   "ambient": "#69478f",
+   "light": "#cbaaf2",
    "intensity": 0.15,
-   "fogColor": "#04060a",
+   "fogColor": "#12081f",
    "fogNear": 8,
    "fogFar": 32
   },
   "lights": {
-   "brazier": "#ff7a30",
+   "brazier": "#ff6a2a",
    "candle": "#ffc066"
   },
   "pools": {
@@ -1177,22 +1177,22 @@
     "gate-door"
    ],
    "tex": [
-    "tex.sbs256.stone.stone_10_256x256",
-    "tex.sbs256.stone.stone_12_256x256",
-    "tex.sbs256.stone.stone_15_256x256"
+    "tex.sbs256.stone.stone_05_256x256",
+    "tex.sbs256.stone.stone_06_256x256",
+    "tex.sbs256.stone.stone_13_256x256"
    ]
   },
-  "tint": "#86b08a",
+  "tint": "#61ff9e",
   "lighting": {
-   "ambient": "#264533",
-   "light": "#6f9f8a",
+   "ambient": "#288f4f",
+   "light": "#74f2a5",
    "intensity": 0.15,
-   "fogColor": "#050f0a",
+   "fogColor": "#081f10",
    "fogNear": 8,
    "fogFar": 34
   },
   "lights": {
-   "brazier": "#ffb84a",
+   "brazier": "#ffd84a",
    "candle": "#e8ff9c"
   },
   "pools": {
@@ -1345,9 +1345,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.dirt.dirt_01_256x256",
+    "tex.sbs256.dirt.dirt_05_256x256",
     "tex.sbs256.dirt.dirt_06_256x256",
-    "tex.sbs256.dirt.dirt_10_256x256"
+    "tex.sbs256.dirt.dirt_01_256x256"
    ]
   },
   "wall": {
@@ -1361,22 +1361,22 @@
     "gate-rock"
    ],
    "tex": [
-    "tex.sbs256.stone.stone_01_256x256",
-    "tex.sbs256.stone.stone_06_256x256",
-    "tex.sbs256.stone.stone_09_256x256"
+    "tex.sbs256.plaster.plaster_09_256x256",
+    "tex.sbs256.plaster.plaster_10_256x256",
+    "tex.sbs256.plaster.plaster_17_256x256"
    ]
   },
-  "tint": "#b5a98a",
+  "tint": "#8cff80",
   "lighting": {
-   "ambient": "#45362a",
-   "light": "#8a6a4a",
+   "ambient": "#388030",
+   "light": "#97f28d",
    "intensity": 0.15,
-   "fogColor": "#0a0705",
+   "fogColor": "#091c07",
    "fogNear": 8,
    "fogFar": 30
   },
   "lights": {
-   "brazier": "#ff5a2a",
+   "brazier": "#ffcc66",
    "candle": "#ffa060"
   },
   "pools": {
@@ -1549,9 +1549,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.tile.tile_02_256x256",
-    "tex.sbs256.tile.tile_05_256x256",
-    "tex.sbs256.tile.tile_09_256x256"
+    "tex.sbs256.tile.tile_13_256x256",
+    "tex.sbs256.tile.tile_14_256x256",
+    "tex.sbs256.tile.tile_07_256x256"
    ]
   },
   "wall": {
@@ -1564,23 +1564,23 @@
     "gate-door"
    ],
    "tex": [
-    "tex.sbs256.plaster.plaster_04_256x256",
-    "tex.sbs256.plaster.plaster_09_256x256",
-    "tex.sbs256.plaster.plaster_13_256x256"
+    "tex.sbs256.plaster.plaster_19_256x256",
+    "tex.sbs256.plaster.plaster_20_256x256",
+    "tex.sbs256.plaster.plaster_01_256x256"
    ]
   },
-  "tint": "#c0bcd0",
+  "tint": "#dfffba",
   "lighting": {
-   "ambient": "#3b3b5e",
-   "light": "#8a8ac0",
+   "ambient": "#99bd71",
+   "light": "#d0f2aa",
    "intensity": 0.15,
-   "fogColor": "#07070e",
+   "fogColor": "#141f08",
    "fogNear": 8,
    "fogFar": 34
   },
   "lights": {
-   "brazier": "#ffc070",
-   "candle": "#ffd78a"
+   "brazier": "#ffe29a",
+   "candle": "#fff0c0"
   },
   "pools": {
    "set": [
@@ -1736,9 +1736,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.dirt.dirt_12_256x256",
-    "tex.sbs256.dirt.dirt_14_256x256",
-    "tex.sbs256.dirt.dirt_17_256x256"
+    "tex.sbs256.dirt.dirt_09_256x256",
+    "tex.sbs256.dirt.dirt_10_256x256",
+    "tex.sbs256.dirt.dirt_01_256x256"
    ]
   },
   "wall": {
@@ -1752,17 +1752,17 @@
     "gate-rock"
    ],
    "tex": [
-    "tex.sbs256.stone.stone_15_256x256",
     "tex.sbs256.stone.stone_17_256x256",
-    "tex.sbs256.stone.stone_19_256x256"
+    "tex.sbs256.stone.stone_18_256x256",
+    "tex.sbs256.stone.stone_02_256x256"
    ]
   },
-  "tint": "#c47a5a",
+  "tint": "#ff6e61",
   "lighting": {
-   "ambient": "#4e2316",
-   "light": "#b0502a",
+   "ambient": "#94352c",
+   "light": "#f28379",
    "intensity": 0.18,
-   "fogColor": "#100402",
+   "fogColor": "#240b09",
    "fogNear": 8,
    "fogFar": 30
   },
@@ -1898,8 +1898,8 @@
    "detail": "template-floor-detail",
    "tex": [
     "tex.sbs256.stone.stone_07_256x256",
-    "tex.sbs256.stone.stone_11_256x256",
-    "tex.sbs256.stone.stone_13_256x256"
+    "tex.sbs256.stone.stone_08_256x256",
+    "tex.sbs256.stone.stone_05_256x256"
    ]
   },
   "wall": {
@@ -1913,17 +1913,17 @@
     "gate-rock"
    ],
    "tex": [
-    "tex.sbs256.stone.stone_02_256x256",
-    "tex.sbs256.stone.stone_05_256x256",
-    "tex.sbs256.stone.stone_08_256x256"
+    "tex.sbs256.stone.stone_07_256x256",
+    "tex.sbs256.stone.stone_08_256x256",
+    "tex.sbs256.stone.stone_05_256x256"
    ]
   },
-  "tint": "#6a8fb8",
+  "tint": "#6bc4ff",
   "lighting": {
-   "ambient": "#234e71",
-   "light": "#4a8ac0",
+   "ambient": "#256894",
+   "light": "#6dbdf2",
    "intensity": 0.17,
-   "fogColor": "#030a12",
+   "fogColor": "#08151f",
    "fogNear": 8,
    "fogFar": 30
   },
@@ -2058,9 +2058,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.wood.wood_05_256x256",
-    "tex.sbs256.wood.wood_09_256x256",
-    "tex.sbs256.wood.wood_14_256x256"
+    "tex.sbs256.wood.wood_13_256x256",
+    "tex.sbs256.wood.wood_14_256x256",
+    "tex.sbs256.wood.wood_07_256x256"
    ]
   },
   "wall": {
@@ -2073,17 +2073,17 @@
     "gate-door"
    ],
    "tex": [
-    "tex.sbs256.brick.brick_04_256x256",
-    "tex.sbs256.brick.brick_09_256x256",
-    "tex.sbs256.brick.brick_12_256x256"
+    "tex.sbs256.brick.brick_01_256x256",
+    "tex.sbs256.brick.brick_02_256x256",
+    "tex.sbs256.brick.brick_15_256x256"
    ]
   },
-  "tint": "#b8a48a",
+  "tint": "#ff73fa",
   "lighting": {
-   "ambient": "#463323",
-   "light": "#9a7a50",
+   "ambient": "#942f91",
+   "light": "#f27eee",
    "intensity": 0.15,
-   "fogColor": "#0a0705",
+   "fogColor": "#1c071b",
    "fogNear": 8,
    "fogFar": 32
   },
@@ -2283,9 +2283,9 @@
    "tile": "template-floor",
    "detail": "template-floor-detail",
    "tex": [
-    "tex.sbs256.stone.stone_02_256x256",
-    "tex.sbs256.stone.stone_06_256x256",
-    "tex.sbs256.stone.stone_16_256x256"
+    "tex.sbs256.stone.stone_07_256x256",
+    "tex.sbs256.stone.stone_08_256x256",
+    "tex.sbs256.stone.stone_02_256x256"
    ]
   },
   "wall": {
@@ -2298,17 +2298,17 @@
     "gate-door"
    ],
    "tex": [
-    "tex.sbs256.brick.brick_01_256x256",
-    "tex.sbs256.brick.brick_07_256x256",
-    "tex.sbs256.brick.brick_16_256x256"
+    "tex.sbs256.brick.brick_15_256x256",
+    "tex.sbs256.brick.brick_16_256x256",
+    "tex.sbs256.brick.brick_01_256x256"
    ]
   },
-  "tint": "#a89098",
+  "tint": "#ff73a2",
   "lighting": {
-   "ambient": "#4e2328",
-   "light": "#a04a50",
+   "ambient": "#8f2b4c",
+   "light": "#f279a2",
    "intensity": 0.16,
-   "fogColor": "#0a0306",
+   "fogColor": "#210811",
    "fogNear": 8,
    "fogFar": 38
   },

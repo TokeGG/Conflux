@@ -181,7 +181,7 @@ test('at least 75% of every room\'s floor is clear for a body to stand on, in ev
   for (const theme of THEMES) {
     for (const seed of SEEDS.slice(0, 120)) {
       const share = openShare(get(theme, seed));
-      assert.ok(share >= 0.75, `${theme} seed ${seed}: ${(share * 100).toFixed(0)}% clear`);
+      assert.ok(share >= 0.84, `${theme} seed ${seed}: ${(share * 100).toFixed(0)}% clear`);
     }
   }
 });
